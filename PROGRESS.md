@@ -5,7 +5,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Current status
 
 - **Phase:** 1 — Foundation (SPEC.md Step 1)
-- **Block:** 1.3 complete
+- **Block:** 1.4 complete
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
@@ -13,6 +13,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **1.1** (2026-10-23) Repo bootstrap: pnpm workspace, Turborepo, Prettier, docs (SPEC, mockup), README, PROGRESS.
 - **1.2** (2026-10-23) `packages/config`: strict tsconfig bases, ESLint flat config (type-aware, jsx-a11y strict, no `any`/`console`), Vitest base, `withCorex` security headers. 9 tests.
 - **1.3** (2026-10-23) `packages/ui`: Tailwind v4 theme tokens (SPEC + mockup, default palette removed), shadcn-pattern Button, Badge, Card, Input, Label, Dialog, Sheet, DropdownMenu, Toaster, Skeleton; Corex logo SVG; fonts. 56 tests including token contrast.
+- **1.4** (2026-10-23) App shell (SPEC 5.4): dark sidebar collapsible to an icon rail (per-device preference), mobile bottom bar with "More" sheet, top bar with org name/logo from props (settings in Phase 3), online/offline badge with pending-sync count (live region), user menu, skip link. 70 tests.
 
 ## Owner answers (2026-10-23)
 
