@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex — Product</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #FFFFFF; -webkit-font-smoothing: antialiased">
+<dc-import name="Nav" active="software" hint-size="100%,76px"></dc-import>
+<main>
+
+<!-- HERO -->
+<section style="padding: clamp(32px, 5vw, 72px) 0 clamp(48px, 6vw, 88px); background: #FFFFFF">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 28px">
+<nav aria-label="Breadcrumb" style="font-size: 14px; color: #5B6B6A"><a href="{{to.home}}" style="color: #0B6A67; text-decoration: none; font-weight: 600">Home</a> / <a href="{{to.software}}" style="color: #0B6A67; text-decoration: none; font-weight: 600">Software</a> / {{p.name}}</nav>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: clamp(36px, 5vw, 64px); align-items: center">
+<div style="display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{p.badges}}" as="b" hint-placeholder-count="2"><span style="padding: 4px 10px; border-radius: 999px; background: #E6F2F1; color: #064644; font-size: 12.5px; font-weight: 700">{{b.label}}</span></sc-for>
+</div>
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: clamp(36px, 4.8vw, 58px); line-height: 1.06; letter-spacing: -0.03em">{{p.name}}</h1>
+<p style="margin: 0; font-size: clamp(17px, 1.5vw, 19px); line-height: 1.6; color: #5B6B6A; max-width: 540px">{{p.tagline}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="#demo" style="display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 24px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-weight: 700; font-size: 16px; text-decoration: none">{{p.demoCta}}</a>
+<a href="{{p.wa}}" style="display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 22px; border-radius: 10px; color: #0B6A67; border: 1.5px solid #0B6A67; font-weight: 700; font-size: 16px; text-decoration: none; box-sizing: border-box">Request this system</a>
+</div>
+</div>
+<div style="padding: clamp(12px, 2vw, 24px); border-radius: 24px; background: #E6F2F1"><dc-import name="AppPreview" kind="{{p.kind}}" size="full" hint-size="100%,420px"></dc-import></div>
+</div>
+</div>
+</section>
+
+<!-- PROBLEM -->
+<section style="padding: clamp(48px, 6vw, 80px) 0; background: #064644; color: #FFFFFF">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px 56px; align-items: start">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(26px, 3vw, 36px); line-height: 1.2; letter-spacing: -0.02em; color: #FFFFFF">{{p.problemTitle}}</h2>
+<p style="margin: 0; font-size: 18px; line-height: 1.65; color: #CFE3E1">{{p.problemText}}</p>
+</div>
+</section>
+
+<!-- MODULES -->
+<section style="padding: clamp(56px, 7vw, 96px) 0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 640px">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #0B6A67">What's included</div>
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.15; letter-spacing: -0.02em">Features by module</h2>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px">
+<sc-for list="{{p.modules}}" as="m" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 14px; padding: 24px; border: 1px solid #D9E3E2; border-radius: 16px; background: #FFFFFF">
+<h3 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 19px; font-weight: 700">{{m.title}}</h3>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.5; color: #3C4A49">
+<sc-for list="{{m.items}}" as="it" hint-placeholder-count="3">
+<li style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6A67" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>{{it.text}}</li>
+</sc-for>
+</ul>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{p.hasNote}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; border-radius: 12px; background: #FFF6F0; border: 1px solid #FFD9C4; font-size: 15px; line-height: 1.6; color: #4A2410">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B93D00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+<span>{{p.note}}</span>
+</div>
+</sc-if>
+</div>
+</section>
+
+<!-- EDITIONS (school only) -->
+<sc-if value="{{p.hasEditions}}" hint-placeholder-val="{{ true }}">
+<section style="padding: clamp(56px, 7vw, 96px) 0; background: #F6FAF9; border-top: 1px solid #D9E3E2; border-bottom: 1px solid #D9E3E2">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 640px">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #0B6A67">Two editions</div>
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.15; letter-spacing: -0.02em">College or High School</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.6; color: #5B6B6A">Both share admissions, attendance, fees and portals. They differ in how classes, grading and course choice work.</p>
+</div>
+<div style="overflow-x: auto; border: 1px solid #D9E3E2; border-radius: 16px; background: #FFFFFF">
+<table style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 15px">
+<thead>
+<tr style="background: #E6F2F1">
+<th scope="col" style="text-align: left; padding: 16px 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #064644; width: 28%">Feature</th>
+<th scope="col" style="text-align: left; padding: 16px 20px; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 16px; color: #0F1F1E">College / University</th>
+<th scope="col" style="text-align: left; padding: 16px 20px; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 16px; color: #0F1F1E">High School</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{p.editions}}" as="e" hint-placeholder-count="7">
+<tr style="border-top: 1px solid #E3ECEB">
+<th scope="row" style="text-align: left; padding: 14px 20px; font-weight: 600; color: #3C4A49">{{e.f}}</th>
+<td style="padding: 14px 20px; line-height: 1.5">{{e.c}}</td>
+<td style="padding: 14px 20px; line-height: 1.5">{{e.h}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</sc-if>
+
+<!-- ROLES -->
+<section style="padding: clamp(56px, 7vw, 96px) 0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 640px">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #0B6A67">Who uses it</div>
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.15; letter-spacing: -0.02em">Each role sees only what it needs</h2>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+<sc-for list="{{p.roles}}" as="r" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 20px 22px; border-radius: 14px; background: #F6FAF9; border: 1px solid #E3ECEB">
+<div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 17px">{{r.role}}</div>
+<div style="font-size: 14.5px; line-height: 1.55; color: #3C4A49">{{r.can}}</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{p.hasCallout}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px; border-radius: 14px; background: #E6F2F1; font-size: 15.5px; line-height: 1.6; color: #064644">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B6A67" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+<span>{{p.callout}}</span>
+</div>
+</sc-if>
+</div>
+</section>
+
+<!-- DEMO -->
+<section id="demo" style="padding: clamp(56px, 7vw, 96px) 0; background: #E6F2F1">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 680px">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #064644">Live demo</div>
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.15; letter-spacing: -0.02em">Log in as any role</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.6; color: #3C4A49">Every demo account uses the same password. The sample data resets every night at 2:00 a.m. Monrovia time.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px">
+<sc-for list="{{p.demos}}" as="d" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; gap: 20px; padding: clamp(22px, 3vw, 32px); border-radius: 20px; background: #FFFFFF; border: 1px solid #C9D9D7">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h3 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 22px; font-weight: 700">{{d.title}}</h3>
+<div style="font-size: 14px; color: #5B6B6A; font-family: ui-monospace, SFMono-Regular, Menlo, monospace">{{d.host}}</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-radius: 10px; background: #F6FAF9; border: 1px dashed #A9C4C1">
+<span style="font-size: 14px; color: #3C4A49">Password for every role</span>
+<span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 16px; font-weight: 700; color: #064644">Demo@2026</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px">
+<sc-for list="{{d.roles}}" as="x" hint-placeholder-count="5">
+<a href="{{x.href}}" style="display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 56px; padding: 8px 14px; border-radius: 10px; border: 1.5px solid #0B6A67; color: #0B6A67; text-decoration: none; box-sizing: border-box">
+<span style="font-size: 12px; font-weight: 600; color: #3C4A49">Log in as</span>
+<span style="font-size: 15px; font-weight: 700">{{x.label}}</span>
+</a>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<!-- PRICING -->
+<section style="padding: clamp(56px, 7vw, 96px) 0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 640px">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #0B6A67">Pricing</div>
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.15; letter-spacing: -0.02em">Starting prices</h2>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #5B6B6A">In US dollars. Your quote depends on the changes and data migration you need.</p>
+</div>
+<a href="{{to.pricing}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: #0B6A67; font-weight: 700; font-size: 16px; text-decoration: none">How the plans work
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></a>
+</div>
+<div style="overflow-x: auto; border: 1px solid #D9E3E2; border-radius: 16px">
+<table style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 15px">
+<thead>
+<tr style="background: #F6FAF9">
+<th scope="col" style="text-align: left; padding: 16px 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #3C4A49">Edition</th>
+<th scope="col" style="text-align: right; padding: 16px 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #3C4A49">Managed: first year (USD)</th>
+<th scope="col" style="text-align: right; padding: 16px 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #3C4A49">Managed: yearly renewal (USD)</th>
+<th scope="col" style="text-align: right; padding: 16px 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #3C4A49">Handover: one time (USD)</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{p.prices}}" as="pr" hint-placeholder-count="1">
+<tr style="border-top: 1px solid #E3ECEB">
+<th scope="row" style="text-align: left; padding: 18px 20px; font-weight: 700">{{pr.label}}</th>
+<td style="text-align: right; padding: 18px 20px; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 18px">{{pr.a}}</td>
+<td style="text-align: right; padding: 18px 20px; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 18px">{{pr.r}}</td>
+<td style="text-align: right; padding: 18px 20px; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 18px">{{pr.b}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section style="padding: 0 0 clamp(56px, 7vw, 96px)">
+<div style="max-width: 860px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(24px, 2.6vw, 32px); letter-spacing: -0.02em">Questions about {{p.name}}</h2>
+<div style="display: flex; flex-direction: column; border-top: 1px solid #D9E3E2">
+<sc-for list="{{p.faqs}}" as="f" hint-placeholder-count="4">
+<details style="border-bottom: 1px solid #D9E3E2; padding: 4px 0">
+<summary style="min-height: 56px; display: flex; align-items: center; cursor: pointer; font-size: 17px; font-weight: 600; list-style-position: inside">{{f.q}}</summary>
+<p style="margin: 0 0 18px; font-size: 15px; line-height: 1.65; color: #5B6B6A">{{f.a}}</p>
+</details>
+</sc-for>
+</div>
+</div>
+</section>
+
+<!-- CTA -->
+<section style="padding: clamp(48px, 6vw, 72px) 0; background: #064644">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 8px; max-width: 620px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(24px, 2.6vw, 32px); color: #FFFFFF">Ready to set up {{p.name}}?</h2>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #CFE3E1">Send us a message with your organization's size and what you want changed.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="{{p.wa}}" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 24px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-weight: 700; font-size: 16px; text-decoration: none">Request this system</a>
+<a href="{{to.contact}}" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 22px; border-radius: 10px; color: #FFFFFF; border: 1.5px solid #CFE3E1; font-weight: 700; font-size: 16px; text-decoration: none; box-sizing: border-box">Use the quote form</a>
+</div>
+</div>
+</section>
+</main>
+<dc-import name="Footer" hint-size="100%,400px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"product":{"editor":"enum","options":["school","clinic","finance"],"default":"school"},"$preview":{"width":1440,"height":6400}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 820; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const P = { home: 'Main', software: 'Software', school: 'ProductPage', clinic: 'SoftwareClinic', finance: 'SoftwareFinance', onrequest: 'OnRequest', ai: 'ServicePage', consult: 'ServiceConsultancy', training: 'ServiceTraining', work: 'Work', workdetail: 'WorkDetail', pricing: 'Pricing', about: 'About', contact: 'Contact', terms: 'LegalPage', privacy: 'LegalPrivacy', license: 'LegalLicense' };
+    const to = {};
+    Object.keys(P).forEach((k) => { to[k] = P[k] + (s.narrow ? 'Mobile' : '') + '.dc.html'; });
+
+    const wa = (name) => 'https://wa.me/231775178905?text=' + encodeURIComponent('Hello Corex, I would like a quote for ' + name + '.');
+    const demo = (title, sub, roles) => ({
+      title: title,
+      host: sub + '.[your-domain]',
+      roles: roles.map((r) => ({ label: r, href: 'https://' + sub + '.your-domain.com/login?role=' + r.toLowerCase() }))
+    });
+    const mods = (list) => list.map((m) => ({ title: m[0], items: m[1].map((t) => ({ text: t })) }));
+    const qa = (list) => list.map((x) => ({ q: x[0], a: x[1] }));
+
+    const D = {
+      school: {
+        kind: 'school', name: 'School Management', demoCta: 'Try the demos',
+        badges: ['College / University', 'High School'],
+        tagline: 'Admissions, academics, attendance, grades, fees and portals for colleges and high schools, with two editions built for how each one works.',
+        problemTitle: 'Stop chasing records across spreadsheets and paper files',
+        problemText: 'Grades sit in one teacher’s notebook, fee balances in another office, and transcripts are typed by hand. School Management keeps every record in one place, with approvals so results cannot change after they are published.',
+        modules: mods([
+          ['Admissions and records', ['Student registration with photo and guardians', 'Generated student numbers with duplicate warnings', 'Student and parent portals']],
+          ['Academics', ['College: programs, courses, credits and prerequisites', 'High School: grades, sections, subjects and marking periods', 'Academic years and terms']],
+          ['Course planning (College)', ['Students build a course plan when registration opens', 'Checks for prerequisites, credit limits and full classes', 'Registrar approves or returns each plan']],
+          ['Attendance', ['Daily by class or by course session', 'Works offline and syncs later', 'Corrections recorded with a reason']],
+          ['Grades and results', ['Teachers enter scores for their own classes only', 'Registrar approves and locks results', 'Transcripts, grade reports and report cards as PDF']],
+          ['Fees', ['Fee items per program or grade', 'Bulk invoices, part payments and receipts', 'Debtor lists in USD and LRD']]
+        ]),
+        hasNote: false, note: '',
+        hasEditions: true,
+        editions: [
+          { f: 'Structure', c: 'Programs, departments, courses and credit hours', h: 'Grade levels, sections and subjects' },
+          { f: 'Calendar', c: 'Semesters with a registration window', h: 'Semesters with marking periods and exams' },
+          { f: 'Grading', c: 'Letter grades, GPA and CGPA', h: 'Scores from 0 to 100, period and semester averages' },
+          { f: 'Course choice', c: 'Students plan their own courses', h: 'Subjects come from the student’s section' },
+          { f: 'Main documents', c: 'Transcripts and semester grade reports', h: 'Report cards per period and semester' },
+          { f: 'Year end', c: 'Credits earned toward the program', h: 'Promotion decisions by the registrar' },
+          { f: 'Parent portal', c: 'Not included', h: 'Included' }
+        ],
+        roles: [
+          { role: 'Super Admin', can: 'School settings, users and roles.' },
+          { role: 'Registrar', can: 'Admissions, academic setup, course plan approval, grade approval, transcripts and report cards.' },
+          { role: 'Instructor / Teacher', can: 'Attendance and grades for their own classes only.' },
+          { role: 'Bursar', can: 'Fee items, invoices, payments, receipts and fee reports.' },
+          { role: 'Student', can: 'Own grades, attendance and balance. College students plan their courses.' },
+          { role: 'Parent', can: 'Their children’s published grades, attendance and balance (High School).' }
+        ],
+        hasCallout: false, callout: '',
+        demos: [
+          demo('College / University demo', 'demo-college', ['Admin', 'Registrar', 'Instructor', 'Bursar', 'Student']),
+          demo('High School demo', 'demo-school', ['Admin', 'Registrar', 'Teacher', 'Bursar', 'Student', 'Parent'])
+        ],
+        prices: [
+          { label: 'High School', a: '$1,800', r: '$450', b: '$2,500' },
+          { label: 'College / University', a: '$3,000', r: '$750', b: '$4,000' }
+        ],
+        faqs: qa([
+          ['Can we bring in our existing student records?', 'Yes. We move your records in from Excel or your old system as a data migration add-on.'],
+          ['Can we use our own grading scale?', 'Yes. The grading scale, pass mark and marking periods are settings we configure for your school.'],
+          ['Do parents need to install an app?', 'No. The portal works in a phone browser and can be added to the home screen.'],
+          ['Can a locked grade be changed?', 'Only the registrar can reopen it, and the reason is recorded.']
+        ])
+      },
+      clinic: {
+        kind: 'clinic', name: 'Clinic Management', demoCta: 'Try the demo',
+        badges: ['Outpatient clinics', 'Medical centers'],
+        tagline: 'Patient records, appointments and billing for outpatient clinics and medical centers.',
+        problemTitle: 'Find any patient’s history in seconds',
+        problemText: 'Paper cards get lost and visits go unbilled. Clinic Management puts registration, visits, vitals, notes and billing in one system, and keeps clinical notes away from staff who do not need them.',
+        modules: mods([
+          ['Patients', ['Registration with next of kin and allergy alerts', 'Search by name, phone or patient number', 'Possible duplicate patients flagged']],
+          ['Appointments and queue', ['Day calendar for each doctor', 'Double booking blocked', 'Walk-in queue from arrival to doctor']],
+          ['Visits', ['Nurses record vitals, even offline', 'Doctors write and sign clinical notes', 'Corrections saved as new versions']],
+          ['Files', ['Attach scans and lab results as PDF or image', 'Opened through links that expire', 'Access follows clinical permissions']],
+          ['Billing', ['Price list of your services', 'Invoices per visit, part payments and receipts', 'Self, insurance or company as payer']],
+          ['Reports', ['Daily cash report', 'Revenue by service', 'Visits by period, exported to PDF and Excel']]
+        ]),
+        hasNote: false, note: '',
+        hasEditions: false, editions: [],
+        roles: [
+          { role: 'Admin', can: 'Settings, users, service price list and reports. No access to clinical notes.' },
+          { role: 'Doctor', can: 'Opens visits, writes and signs notes, sees full patient history.' },
+          { role: 'Nurse', can: 'Records vitals and intake; sees vitals and allergies.' },
+          { role: 'Receptionist', can: 'Registers patients, books appointments and runs the queue.' },
+          { role: 'Cashier', can: 'Invoices, payments, receipts and balances.' }
+        ],
+        hasCallout: true,
+        callout: 'Clinical notes are visible only to doctors, and vitals only to doctors and nurses. Every time a patient record is opened, the system records who opened it and when.',
+        demos: [demo('Clinic demo', 'demo-clinic', ['Admin', 'Doctor', 'Nurse', 'Receptionist', 'Cashier'])],
+        prices: [{ label: 'Clinic Management', a: '$2,500', r: '$600', b: '$3,500' }],
+        faqs: qa([
+          ['Is patient data stored on staff phones?', 'Only registrations and vitals entered offline, until they sync. Doctors’ notes are never stored on the device.'],
+          ['Can we bill insurance companies?', 'You can mark a visit as insurance- or company-paid and track the balance. Claim submission is not included.'],
+          ['Does it include pharmacy stock or lab orders?', 'Not in this version. We can build them on request.'],
+          ['Are the demo patients real?', 'No. Every patient in the demo is fictional.']
+        ])
+      },
+      finance: {
+        kind: 'finance', name: 'Financial Management', demoCta: 'Try the demo',
+        badges: ['Small businesses', 'NGOs'],
+        tagline: 'Income, expenses, invoices and payroll for small businesses and NGOs, in USD and LRD.',
+        problemTitle: 'Know where your money is, every day',
+        problemText: 'Cash in one drawer, mobile money on one phone, a bank account somewhere else. Financial Management brings them together so you can see income, spending and balances at a glance.',
+        modules: mods([
+          ['Income and expenses', ['Categories, customers and vendors', 'Receipt photo on each expense', 'New entries work offline']],
+          ['Accounts', ['Cash, bank and mobile money', 'Transfers between accounts', 'Balances always up to date']],
+          ['Invoices', ['Create and send as PDF', 'Part payments and receipts', 'List of overdue invoices']],
+          ['Payroll', ['Employees and monthly pay runs', 'Your own allowances and deductions', 'Payslips as PDF after owner approval']],
+          ['Currencies', ['USD and LRD side by side', 'Exchange rate saved on each transaction', 'Past reports never shift']],
+          ['Dashboard and reports', ['Income and expenses by month', 'Spending by category', 'Export to PDF and Excel']]
+        ]),
+        hasNote: true,
+        note: 'Built for cash flow, invoices and payroll. It is not a full accounting package and does not replace your accountant.',
+        hasEditions: false, editions: [],
+        roles: [
+          { role: 'Owner / Admin', can: 'Everything, including settings, users and payroll approval.' },
+          { role: 'Accountant', can: 'Transactions, invoices, payroll preparation and reports.' },
+          { role: 'Staff', can: 'Records income and expenses only. No payroll or exports.' }
+        ],
+        hasCallout: false, callout: '',
+        demos: [demo('Finance demo', 'demo-finance', ['Owner', 'Accountant', 'Staff'])],
+        prices: [{ label: 'Financial Management (SME)', a: '$1,200', r: '$300', b: '$1,800' }],
+        faqs: qa([
+          ['Does it calculate tax for us?', 'No. You set your own deduction rates, and your accountant confirms them.'],
+          ['Can staff see payroll?', 'No. Staff can only record income and expenses.'],
+          ['Can we delete a wrong entry?', 'Posted entries are voided with a reason instead, so the history stays complete.'],
+          ['Can it track donor or grant funds?', 'Not in this version. Grant tracking is planned for a later version.']
+        ])
+      }
+    };
+    const key = this.props.product ?? 'school';
+    const d = D[key] || D.school;
+    d.badges = d.badges.map((b) => (typeof b === 'string' ? { label: b } : b));
+    d.wa = wa(d.name);
+    return { to: to, p: d };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex — Use case</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #FFFFFF; -webkit-font-smoothing: antialiased">
+<dc-import name="Nav" active="work" hint-size="100%,76px"></dc-import>
+<main>
+<article>
+
+<header style="padding: clamp(32px, 5vw, 72px) 0 clamp(28px, 4vw, 48px)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+<nav aria-label="Breadcrumb" style="font-size: 14px; color: #5B6B6A"><a href="{{to.home}}" style="color: #0B6A67; text-decoration: none; font-weight: 600">Home</a> / <a href="{{to.work}}" style="color: #0B6A67; text-decoration: none; font-weight: 600">Our work</a> / Sample use case 1</nav>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<span style="padding: 4px 10px; border-radius: 999px; background: #FFF1E9; color: #8A2E00; font-size: 12.5px; font-weight: 700">Draft</span>
+<span style="padding: 4px 10px; border-radius: 999px; background: #E6F2F1; color: #064644; font-size: 12.5px; font-weight: 700">Client project</span>
+</div>
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: clamp(32px, 4.2vw, 52px); line-height: 1.1; letter-spacing: -0.03em; max-width: 880px">[Project title: website for a Monrovia travel agency]</h1>
+<p style="margin: 0; font-size: clamp(17px, 1.5vw, 19px); line-height: 1.6; color: #5B6B6A; max-width: 720px">[One-sentence summary of the result for the client.]</p>
+<dl style="margin: 8px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; padding: 20px 0; border-top: 1px solid #D9E3E2; border-bottom: 1px solid #D9E3E2">
+<div style="display: flex; flex-direction: column; gap: 4px"><dt style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6B6A">Client</dt><dd style="margin: 0; font-size: 16px; font-weight: 600">[Client name]</dd></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><dt style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6B6A">Industry</dt><dd style="margin: 0; font-size: 16px; font-weight: 600">[Industry]</dd></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><dt style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6B6A">Year</dt><dd style="margin: 0; font-size: 16px; font-weight: 600">[Year]</dd></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><dt style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6B6A">Built with</dt><dd style="margin: 0; font-size: 16px; font-weight: 600">Next.js, Tailwind, Supabase</dd></div>
+<div style="display: flex; align-items: center"><a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-weight: 700; font-size: 15px; text-decoration: none">Visit live site
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></div>
+</dl>
+</div>
+</header>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box">
+<div style="aspect-ratio: 16 / 8; border-radius: 20px; background: #E6F2F1; display: flex; align-items: center; justify-content: center; color: #3C4A49; font-size: 15px; font-weight: 600">[Cover image, 1600 × 800]</div>
+</div>
+
+<section style="padding: clamp(48px, 6vw, 88px) 0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: clamp(40px, 5vw, 64px)">
+<div style="display: flex; flex-wrap: wrap; gap: 12px 56px">
+<h2 style="margin: 0; flex: 1 1 240px; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 26px; letter-spacing: -0.02em">The problem</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.7; color: #3C4A49; flex: 2 1 420px; min-width: 0">[What the client was struggling with before the project, in two or three sentences.]</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px 56px">
+<h2 style="margin: 0; flex: 1 1 240px; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 26px; letter-spacing: -0.02em">What we built</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.7; color: #3C4A49; flex: 2 1 420px; min-width: 0">[The pages, features and integrations delivered, and any decisions that mattered.]</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px 56px">
+<h2 style="margin: 0; flex: 1 1 240px; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 26px; letter-spacing: -0.02em">Result</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.7; color: #3C4A49; flex: 2 1 420px; min-width: 0">[What changed for the client. Use real figures only if the client confirms them.]</p>
+</div>
+</div>
+</section>
+
+<section style="padding: 0 0 clamp(56px, 7vw, 96px)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 26px; letter-spacing: -0.02em">Screenshots</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px">
+<div style="aspect-ratio: 4 / 3; border-radius: 14px; background: #F1F5F4; border: 1px solid #E3ECEB; display: flex; align-items: center; justify-content: center; color: #5B6B6A; font-size: 14px; font-weight: 600">[Screenshot 1]</div>
+<div style="aspect-ratio: 4 / 3; border-radius: 14px; background: #F1F5F4; border: 1px solid #E3ECEB; display: flex; align-items: center; justify-content: center; color: #5B6B6A; font-size: 14px; font-weight: 600">[Screenshot 2]</div>
+<div style="aspect-ratio: 4 / 3; border-radius: 14px; background: #F1F5F4; border: 1px solid #E3ECEB; display: flex; align-items: center; justify-content: center; color: #5B6B6A; font-size: 14px; font-weight: 600">[Screenshot 3]</div>
+<div style="aspect-ratio: 4 / 3; border-radius: 14px; background: #F1F5F4; border: 1px solid #E3ECEB; display: flex; align-items: center; justify-content: center; color: #5B6B6A; font-size: 14px; font-weight: 600">[Screenshot 4]</div>
+</div>
+</div>
+</section>
+</article>
+
+<nav aria-label="More projects" style="border-top: 1px solid #D9E3E2">
+<div style="max-width: 1200px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px">
+<a href="{{to.work}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 48px; color: #0B6A67; font-weight: 700; font-size: 16px; text-decoration: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="m11 18-6-6 6-6"></path></svg>All projects</a>
+<a href="{{to.workdetail}}" style="display: inline-flex; flex-direction: column; align-items: flex-end; justify-content: center; min-height: 48px; color: #0F1F1E; text-decoration: none">
+<span style="font-size: 13px; color: #5B6B6A">Next project</span>
+<span style="font-weight: 700; font-size: 16px; color: #0B6A67">[Sample use case 2]</span>
+</a>
+</div>
+</nav>
+
+<section style="padding: clamp(48px, 6vw, 72px) 0; background: #064644">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(24px, 2.6vw, 32px); color: #FFFFFF; max-width: 600px">Want something like this for your organization?</h2>
+<a href="{{to.contact}}" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 24px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-weight: 700; font-size: 16px; text-decoration: none">Start a project</a>
+</div>
+</section>
+</main>
+<dc-import name="Footer" hint-size="100%,400px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 820; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const P = { home: 'Main', software: 'Software', school: 'ProductPage', clinic: 'SoftwareClinic', finance: 'SoftwareFinance', onrequest: 'OnRequest', ai: 'ServicePage', consult: 'ServiceConsultancy', training: 'ServiceTraining', work: 'Work', workdetail: 'WorkDetail', pricing: 'Pricing', about: 'About', contact: 'Contact', terms: 'LegalPage', privacy: 'LegalPrivacy', license: 'LegalLicense' };
+    const to = {};
+    Object.keys(P).forEach((k) => { to[k] = P[k] + (s.narrow ? 'Mobile' : '') + '.dc.html'; });
+    return { to: to };
+  }
+}
+</script>
+</body>
+</html>

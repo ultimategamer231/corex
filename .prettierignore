@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+docs/mockup/
+**/.next/
+**/.turbo/
+coverage/
+playwright-report/
+test-results/
+supabase/.temp/
+docs/SPEC.md

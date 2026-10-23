@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex — Services</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #FFFFFF; -webkit-font-smoothing: antialiased">
+<dc-import name="Nav" active="services" hint-size="100%,76px"></dc-import>
+<main>
+
+<section style="padding: clamp(40px, 6vw, 88px) 0; background: #F6FAF9; border-bottom: 1px solid #D9E3E2">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px 64px; align-items: end">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<nav aria-label="Breadcrumb" style="font-size: 14px; color: #5B6B6A"><a href="{{to.home}}" style="color: #0B6A67; text-decoration: none; font-weight: 600">Home</a> / Services / {{v.name}}</nav>
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.08; letter-spacing: -0.03em">{{v.name}}</h1>
+<p style="margin: 0; font-size: clamp(17px, 1.5vw, 19px); line-height: 1.6; color: #5B6B6A; max-width: 560px">{{v.tagline}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="{{v.wa}}" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 24px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-weight: 700; font-size: 16px; text-decoration: none">Talk to us on WhatsApp</a>
+<a href="{{to.contact}}" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 22px; border-radius: 10px; color: #0B6A67; border: 1.5px solid #0B6A67; font-weight: 700; font-size: 16px; text-decoration: none; box-sizing: border-box">Request a quote</a>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #D9E3E2">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #0B6A67">Who it's for</div>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 15.5px; line-height: 1.5">
+<sc-for list="{{v.audience}}" as="a" hint-placeholder-count="4">
+<li style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6A67" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>{{a.text}}</li>
+</sc-for>
+</ul>
+</div>
+</div>
+</section>
+
+<section style="padding: clamp(56px, 7vw, 96px) 0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 36px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 640px">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #0B6A67">What we do</div>
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.15; letter-spacing: -0.02em">{{v.offerTitle}}</h2>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px">
+<sc-for list="{{v.offers}}" as="o" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 12px; padding: 26px; border-radius: 16px; border: 1px solid #D9E3E2">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: #E6F2F1; color: #0B6A67; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: 16px">{{o.n}}</span>
+<h3 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 19px; font-weight: 700">{{o.title}}</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #5B6B6A">{{o.text}}</p>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="padding: clamp(56px, 7vw, 88px) 0; background: #064644">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 32px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(26px, 3vw, 36px); letter-spacing: -0.02em; color: #FFFFFF">How we work</h2>
+<ol style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px">
+<sc-for list="{{v.steps}}" as="st" hint-placeholder-count="4">
+<li style="display: flex; flex-direction: column; gap: 10px; padding-top: 18px; border-top: 2px solid #2E6B68">
+<span style="font-size: 13px; font-weight: 700; color: #FF8A4C; letter-spacing: 0.08em">STEP {{st.n}}</span>
+<div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 18px; color: #FFFFFF">{{st.title}}</div>
+<div style="font-size: 15px; line-height: 1.6; color: #CFE3E1">{{st.text}}</div>
+</li>
+</sc-for>
+</ol>
+</div>
+</section>
+
+<section style="padding: clamp(48px, 6vw, 80px) 0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: clamp(22px, 2.4vw, 28px)">Other services</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px">
+<sc-for list="{{v.others}}" as="x" hint-placeholder-count="2">
+<a href="{{x.href}}" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px; border: 1px solid #D9E3E2; border-radius: 14px; color: #0F1F1E; text-decoration: none">
+<span style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 18px">{{x.name}}</span><span style="font-size: 14px; color: #5B6B6A">{{x.sub}}</span></span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B6A67" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></a>
+</sc-for>
+<a href="{{to.software}}" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px; border-radius: 14px; background: #E6F2F1; color: #064644; text-decoration: none">
+<span style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 700; font-size: 18px">Our software</span><span style="font-size: 14px; color: #3C4A49">School, Clinic and Finance systems</span></span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B6A67" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></a>
+</div>
+</div>
+</section>
+</main>
+<dc-import name="Footer" hint-size="100%,400px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"service":{"editor":"enum","options":["ai","consult","training"],"default":"ai"},"$preview":{"width":1440,"height":3000}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 820; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const P = { home: 'Main', software: 'Software', school: 'ProductPage', clinic: 'SoftwareClinic', finance: 'SoftwareFinance', onrequest: 'OnRequest', ai: 'ServicePage', consult: 'ServiceConsultancy', training: 'ServiceTraining', work: 'Work', workdetail: 'WorkDetail', pricing: 'Pricing', about: 'About', contact: 'Contact', terms: 'LegalPage', privacy: 'LegalPrivacy', license: 'LegalLicense' };
+    const to = {};
+    Object.keys(P).forEach((k) => { to[k] = P[k] + (s.narrow ? 'Mobile' : '') + '.dc.html'; });
+    const num = (list) => list.map((x, i) => ({ n: String(i + 1), title: x[0], text: x[1] }));
+    const meta = {
+      ai: { name: 'AI Automation', sub: 'WhatsApp assistants and automated tasks' },
+      consult: { name: 'IT Consultancy', sub: 'Systems, networks and planning' },
+      training: { name: 'Training & Capacity Building', sub: 'Staff training and digital skills' }
+    };
+    const D = {
+      ai: {
+        tagline: 'Let software handle the repetitive work: answering common questions, taking orders and bookings, and preparing routine reports.',
+        audience: ['Restaurants and shops taking orders on WhatsApp', 'Hotels and guesthouses handling bookings', 'Schools and NGOs answering the same questions every day', 'Teams preparing the same report every week'],
+        offerTitle: 'Automation that fits how you already work',
+        offers: num([
+          ['WhatsApp assistants', 'Answer common questions, take orders and bookings, and hand the chat to a person when needed.'],
+          ['Automated reports', 'Pull figures from your systems into a daily or weekly summary, sent by email or WhatsApp.'],
+          ['Document processing', 'Read forms, invoices or receipts and put the data into a spreadsheet or your system.'],
+          ['Connected tools', 'Link your website, forms, spreadsheets and Corex systems so data is entered once.']
+        ]),
+        steps: num([
+          ['Find the task', 'We look at where your staff repeat the same work and pick one task to start with.'],
+          ['Build a pilot', 'A small working version, tested with real conversations or documents.'],
+          ['Check it with your team', 'We adjust it until your staff trust the results.'],
+          ['Roll out and support', 'We expand it and keep it running.']
+        ])
+      },
+      consult: {
+        tagline: 'Practical advice on the systems, networks and devices your organization depends on, from people who build and run them.',
+        audience: ['Schools and colleges setting up labs or records', 'Clinics moving from paper to digital', 'NGOs planning a digital project for donors', 'Businesses choosing software'],
+        offerTitle: 'Clear advice you can act on',
+        offers: num([
+          ['Systems review', 'We look at your current tools, data and problems, then give a written report with priorities.'],
+          ['Software selection', 'We compare options against your budget and needs, including products we do not sell.'],
+          ['Network and device setup', 'We plan and set up office networks, Wi-Fi, computers and backups.'],
+          ['Digital roadmap', 'A phased plan for moving work online, with costs and timelines.']
+        ]),
+        steps: num([
+          ['Listen', 'We meet the people who do the work, not only management.'],
+          ['Review', 'We check your systems, data and network on site.'],
+          ['Recommend', 'You receive a written report with priorities and costs.'],
+          ['Implement', 'We carry out the plan with you, or hand it to your team.']
+        ])
+      },
+      training: {
+        tagline: 'Hands-on training so your staff use technology with confidence, delivered on site in Monrovia or online.',
+        audience: ['Staff using a Corex system for the first time', 'Schools building digital skills for teachers', 'NGOs running capacity-building programs', 'Offices moving from paper to computers'],
+        offerTitle: 'Training built around real tasks',
+        offers: num([
+          ['System training', 'Role-based sessions for admins, registrars, teachers, cashiers and accountants.'],
+          ['Digital skills', 'Computer basics, email, and office tools such as Microsoft Office or Google Workspace.'],
+          ['Train the trainer', 'We prepare key staff to train new colleagues after we leave.'],
+          ['Program workshops', 'Custom workshops for NGO and institutional programs, with printed materials.']
+        ]),
+        steps: num([
+          ['Assess', 'We check current skill levels and what each role needs.'],
+          ['Plan', 'A schedule of short, practical sessions.'],
+          ['Train', 'Hands-on practice with your own systems and data.'],
+          ['Follow up', 'A check-in after a few weeks to answer new questions.']
+        ])
+      }
+    };
+    const key = this.props.service ?? 'ai';
+    const d = D[key] || D.ai;
+    const page = { ai: to.ai, consult: to.consult, training: to.training };
+    const v = {
+      name: meta[key].name,
+      tagline: d.tagline,
+      audience: d.audience.map((t) => ({ text: t })),
+      offerTitle: d.offerTitle,
+      offers: d.offers,
+      steps: d.steps,
+      wa: 'https://wa.me/231775178905?text=' + encodeURIComponent('Hello Corex, I would like to talk about ' + meta[key].name + '.'),
+      others: Object.keys(meta).filter((k) => k !== key).map((k) => ({ name: meta[k].name, sub: meta[k].sub, href: page[k] }))
+    };
+    return { to: to, v: v };
+  }
+}
+</script>
+</body>
+</html>

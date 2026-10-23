@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex navigation</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<header style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #FFFFFF; border-bottom: 1px solid #D9E3E2; position: relative; z-index: 10">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 24px">
+<a href="{{to.home}}" aria-label="Corex Digital Solutions home" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none; min-height: 44px">
+<svg width="36" height="36" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#0B6A67"></circle><g fill="none" stroke="#FF5A12" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h7l5-7h7"></path><path d="M5 20h19"></path><path d="M12 20l5 7h7"></path><circle cx="27" cy="13" r="2.6"></circle><circle cx="27" cy="20" r="2.6"></circle><circle cx="27" cy="27" r="2.6"></circle></g></svg>
+<span style="display: flex; flex-direction: column; line-height: 1">
+<span style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.02em; color: #0B6A67">Core<span style="color: #FF5A12">X</span></span>
+<span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.16em; color: #0B6A67; margin-top: 3px">DIGITAL SOLUTIONS</span>
+</span>
+</a>
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<nav aria-label="Main" style="display: flex; align-items: center; gap: 4px">
+<a href="{{to.software}}" aria-current="{{cur.software}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none; color: {{col.software}}; background: {{bg.software}}">Software</a>
+<a href="{{to.ai}}" aria-current="{{cur.services}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none; color: {{col.services}}; background: {{bg.services}}">Services</a>
+<a href="{{to.work}}" aria-current="{{cur.work}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none; color: {{col.work}}; background: {{bg.work}}">Our work</a>
+<a href="{{to.pricing}}" aria-current="{{cur.pricing}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none; color: {{col.pricing}}; background: {{bg.pricing}}">Pricing</a>
+<a href="{{to.about}}" aria-current="{{cur.about}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none; color: {{col.about}}; background: {{bg.about}}">About</a>
+</nav>
+</sc-if>
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 8px">
+<a href="{{to.contact}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; font-size: 15px; font-weight: 600; color: #0B6A67; text-decoration: none">Contact</a>
+<a href="{{to.software}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-weight: 700; font-size: 15px; text-decoration: none">Try a live demo</a>
+</div>
+</sc-if>
+
+<sc-if value="{{narrow}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{toggle}}" aria-expanded="{{expanded}}" aria-controls="mobile-menu" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #0F1F1E; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer">
+<sc-if value="{{open}}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>Close</sc-if>
+<sc-if value="{{closed}}" hint-placeholder-val="{{ true }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path></svg>Menu</sc-if>
+</button>
+</sc-if>
+</div>
+
+<sc-if value="{{open}}" hint-placeholder-val="{{ false }}">
+<nav id="mobile-menu" aria-label="Main" style="border-top: 1px solid #D9E3E2; background: #FFFFFF; padding: 8px 16px 20px; display: flex; flex-direction: column">
+<a href="{{to.software}}" style="display: flex; align-items: center; min-height: 52px; font-size: 17px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Software</a>
+<a href="{{to.ai}}" style="display: flex; align-items: center; min-height: 52px; font-size: 17px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">AI Automation</a>
+<a href="{{to.consult}}" style="display: flex; align-items: center; min-height: 52px; font-size: 17px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">IT Consultancy</a>
+<a href="{{to.training}}" style="display: flex; align-items: center; min-height: 52px; font-size: 17px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Training</a>
+<a href="{{to.work}}" style="display: flex; align-items: center; min-height: 52px; font-size: 17px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Our work</a>
+<a href="{{to.pricing}}" style="display: flex; align-items: center; min-height: 52px; font-size: 17px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Pricing</a>
+<a href="{{to.about}}" style="display: flex; align-items: center; min-height: 52px; font-size: 17px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">About</a>
+<a href="{{to.contact}}" style="display: flex; align-items: center; min-height: 52px; font-size: 17px; font-weight: 600; color: #0F1F1E; text-decoration: none">Contact</a>
+<a href="{{to.software}}" style="display: flex; align-items: center; justify-content: center; margin-top: 12px; min-height: 52px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-weight: 700; font-size: 16px; text-decoration: none">Try a live demo</a>
+</nav>
+</sc-if>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["home","software","services","work","pricing","about","contact"],"default":"home"},"$preview":{"width":1440,"height":80}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 820; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n, open: n ? (this.state && this.state.open) : false }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const narrow = !!s.narrow;
+    const open = narrow && !!s.open;
+    const P = { home: 'Main', software: 'Software', school: 'ProductPage', clinic: 'SoftwareClinic', finance: 'SoftwareFinance', onrequest: 'OnRequest', ai: 'ServicePage', consult: 'ServiceConsultancy', training: 'ServiceTraining', work: 'Work', workdetail: 'WorkDetail', pricing: 'Pricing', about: 'About', contact: 'Contact', terms: 'LegalPage', privacy: 'LegalPrivacy', license: 'LegalLicense' };
+    const to = {};
+    Object.keys(P).forEach((k) => { to[k] = P[k] + (narrow ? 'Mobile' : '') + '.dc.html'; });
+    const active = this.props.active ?? 'home';
+    const keys = ['software', 'services', 'work', 'pricing', 'about'];
+    const cur = {}, col = {}, bg = {};
+    keys.forEach((k) => {
+      const on = k === active;
+      cur[k] = on ? 'page' : 'false';
+      col[k] = on ? '#064644' : '#0F1F1E';
+      bg[k] = on ? '#E6F2F1' : 'transparent';
+    });
+    return {
+      to: to, cur: cur, col: col, bg: bg,
+      wide: !narrow, narrow: narrow, open: open, closed: !open,
+      expanded: open ? 'true' : 'false',
+      toggle: () => this.setState({ open: !open })
+    };
+  }
+}
+</script>
+</body>
+</html>

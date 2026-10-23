@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex — Legal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #FFFFFF; -webkit-font-smoothing: antialiased">
+<dc-import name="Nav" active="none" hint-size="100%,76px"></dc-import>
+<main>
+
+<section style="padding: clamp(32px, 5vw, 64px) 0 24px; background: #F6FAF9; border-bottom: 1px solid #D9E3E2">
+<div style="max-width: 1040px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+<nav aria-label="Breadcrumb" style="font-size: 14px; color: #5B6B6A"><a href="{{to.home}}" style="color: #0B6A67; text-decoration: none; font-weight: 600">Home</a> / Legal</nav>
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.03em">{{d.title}}</h1>
+<div style="font-size: 15px; color: #5B6B6A">Last updated: [date]</div>
+<div role="note" style="display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; background: #FFF6F0; border: 1px solid #FFD9C4; font-size: 15px; line-height: 1.55; color: #4A2410">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B93D00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg>
+<span><strong>Draft.</strong> This page is a placeholder. The final text will be supplied after legal review.</span>
+</div>
+<nav aria-label="Legal documents" style="display: flex; flex-wrap: wrap; gap: 4px; padding-top: 8px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+<a href="{{t.href}}" aria-current="{{t.cur}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; font-size: 15px; font-weight: 600; text-decoration: none; color: {{t.fg}}; background: {{t.bg}}">{{t.label}}</a>
+</sc-for>
+</nav>
+</div>
+</section>
+
+<section style="padding: clamp(40px, 5vw, 72px) 0 clamp(56px, 7vw, 96px)">
+<div style="max-width: 1040px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 40px 56px; align-items: flex-start">
+<nav aria-label="On this page" style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 4px; padding: 20px; border-radius: 14px; background: #F6FAF9; border: 1px solid #E3ECEB">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #5B6B6A; margin-bottom: 8px">On this page</div>
+<sc-for list="{{d.sections}}" as="s" hint-placeholder-count="7">
+<a href="{{s.anchor}}" style="display: flex; align-items: center; min-height: 36px; font-size: 14.5px; color: #0B6A67; text-decoration: none; font-weight: 500">{{s.n}}. {{s.h}}</a>
+</sc-for>
+</nav>
+<div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 32px">
+<p style="margin: 0; font-size: 17px; line-height: 1.7; color: #3C4A49">{{d.intro}}</p>
+<sc-for list="{{d.sections}}" as="s" hint-placeholder-count="7">
+<section id="{{s.id}}" style="display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 21px; font-weight: 700">{{s.n}}. {{s.h}}</h2>
+<p style="margin: 0; font-size: 16px; line-height: 1.7; color: #3C4A49">{{s.p}}</p>
+<p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: #5B6B6A; font-style: italic">[Final wording to be supplied by counsel.]</p>
+</section>
+</sc-for>
+</div>
+</div>
+</section>
+</main>
+<dc-import name="Footer" hint-size="100%,400px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"doc":{"editor":"enum","options":["terms","privacy","license"],"default":"terms"},"$preview":{"width":1440,"height":2600}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 820; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const st = this.state || {};
+    const P = { home: 'Main', software: 'Software', school: 'ProductPage', clinic: 'SoftwareClinic', finance: 'SoftwareFinance', onrequest: 'OnRequest', ai: 'ServicePage', consult: 'ServiceConsultancy', training: 'ServiceTraining', work: 'Work', workdetail: 'WorkDetail', pricing: 'Pricing', about: 'About', contact: 'Contact', terms: 'LegalPage', privacy: 'LegalPrivacy', license: 'LegalLicense' };
+    const to = {};
+    Object.keys(P).forEach((k) => { to[k] = P[k] + (st.narrow ? 'Mobile' : '') + '.dc.html'; });
+    const sec = (list) => list.map((x, i) => ({ n: String(i + 1), h: x[0], p: x[1], id: 's' + (i + 1), anchor: '#s' + (i + 1) }));
+    const D = {
+      terms: {
+        title: 'Terms of service',
+        intro: 'These terms will explain how Corex Digital Solutions provides its software, demos and services, and what each side agrees to.',
+        sections: sec([
+          ['Who we are', 'Corex Digital Solutions, a software studio based in Monrovia, Liberia, and how to reach us.'],
+          ['Our services', 'Ready-built software, systems built on request, websites, AI automation, IT consultancy and training.'],
+          ['Quotes, contracts and payment', 'How quotes become contracts, the payment milestones, and accepted payment methods.'],
+          ['Using the demos', 'Demos contain fictional sample data, reset every night, and may not be used for real records.'],
+          ['Managed plan renewals', 'What the yearly renewal covers, and what happens when a renewal is late.'],
+          ['Your responsibilities', 'Keeping logins secure and making sure the data you enter is lawful and accurate.'],
+          ['Limits of liability', 'The limits of what Corex is responsible for.'],
+          ['Changes to these terms', 'How we will tell you about changes.']
+        ])
+      },
+      privacy: {
+        title: 'Privacy policy',
+        intro: 'This policy will explain what personal information Corex collects through this website and how we handle data inside the systems we host.',
+        sections: sec([
+          ['Information we collect', 'Details you send through the quote form: name, organization, country, phone or WhatsApp number, email and message.'],
+          ['How we use it', 'Only to reply to your request and prepare a quote. We do not sell it.'],
+          ['Demo usage', 'We record which demo roles are used, without identifying you unless you contact us.'],
+          ['Where it is stored', 'Where website data and hosted client data are kept, and who can access them.'],
+          ['How long we keep it', 'How long quote requests and related messages are kept.'],
+          ['Data in client systems', 'On the Managed plan, the client owns its data and Corex processes it on the client’s behalf.'],
+          ['Your rights', 'How to ask us to see, correct or delete your information.']
+        ])
+      },
+      license: {
+        title: 'Software license',
+        intro: 'This license will apply to clients on the Handover plan who receive a copy of the source code.',
+        sections: sec([
+          ['Who this applies to', 'Organizations that buy a system on the Handover plan.'],
+          ['What you may do', 'Use, run and modify the software for your own organization, with no time limit.'],
+          ['What you may not do', 'Resell, redistribute, sublicense or offer the software to other organizations.'],
+          ['Ownership', 'Corex keeps ownership of the software and its shared core. You own all of your data.'],
+          ['Warranty', 'A 60-day bug-fix warranty from go-live. It ends if the code is modified by anyone other than Corex.'],
+          ['Support after the warranty', 'Paid support and updates at the rate in your contract.'],
+          ['Ending the license', 'When the license can end, and what happens to the software if it does.']
+        ])
+      }
+    };
+    const key = this.props.doc ?? 'terms';
+    const d = D[key] || D.terms;
+    const tabs = [['terms', 'Terms of service', to.terms], ['privacy', 'Privacy policy', to.privacy], ['license', 'Software license', to.license]].map((t) => {
+      const on = t[0] === key;
+      return { label: t[1], href: t[2], cur: on ? 'page' : 'false', fg: on ? '#FFFFFF' : '#0F1F1E', bg: on ? '#0B6A67' : '#FFFFFF' };
+    });
+    return { to: to, d: d, tabs: tabs };
+  }
+}
+</script>
+</body>
+</html>

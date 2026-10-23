@@ -1,0 +1,71 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-10-23T00:30:00Z"},
+  "title": "Corex Website Mockup",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 1000, "w": 1440, "h": 5600, "title": "Home — desktop", "expand": "fill", "is_interactive": true},
+    "MainMobile.dc.html": {"x": 1520, "y": 1000, "w": 390, "h": 11500, "title": "Home — mobile", "is_interactive": true},
+    "Software.dc.html": {"x": 2150, "y": 1000, "w": 1440, "h": 3200, "title": "Software catalog — desktop", "expand": "fill", "is_interactive": true},
+    "SoftwareMobile.dc.html": {"x": 3670, "y": 1000, "w": 390, "h": 6600, "title": "Software catalog — mobile", "is_interactive": true},
+    "ProductPage.dc.html": {"x": 4300, "y": 1000, "w": 1440, "h": 6400, "title": "School Management — desktop", "expand": "fill", "is_interactive": true},
+    "ProductPageMobile.dc.html": {"x": 5820, "y": 1000, "w": 390, "h": 13000, "title": "School Management — mobile", "is_interactive": true},
+
+    "SoftwareClinic.dc.html": {"x": 0, "y": 14500, "w": 1440, "h": 5800, "title": "Clinic Management — desktop", "expand": "fill", "is_interactive": true},
+    "SoftwareClinicMobile.dc.html": {"x": 1520, "y": 14500, "w": 390, "h": 12000, "title": "Clinic Management — mobile", "is_interactive": true},
+    "SoftwareFinance.dc.html": {"x": 2150, "y": 14500, "w": 1440, "h": 5800, "title": "Financial Management — desktop", "expand": "fill", "is_interactive": true},
+    "SoftwareFinanceMobile.dc.html": {"x": 3670, "y": 14500, "w": 390, "h": 12000, "title": "Financial Management — mobile", "is_interactive": true},
+    "OnRequest.dc.html": {"x": 4300, "y": 14500, "w": 1440, "h": 2800, "title": "Built on request — desktop", "expand": "fill", "is_interactive": true},
+    "OnRequestMobile.dc.html": {"x": 5820, "y": 14500, "w": 390, "h": 7000, "title": "Built on request — mobile", "is_interactive": true},
+
+    "ServicePage.dc.html": {"x": 0, "y": 27000, "w": 1440, "h": 3000, "title": "AI Automation — desktop", "expand": "fill", "is_interactive": true},
+    "ServicePageMobile.dc.html": {"x": 1520, "y": 27000, "w": 390, "h": 6200, "title": "AI Automation — mobile", "is_interactive": true},
+    "ServiceConsultancy.dc.html": {"x": 2150, "y": 27000, "w": 1440, "h": 3000, "title": "IT Consultancy — desktop", "expand": "fill", "is_interactive": true},
+    "ServiceConsultancyMobile.dc.html": {"x": 3670, "y": 27000, "w": 390, "h": 6200, "title": "IT Consultancy — mobile", "is_interactive": true},
+    "ServiceTraining.dc.html": {"x": 4300, "y": 27000, "w": 1440, "h": 3000, "title": "Training — desktop", "expand": "fill", "is_interactive": true},
+    "ServiceTrainingMobile.dc.html": {"x": 5820, "y": 27000, "w": 390, "h": 6200, "title": "Training — mobile", "is_interactive": true},
+
+    "Work.dc.html": {"x": 0, "y": 33700, "w": 1440, "h": 2200, "title": "Our work — desktop", "expand": "fill", "is_interactive": true},
+    "WorkMobile.dc.html": {"x": 1520, "y": 33700, "w": 390, "h": 4600, "title": "Our work — mobile", "is_interactive": true},
+    "WorkDetail.dc.html": {"x": 2150, "y": 33700, "w": 1440, "h": 3600, "title": "Use case detail — desktop", "expand": "fill", "is_interactive": true},
+    "WorkDetailMobile.dc.html": {"x": 3670, "y": 33700, "w": 390, "h": 6400, "title": "Use case detail — mobile", "is_interactive": true},
+    "Pricing.dc.html": {"x": 4300, "y": 33700, "w": 1440, "h": 3800, "title": "Pricing — desktop", "expand": "fill", "is_interactive": true},
+    "PricingMobile.dc.html": {"x": 5820, "y": 33700, "w": 390, "h": 7600, "title": "Pricing — mobile", "is_interactive": true},
+
+    "About.dc.html": {"x": 0, "y": 41800, "w": 1440, "h": 3000, "title": "About — desktop", "expand": "fill", "is_interactive": true},
+    "AboutMobile.dc.html": {"x": 1520, "y": 41800, "w": 390, "h": 6000, "title": "About — mobile", "is_interactive": true},
+    "Contact.dc.html": {"x": 2150, "y": 41800, "w": 1440, "h": 2200, "title": "Contact / Quote — desktop", "expand": "fill", "is_interactive": true},
+    "ContactMobile.dc.html": {"x": 3670, "y": 41800, "w": 390, "h": 4400, "title": "Contact / Quote — mobile", "is_interactive": true},
+    "LegalPage.dc.html": {"x": 4300, "y": 41800, "w": 1440, "h": 2600, "title": "Terms — desktop", "expand": "fill", "is_interactive": true},
+    "LegalPageMobile.dc.html": {"x": 5820, "y": 41800, "w": 390, "h": 4400, "title": "Terms — mobile", "is_interactive": true},
+
+    "LegalPrivacy.dc.html": {"x": 0, "y": 48300, "w": 1440, "h": 2600, "title": "Privacy — desktop", "expand": "fill", "is_interactive": true},
+    "LegalPrivacyMobile.dc.html": {"x": 1520, "y": 48300, "w": 390, "h": 4400, "title": "Privacy — mobile", "is_interactive": true},
+    "LegalLicense.dc.html": {"x": 2150, "y": 48300, "w": 1440, "h": 2600, "title": "Software license — desktop", "expand": "fill", "is_interactive": true},
+    "LegalLicenseMobile.dc.html": {"x": 3670, "y": 48300, "w": 390, "h": 4400, "title": "Software license — mobile", "is_interactive": true},
+
+    "Nav.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 80, "title": "Component: Navigation", "is_interactive": true},
+    "Footer.dc.html": {"x": 0, "y": 280, "w": 1440, "h": 440, "title": "Component: Footer"},
+    "AppPreview.dc.html": {"x": 1520, "y": 0, "w": 640, "h": 440, "title": "Component: App preview"}
+  },
+  "order": [
+    "Main.dc.html", "MainMobile.dc.html", "Software.dc.html", "SoftwareMobile.dc.html", "ProductPage.dc.html", "ProductPageMobile.dc.html",
+    "SoftwareClinic.dc.html", "SoftwareClinicMobile.dc.html", "SoftwareFinance.dc.html", "SoftwareFinanceMobile.dc.html", "OnRequest.dc.html", "OnRequestMobile.dc.html",
+    "ServicePage.dc.html", "ServicePageMobile.dc.html", "ServiceConsultancy.dc.html", "ServiceConsultancyMobile.dc.html", "ServiceTraining.dc.html", "ServiceTrainingMobile.dc.html",
+    "Work.dc.html", "WorkMobile.dc.html", "WorkDetail.dc.html", "WorkDetailMobile.dc.html", "Pricing.dc.html", "PricingMobile.dc.html",
+    "About.dc.html", "AboutMobile.dc.html", "Contact.dc.html", "ContactMobile.dc.html", "LegalPage.dc.html", "LegalPageMobile.dc.html",
+    "LegalPrivacy.dc.html", "LegalPrivacyMobile.dc.html", "LegalLicense.dc.html", "LegalLicenseMobile.dc.html",
+    "Nav.dc.html", "Footer.dc.html", "AppPreview.dc.html"
+  ],
+  "notes": {
+    "t0": {"x": 0, "y": -300, "text": "Shared components", "kind": "title1", "maxW": 2160},
+    "t1": {"x": 0, "y": 700, "text": "Home · Software catalog · School Management", "kind": "title1", "maxW": 6210},
+    "t2": {"x": 0, "y": 14200, "text": "Clinic · Finance · Built on request", "kind": "title1", "maxW": 6210},
+    "t3": {"x": 0, "y": 26700, "text": "Services", "kind": "title1", "maxW": 6210},
+    "t4": {"x": 0, "y": 33400, "text": "Our work · Use case · Pricing", "kind": "title1", "maxW": 6210},
+    "t5": {"x": 0, "y": 41500, "text": "About · Contact · Legal", "kind": "title1", "maxW": 6210},
+    "t6": {"x": 0, "y": 48000, "text": "Legal (continued)", "kind": "title1", "maxW": 4060}
+  },
+  "designSystems": []
+}

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex app preview</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<figure style="margin: 0; font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #FFFFFF; border: 1px solid #C9D9D7; border-radius: 14px; overflow: hidden; box-shadow: 0 16px 40px rgba(6, 70, 68, 0.14)">
+<figcaption style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">{{caption}}</figcaption>
+<div aria-hidden="true">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 44px; padding: 0 14px; border-bottom: 1px solid #E3ECEB; background: #FFFFFF">
+<div style="display: flex; align-items: center; gap: 8px; min-width: 0">
+<span style="width: 22px; height: 22px; border-radius: 6px; background: #0B6A67; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0">{{initial}}</span>
+<span style="font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{org}}</span>
+</div>
+<span style="padding: 3px 8px; border-radius: 999px; background: #FFF1E9; color: #8A2E00; font-size: 11px; font-weight: 700; white-space: nowrap">Sample data</span>
+</div>
+<div style="display: flex">
+<sc-if value="{{showSide}}" hint-placeholder-val="{{ true }}">
+<div style="width: 148px; flex-shrink: 0; background: #064644; padding: 12px 8px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="6">
+<div style="padding: 8px 10px; border-radius: 7px; font-size: 12.5px; font-weight: 600; color: {{n.color}}; background: {{n.bg}}">{{n.label}}</div>
+</sc-for>
+</div>
+</sc-if>
+<div style="flex: 1 1 auto; min-width: 0; padding: 14px; display: flex; flex-direction: column; gap: 12px; background: #F6FAF9">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 15px; font-weight: 700">{{page}}</div>
+<div style="font-size: 11.5px; color: #5B6B6A; white-space: nowrap">{{period}}</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="3">
+<div style="background: #FFFFFF; border: 1px solid #E3ECEB; border-radius: 9px; padding: 9px 10px; display: flex; flex-direction: column; gap: 3px; min-width: 0">
+<div style="font-size: 11px; color: #5B6B6A; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{k.label}}</div>
+<div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: {{kpiSize}}; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{k.value}}</div>
+</div>
+</sc-for>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3ECEB; border-radius: 9px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px">
+<span style="font-weight: 700">{{chartTitle}}</span>
+<span style="display: flex; gap: 10px; color: #5B6B6A">
+<span style="display: inline-flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #0B6A67"></span>{{legendA}}</span>
+<sc-if value="{{hasB}}" hint-placeholder-val="{{ false }}"><span style="display: inline-flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #FF8A4C"></span>{{legendB}}</span></sc-if>
+</span>
+</div>
+<div style="display: flex; align-items: flex-end; gap: 6px; height: {{chartH}}; border-bottom: 1px solid #E3ECEB">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="8">
+<div style="flex: 1 1 0; display: flex; align-items: flex-end; gap: 2px; height: 100%">
+<div style="flex: 1 1 0; height: {{b.a}}; background: #0B6A67; border-radius: 3px 3px 0 0"></div>
+<sc-if value="{{b.two}}" hint-placeholder-val="{{ false }}"><div style="flex: 1 1 0; height: {{b.b}}; background: #FF8A4C; border-radius: 3px 3px 0 0"></div></sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{showRows}}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFFFFF; border: 1px solid #E3ECEB; border-radius: 9px; overflow: hidden">
+<div style="padding: 8px 12px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid #E3ECEB">{{rowsTitle}}</div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; border-bottom: 1px solid #EEF3F2; font-size: 12px">
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.a}}</span>
+<span style="padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; color: {{r.fg}}; background: {{r.bg}}">{{r.b}}</span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+</figure>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["school","clinic","finance"],"default":"school"},"size":{"editor":"enum","options":["full","compact"],"default":"full"},"$preview":{"width":640,"height":440}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 820; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const kind = this.props.kind ?? 'school';
+    const full = (this.props.size ?? 'full') === 'full';
+    const tones = {
+      teal: { fg: '#064644', bg: '#E6F2F1' },
+      orange: { fg: '#8A2E00', bg: '#FFF1E9' },
+      gray: { fg: '#3C4A49', bg: '#EEF3F2' }
+    };
+    const D = {
+      school: {
+        org: 'Sample College', page: 'Dashboard', period: 'Semester 1, 2026/2027',
+        nav: ['Dashboard', 'Students', 'Courses', 'Grades', 'Fees', 'Reports'],
+        kpis: [['Students', '1,248'], ['Attendance today', '92%'], ['Fees collected', 'US$48,210']],
+        chartTitle: 'Fees collected by month', legendA: 'USD', legendB: '',
+        bars: [[38], [52], [61], [47], [70], [83], [66], [74]],
+        rowsTitle: 'Waiting for your approval',
+        rows: [['BIO 201 · Section A grades', 'Submitted', 'orange'], ['Course plan · Jartu Kollie', 'Submitted', 'orange'], ['MTH 110 · Section B grades', 'Approved', 'teal']]
+      },
+      clinic: {
+        org: 'Sample Medical Center', page: 'Today', period: 'Thursday',
+        nav: ['Today', 'Patients', 'Appointments', 'Queue', 'Billing', 'Reports'],
+        kpis: [['Patients seen', '38'], ['Appointments', '24'], ['Revenue today', 'US$1,140']],
+        chartTitle: 'Visits this week', legendA: 'Visits', legendB: '',
+        bars: [[55], [72], [64], [80], [68], [40], [28]],
+        rowsTitle: 'Walk-in queue',
+        rows: [['Musu Johnson', 'With nurse', 'teal'], ['Emmanuel Toe', 'Waiting', 'orange'], ['Fatu Kamara', 'With doctor', 'gray']]
+      },
+      finance: {
+        org: 'Sample Trading Ltd', page: 'Overview', period: 'October 2026',
+        nav: ['Overview', 'Transactions', 'Invoices', 'Accounts', 'Payroll', 'Reports'],
+        kpis: [['Income', 'US$18,420'], ['Expenses', 'US$11,965'], ['Cash position', 'US$32,780']],
+        chartTitle: 'Income and expenses by month', legendA: 'Income', legendB: 'Expenses',
+        bars: [[62, 48], [70, 51], [58, 55], [76, 49], [81, 60], [74, 57]],
+        rowsTitle: 'Overdue invoices',
+        rows: [['INV-0142 · Kpelle Traders', '14 days', 'orange'], ['INV-0139 · Bong Supplies', '21 days', 'orange'], ['INV-0131 · Harper Hardware', 'Part paid', 'gray']]
+      }
+    };
+    const d = D[kind] || D.school;
+    const two = !!d.legendB;
+    return {
+      caption: 'Preview of the ' + d.org + ' ' + d.page.toLowerCase() + ' screen, with sample data',
+      initial: d.org.charAt(0),
+      org: d.org, page: d.page, period: d.period,
+      nav: d.nav.map((label, i) => ({ label: label, color: i === 0 ? '#FFFFFF' : '#B8CFCD', bg: i === 0 ? '#0B6A67' : 'transparent' })),
+      kpis: (full ? d.kpis : d.kpis).map((k) => ({ label: k[0], value: k[1] })),
+      chartTitle: d.chartTitle, legendA: d.legendA, legendB: d.legendB, hasB: two,
+      chartH: full ? '110px' : '64px',
+      kpiSize: full ? '16px' : '13px',
+      bars: d.bars.map((b) => ({ a: b[0] + '%', b: (b[1] || 0) + '%', two: two })),
+      showSide: full && !s.narrow,
+      showRows: full,
+      rowsTitle: d.rowsTitle,
+      rows: d.rows.map((r) => ({ a: r[0], b: r[1], fg: tones[r[2]].fg, bg: tones[r[2]].bg }))
+    };
+  }
+}
+</script>
+</body>
+</html>
