@@ -40,13 +40,16 @@ type CorexLogoProps = React.ComponentProps<"span"> & {
   tagline?: boolean;
 };
 
-/** Mark plus "CoreX" wordmark. Decorative: wrap it in a link with an accessible name. */
+/**
+ * Mark plus "CoreX" wordmark. When wrapped in a link, give the link a label that
+ * contains the visible words, for example "Corex Digital Solutions home".
+ */
 export function CorexLogo({ tone = "light", tagline = true, className, ...props }: CorexLogoProps) {
   const dark = tone === "dark";
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)} {...props}>
       <CorexMark />
-      <span className="flex flex-col leading-none" aria-hidden="true">
+      <span className="flex flex-col leading-none">
         <span
           className={cn(
             "font-display text-[22px] font-extrabold tracking-[-0.02em]",
@@ -54,7 +57,7 @@ export function CorexLogo({ tone = "light", tagline = true, className, ...props 
           )}
         >
           Core<span className={dark ? "text-accent-on-dark" : "text-accent"}>X</span>
-        </span>
+        </span>{" "}
         {tagline ? (
           <span
             className={cn(

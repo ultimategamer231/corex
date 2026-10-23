@@ -12,13 +12,21 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:e2e": "playwright test",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "check": "pnpm format:check && pnpm lint:root && pnpm typecheck:root && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "lint:root": "eslint . --max-warnings=0",
+    "typecheck:root": "tsc --noEmit"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@corex/config": "workspace:*",
+    "@playwright/test": "1.63.0",
+    "@types/node": "catalog:",
+    "eslint": "9.39.5",
     "prettier": "3.9.10",
     "prettier-plugin-tailwindcss": "0.8.1",
-    "turbo": "2.11.10"
+    "turbo": "2.11.10",
+    "typescript": "catalog:"
   }
 }

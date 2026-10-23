@@ -24,19 +24,20 @@ type UserMenuProps = {
 export function UserMenu({ user, children, onSignOut }: UserMenuProps) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        className="inline-flex min-h-11 items-center gap-2 rounded-lg px-1.5 text-left hover:bg-surface-muted md:pr-2.5"
-        aria-label={`Account menu for ${user.displayName}`}
-      >
+      <DropdownMenuTrigger className="inline-flex min-h-11 items-center gap-2 rounded-lg px-1.5 text-left hover:bg-surface-muted md:pr-2.5">
         <span
           aria-hidden="true"
           className="inline-flex size-8 items-center justify-center rounded-full bg-primary-dark text-xs font-bold text-white"
         >
           {initials(user.displayName)}
         </span>
-        <span className="hidden flex-col leading-tight md:flex" aria-hidden="true">
+        {/* The visible name and role are the button's accessible name (WCAG 2.5.3). */}
+        <span className="sr-only">Account menu for</span>{" "}
+        <span className="sr-only flex-col leading-tight md:not-sr-only md:flex">
           <span className="text-sm font-semibold text-ink">{user.displayName}</span>
-          <span className="text-xs text-muted">{user.roleLabel}</span>
+          <span className="text-xs text-muted">
+            <span className="sr-only">,</span> {user.roleLabel}
+          </span>
         </span>
         <ChevronDown className="hidden size-4 text-muted md:block" aria-hidden="true" />
       </DropdownMenuTrigger>

@@ -123,7 +123,7 @@ describe("AppShell", () => {
   it("signs out from the keyboard-accessible user menu", async () => {
     const onSignOut = vi.fn();
     renderShell({ onSignOut });
-    const trigger = screen.getByRole("button", { name: "Account menu for Jartu Kollie" });
+    const trigger = screen.getByRole("button", { name: /^Account menu for Jartu Kollie/ });
     trigger.focus();
     await userEvent.keyboard("{Enter}");
     const item = await screen.findByRole("menuitem", { name: "Sign out" });
@@ -133,7 +133,7 @@ describe("AppShell", () => {
 
   it("hides sign out when no handler is given", async () => {
     renderShell();
-    await userEvent.click(screen.getByRole("button", { name: "Account menu for Jartu Kollie" }));
+    await userEvent.click(screen.getByRole("button", { name: /^Account menu for Jartu Kollie/ }));
     await screen.findByRole("menu");
     expect(screen.queryByRole("menuitem", { name: "Sign out" })).not.toBeInTheDocument();
   });

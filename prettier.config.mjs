@@ -1,5 +1,5 @@
 /** @type {import("prettier").Config & import("prettier-plugin-tailwindcss").PluginOptions} */
-export default {
+const config = {
   semi: true,
   singleQuote: false,
   trailingComma: "all",
@@ -9,3 +9,5 @@ export default {
   tailwindStylesheet: "./apps/web/app/globals.css",
   tailwindFunctions: ["cn", "cva"],
 };
+
+export default config;

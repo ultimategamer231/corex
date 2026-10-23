@@ -1,0 +1,5 @@
+{
+  "extends": "@corex/config/tsconfig/base.json",
+  "compilerOptions": { "lib": ["ES2023", "DOM", "DOM.Iterable"], "types": ["node"] },
+  "include": ["playwright.config.ts", "e2e/**/*.ts"]
+}
