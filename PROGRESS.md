@@ -4,8 +4,8 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 
 ## Current status
 
-- **Phase:** 1 — Foundation (SPEC.md Step 1)
-- **Block:** 1.8 complete
+- **Phase:** 1 (Foundation, SPEC.md Step 1): complete, awaiting owner approval to merge
+- **Block:** 1.9 complete (phase closed)
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
@@ -18,6 +18,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **1.6** (2026-10-23) Playwright 1.63 + axe (WCAG 2.2 AA tags): every app at 360/390/768/1440px checks zero serious/critical violations, no horizontal scroll, 44px touch targets, skip link, sidebar collapse persistence, mobile More sheet (Escape returns focus), offline badge via `context.setOffline`, keyboard user menu, 404s and security headers. Fixed two WCAG 2.5.3 label-in-name issues axe found (user menu, logo link). 40 e2e tests.
 - **1.7** (2026-10-23) Local Supabase: CLI 2.122 as dev dependency, `supabase/config.toml` (sign-up off, 8-char mixed passwords, unused services off), `pnpm db:local:start|stop|status|check` wrapper (Docker Hub images), `docs/local-dev.md`, SessionStart hook for cloud sessions (pnpm install, start dockerd). Verified: auth and REST return 200, `psql` connects to Postgres 17.11.
 - **1.8** (2026-10-23) GitHub Actions: `ci.yml` (format, lint, typecheck, unit tests, build, `pnpm audit --audit-level high`) on every push and PR; `e2e.yml` (build, Playwright + axe, report artifact) on `main` and on demand. A clean-checkout dry run caught lint depending on generated Next types; section pages now declare their own prop types.
+- **1.9** (2026-10-23) Phase close: `pnpm check` green from a clean build, 40/40 e2e, `pnpm audit` clean, `CLAUDE.md` added, screenshots at 360/390/768/1440 reviewed.
 
 ## Owner answers (2026-10-23)
 
@@ -59,10 +60,17 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 
 ## Audit findings and fixes
 
-_None yet (Phase 1 has no previous phase to audit)._
+Phase 1 self-checks (the formal audit of Phase 1 opens Phase 2):
+
+- axe found two WCAG 2.5.3 label-in-name failures (user menu button, logo link); fixed in 1.6.
+- Clean-checkout run found lint depending on generated Next types; fixed in 1.8.
+- Desktop sidebar was taller than the viewport after the full-width top bar change; fixed in 1.5.
+- Prettier's Tailwind plugin did not know the custom theme; now reads `apps/web/app/globals.css`.
+- Not yet measured: Lighthouse (website content arrives in Phase 4; the target applies there).
 
 ## Open questions for the owner
 
+1. **GitHub push blocked (403).** Claude has no GitHub access to `ultimategamer231/corex`; commits are local on `claude/questions-clarity-qmgcs5` until access is fixed.
 1. **`BUSINESS.md` not received.** Needed before Phase 4 to confirm pricing copy (mockup prices are used until then).
-2. **Placeholder email `info@cds.com`.** `cds.com` is a registered domain owned by someone else; mail sent to it would reach them. It stays a marked placeholder in content and must be replaced before the site goes public.
-3. **Later-phase gaps** (to be raised in those phases' plans): per-app session timeout when demos share one Supabase project (5.3); cross-currency transfers (FIN-04); whether demo visitors may approve seeded records (11.3); notification email provider (6.6); backup storage provider (4.5); Vercel Pro plan before going public.
+1. **Placeholder email `info@cds.com`.** `cds.com` is a registered domain owned by someone else; mail sent to it would reach them. It stays a marked placeholder in content and must be replaced before the site goes public.
+1. **Later-phase gaps** (to be raised in those phases' plans): per-app session timeout when demos share one Supabase project (5.3); cross-currency transfers (FIN-04); whether demo visitors may approve seeded records (11.3); notification email provider (6.6); backup storage provider (4.5); Vercel Pro plan before going public.
