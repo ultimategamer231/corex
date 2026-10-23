@@ -18,7 +18,7 @@ export function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "bg-ink/50 fixed inset-0 z-50",
+        "fixed inset-0 z-50 bg-ink/50",
         "data-[state=open]:animate-in data-[state=open]:fade-in-0",
         "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
         className,
@@ -41,7 +41,7 @@ export function DialogContent({
         data-slot="dialog-content"
         className={cn(
           "fixed top-1/2 left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4",
-          "border-border bg-background shadow-pop rounded-2xl border p-6 duration-200",
+          "rounded-2xl border border-border bg-background p-6 shadow-pop duration-200",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
           className,
@@ -51,7 +51,7 @@ export function DialogContent({
         {children}
         {showCloseButton ? (
           <DialogPrimitive.Close
-            className="text-muted hover:bg-surface-muted hover:text-ink absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-lg"
+            className="absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-lg text-muted hover:bg-surface-muted hover:text-ink"
             aria-label="Close"
           >
             <XIcon className="size-5" aria-hidden="true" />
@@ -81,7 +81,7 @@ export function DialogTitle({
 }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn("font-display text-ink text-lg font-bold", className)}
+      className={cn("font-display text-lg font-bold text-ink", className)}
       {...props}
     />
   );
@@ -93,7 +93,7 @@ export function DialogDescription({
 }: React.ComponentProps<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description
-      className={cn("text-muted text-[15px] leading-relaxed", className)}
+      className={cn("text-[15px] leading-relaxed text-muted", className)}
       {...props}
     />
   );

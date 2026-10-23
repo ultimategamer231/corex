@@ -12,7 +12,7 @@ type TopBarProps = {
 /** Top bar with the organization's name and logo (both from settings, CORE-01). */
 export function TopBar({ org, children }: TopBarProps) {
   return (
-    <header className="border-border-subtle bg-background sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b px-4 md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border-subtle bg-background px-4 md:px-6">
       <div className="flex min-w-0 items-center gap-2.5">
         {org.logoUrl ? (
           <Image
@@ -26,12 +26,12 @@ export function TopBar({ org, children }: TopBarProps) {
         ) : (
           <span
             aria-hidden="true"
-            className="bg-primary inline-flex size-8 shrink-0 items-center justify-center rounded-md text-sm font-bold text-white"
+            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-bold text-white"
           >
             {initials(org.name).charAt(0)}
           </span>
         )}
-        <p className="font-display text-ink truncate text-base font-bold">{org.name}</p>
+        <p className="truncate font-display text-base font-bold text-ink">{org.name}</p>
       </div>
       <div className="flex shrink-0 items-center gap-2 md:gap-4">{children}</div>
     </header>

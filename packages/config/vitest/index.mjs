@@ -10,6 +10,8 @@ import { fileURLToPath } from "node:url";
  */
 export function corexVitest({ environment = "node" } = {}) {
   return {
+    // Resolve tsconfig "paths" such as "@/*" (Vite 8 native support).
+    resolve: { tsconfigPaths: true },
     test: {
       environment,
       globals: true,

@@ -53,8 +53,7 @@ export function securityHeaders(options = {}) {
     { key: "X-Frame-Options", value: "DENY" },
     {
       key: "Permissions-Policy",
-      value:
-        "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=(), browsing-topics=()",
+      value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()",
     },
     { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   ];

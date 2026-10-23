@@ -32,7 +32,7 @@ export function BottomNav({ items, pathname }: BottomNavProps) {
   return (
     <nav
       aria-label="Main"
-      className="border-border bg-background fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       <ul className="flex">
         {barItems.map((item) => {

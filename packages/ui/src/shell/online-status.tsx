@@ -33,7 +33,7 @@ export function OnlineStatus({ pendingCount = 0, className }: OnlineStatusProps)
         {online ? "Online" : "Offline"}
       </span>
       {waiting ? (
-        <span className="text-ink-soft inline-flex items-center gap-1.5 text-[13px] font-semibold whitespace-nowrap">
+        <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold whitespace-nowrap text-ink-soft">
           <RefreshCw className="size-4" aria-hidden="true" />
           {waiting}
         </span>

@@ -30,7 +30,7 @@ export function SheetContent({
     <SheetPrimitive.Portal>
       <SheetPrimitive.Overlay
         className={cn(
-          "bg-ink/50 fixed inset-0 z-50",
+          "fixed inset-0 z-50 bg-ink/50",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
         )}
@@ -38,8 +38,8 @@ export function SheetContent({
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
-          "border-border bg-background shadow-pop fixed z-50 flex flex-col gap-4 overflow-y-auto p-6",
-          "data-[state=closed]:animate-out data-[state=open]:animate-in duration-200",
+          "fixed z-50 flex flex-col gap-4 overflow-y-auto border-border bg-background p-6 shadow-pop",
+          "duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in",
           sideClasses[side],
           className,
         )}
@@ -47,7 +47,7 @@ export function SheetContent({
       >
         {children}
         <SheetPrimitive.Close
-          className="text-muted hover:bg-surface-muted hover:text-ink absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-lg"
+          className="absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-lg text-muted hover:bg-surface-muted hover:text-ink"
           aria-label="Close"
         >
           <XIcon className="size-5" aria-hidden="true" />
@@ -63,7 +63,7 @@ export function SheetTitle({
 }: React.ComponentProps<typeof SheetPrimitive.Title>) {
   return (
     <SheetPrimitive.Title
-      className={cn("font-display text-ink pr-10 text-lg font-bold", className)}
+      className={cn("pr-10 font-display text-lg font-bold text-ink", className)}
       {...props}
     />
   );
@@ -73,5 +73,5 @@ export function SheetDescription({
   className,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Description>) {
-  return <SheetPrimitive.Description className={cn("text-muted text-sm", className)} {...props} />;
+  return <SheetPrimitive.Description className={cn("text-sm text-muted", className)} {...props} />;
 }

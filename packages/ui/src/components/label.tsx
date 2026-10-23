@@ -9,7 +9,7 @@ export function Label({ className, ...props }: React.ComponentProps<typeof Label
     <LabelPrimitive.Root
       data-slot="label"
       className={cn(
-        "text-ink text-sm font-semibold peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
+        "text-sm font-semibold text-ink peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
         className,
       )}
       {...props}

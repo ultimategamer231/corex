@@ -19,8 +19,8 @@ export function DropdownMenuContent({
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
-          "border-border bg-background text-ink shadow-pop z-50 min-w-56 overflow-hidden rounded-xl border p-1.5",
-          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 duration-150",
+          "z-50 min-w-56 overflow-hidden rounded-xl border border-border bg-background p-1.5 text-ink shadow-pop",
+          "duration-150 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
           className,
         )}
@@ -43,7 +43,7 @@ export function DropdownMenuItem({
       className={cn(
         "relative flex min-h-11 cursor-default items-center gap-2.5 rounded-lg px-3 text-[15px] font-medium outline-none select-none",
         "focus:bg-surface-muted data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        "[&_svg]:text-muted [&_svg]:size-[18px] [&_svg]:shrink-0",
+        "[&_svg]:size-[18px] [&_svg]:shrink-0 [&_svg]:text-muted",
         variant === "danger" && "text-danger focus:bg-danger-subtle [&_svg]:text-danger",
         className,
       )}
@@ -65,7 +65,7 @@ export function DropdownMenuSeparator({
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) {
   return (
     <DropdownMenuPrimitive.Separator
-      className={cn("bg-border-subtle -mx-1.5 my-1.5 h-px", className)}
+      className={cn("-mx-1.5 my-1.5 h-px bg-border-subtle", className)}
       {...props}
     />
   );

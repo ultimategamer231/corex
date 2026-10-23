@@ -43,9 +43,15 @@ export function AppShell({
   const [collapsed, toggleCollapsed] = useSidebarCollapsed();
 
   return (
-    <div className="bg-surface flex min-h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col bg-surface">
       <SkipLink />
       {banner}
+      <TopBar org={org}>
+        <OnlineStatus pendingCount={pendingSyncCount} />
+        <UserMenu user={user} onSignOut={onSignOut}>
+          {userMenuItems}
+        </UserMenu>
+      </TopBar>
       <div className="flex flex-1">
         <SidebarNav
           items={nav}
@@ -53,21 +59,13 @@ export function AppShell({
           collapsed={collapsed}
           onToggleCollapsed={toggleCollapsed}
         />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <TopBar org={org}>
-            <OnlineStatus pendingCount={pendingSyncCount} />
-            <UserMenu user={user} onSignOut={onSignOut}>
-              {userMenuItems}
-            </UserMenu>
-          </TopBar>
-          <main
-            id="main"
-            tabIndex={-1}
-            className="flex-1 px-4 pt-6 pb-24 outline-none md:px-8 md:pt-8 md:pb-10"
-          >
-            {children}
-          </main>
-        </div>
+        <main
+          id="main"
+          tabIndex={-1}
+          className="min-w-0 flex-1 px-4 pt-6 pb-24 outline-none md:px-8 md:pt-8 md:pb-10"
+        >
+          {children}
+        </main>
       </div>
       <BottomNav items={nav} pathname={pathname} />
     </div>

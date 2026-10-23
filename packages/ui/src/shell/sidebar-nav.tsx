@@ -19,7 +19,7 @@ export function SidebarNav({ items, pathname, collapsed, onToggleCollapsed }: Si
     <aside
       data-collapsed={collapsed}
       className={cn(
-        "dark-surface bg-primary-dark sticky top-0 hidden h-dvh shrink-0 flex-col md:flex",
+        "dark-surface sticky top-16 hidden h-[calc(100dvh-4rem)] shrink-0 flex-col bg-primary-dark md:flex",
         collapsed ? "w-[76px]" : "w-60",
       )}
     >
@@ -56,7 +56,7 @@ export function SidebarNav({ items, pathname, collapsed, onToggleCollapsed }: Si
           onClick={onToggleCollapsed}
           aria-expanded={!collapsed}
           className={cn(
-            "text-on-dark-muted flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-semibold hover:bg-white/10 hover:text-white",
+            "flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-semibold text-on-dark-muted hover:bg-white/10 hover:text-white",
             collapsed && "justify-center px-0",
           )}
         >

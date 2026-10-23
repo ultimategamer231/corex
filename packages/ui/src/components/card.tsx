@@ -5,7 +5,7 @@ export function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
-      className={cn("border-border bg-background flex flex-col rounded-2xl border", className)}
+      className={cn("flex flex-col rounded-2xl border border-border bg-background", className)}
       {...props}
     />
   );
@@ -17,14 +17,14 @@ export function CardHeader({ className, ...props }: React.ComponentProps<"div">)
 
 export function CardTitle({ className, children, ...props }: React.ComponentProps<"h3">) {
   return (
-    <h3 className={cn("font-display text-ink text-lg font-bold", className)} {...props}>
+    <h3 className={cn("font-display text-lg font-bold text-ink", className)} {...props}>
       {children}
     </h3>
   );
 }
 
 export function CardDescription({ className, ...props }: React.ComponentProps<"p">) {
-  return <p className={cn("text-muted text-sm", className)} {...props} />;
+  return <p className={cn("text-sm text-muted", className)} {...props} />;
 }
 
 export function CardContent({ className, ...props }: React.ComponentProps<"div">) {
