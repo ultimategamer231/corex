@@ -4,6 +4,8 @@ import { PageHeader } from "@/components/page-header";
 import { PendingSection } from "@/components/pending-section";
 import { nav, sections } from "@/lib/shell";
 
+type SectionPageProps = { params: Promise<{ section: string }> };
+
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -14,12 +16,12 @@ function labelFor(section: string) {
   return nav.find((item) => item.href === `/${section}`)?.label;
 }
 
-export async function generateMetadata({ params }: PageProps<"/[section]">): Promise<Metadata> {
+export async function generateMetadata({ params }: SectionPageProps): Promise<Metadata> {
   const { section } = await params;
   return { title: labelFor(section) ?? "Not found" };
 }
 
-export default async function SectionPage({ params }: PageProps<"/[section]">) {
+export default async function SectionPage({ params }: SectionPageProps) {
   const { section } = await params;
   const label = labelFor(section);
   if (!label) notFound();
