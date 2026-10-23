@@ -5,7 +5,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Current status
 
 - **Phase:** 1 — Foundation (SPEC.md Step 1)
-- **Block:** 1.1 complete
+- **Block:** 1.2 complete
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log

@@ -1,0 +1,43 @@
+{
+  "name": "@corex/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/nextjs.json": "./tsconfig/nextjs.json",
+    "./tsconfig/react-library.json": "./tsconfig/react-library.json",
+    "./eslint": "./eslint/index.mjs",
+    "./vitest": "./vitest/index.mjs",
+    "./vitest/setup": "./vitest/setup.mjs",
+    "./next": "./next/index.mjs"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/eslint-plugin-jsx-a11y": "6.10.1",
+    "@types/node": "catalog:",
+    "eslint": "9.39.5",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "dependencies": {
+    "eslint-config-next": "16.4.3",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "typescript-eslint": "8.72.0"
+  },
+  "peerDependencies": {
+    "eslint": "^9",
+    "typescript": ">=5.8",
+    "vitest": "^4"
+  }
+}
