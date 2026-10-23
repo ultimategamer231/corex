@@ -5,14 +5,14 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Current status
 
 - **Phase:** 1 — Foundation (SPEC.md Step 1)
-- **Block:** 1.2 complete
+- **Block:** 1.3 complete
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
 
-| Block | Date       | Summary                                                                                    |
-| ----- | ---------- | ------------------------------------------------------------------------------------------ |
-| 1.1   | 2026-10-23 | Repo bootstrap: pnpm workspace, Turborepo, Prettier, docs (SPEC, mockup), README, PROGRESS |
+- **1.1** (2026-10-23) Repo bootstrap: pnpm workspace, Turborepo, Prettier, docs (SPEC, mockup), README, PROGRESS.
+- **1.2** (2026-10-23) `packages/config`: strict tsconfig bases, ESLint flat config (type-aware, jsx-a11y strict, no `any`/`console`), Vitest base, `withCorex` security headers. 9 tests.
+- **1.3** (2026-10-23) `packages/ui`: Tailwind v4 theme tokens (SPEC + mockup, default palette removed), shadcn-pattern Button, Badge, Card, Input, Label, Dialog, Sheet, DropdownMenu, Toaster, Skeleton; Corex logo SVG; fonts. 56 tests including token contrast.
 
 ## Owner answers (2026-10-23)
 
@@ -27,16 +27,17 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 
 ## Decisions made on the owner's behalf
 
-| #   | Decision                                                                                                                              | Reason                                                                                                                           |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| D1  | Lighthouse targets follow the prompt's Section 7 (Perf ≥ 90; A11y, Best Practices, SEO ≥ 95), stricter than SPEC 6.7                  | Prompt Section 3 makes Section 7 part of every "Done when"                                                                       |
-| D2  | Extra theme tokens beyond SPEC 5.4 (surface, primary-darker, ink-soft, border-subtle, border-strong, on-dark, warning, info, chart-2) | The mockup uses ~20 more colors; tokens keep them consistent. SPEC's 9 tokens stay canonical                                     |
-| D3  | Footer uses `primary-darker` `#052F2D` (mockup) instead of `primary-dark`                                                             | Separates the footer from the dark CTA band above it                                                                             |
-| D4  | `border-strong` `#7E918F` for form controls                                                                                           | `#D9E3E2` is 1.3:1 on white and fails WCAG 1.4.11 (needs 3:1)                                                                    |
-| D5  | Tailwind v4 CSS-first theme in `packages/ui/src/styles/theme.css` instead of a JS "tailwind preset" in `packages/config`              | Tailwind v4 has no JS preset; `packages/config` holds tsconfig, ESLint, Prettier, Vitest and Next.js config                      |
-| D6  | Phase 1 creates four minimal Next.js apps (no features)                                                                               | The shell needs a host to render; CI and Vercel need real targets                                                                |
-| D7  | Tool versions: TypeScript 6.0, ESLint 9.39, Vitest 4.1, Playwright 1.63                                                               | Newest majors (TS 7, ESLint 10) are not yet supported by typescript-eslint / jsx-a11y; Playwright matches the installed browsers |
-| D8  | Baseline CSP uses `'unsafe-inline'` for scripts and styles (no nonces) in Phase 1                                                     | Nonces force dynamic rendering. Revisit per app: apps (auth, dynamic) in Phase 3, website in Phase 4                             |
+| #   | Decision                                                                                                                                   | Reason                                                                                                                           |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Lighthouse targets follow the prompt's Section 7 (Perf ≥ 90; A11y, Best Practices, SEO ≥ 95), stricter than SPEC 6.7                       | Prompt Section 3 makes Section 7 part of every "Done when"                                                                       |
+| D2  | Extra theme tokens beyond SPEC 5.4 (surface, primary-darker, ink-soft, border-subtle, border-strong, on-dark, warning, info, chart-2)      | The mockup uses ~20 more colors; tokens keep them consistent. SPEC's 9 tokens stay canonical                                     |
+| D3  | Footer uses `primary-darker` `#052F2D` (mockup) instead of `primary-dark`                                                                  | Separates the footer from the dark CTA band above it                                                                             |
+| D4  | `border-strong` `#7E918F` for form controls                                                                                                | `#D9E3E2` is 1.3:1 on white and fails WCAG 1.4.11 (needs 3:1)                                                                    |
+| D5  | Tailwind v4 CSS-first theme in `packages/ui/src/styles/theme.css` instead of a JS "tailwind preset" in `packages/config`                   | Tailwind v4 has no JS preset; `packages/config` holds tsconfig, ESLint, Prettier, Vitest and Next.js config                      |
+| D6  | Phase 1 creates four minimal Next.js apps (no features)                                                                                    | The shell needs a host to render; CI and Vercel need real targets                                                                |
+| D7  | Tool versions: TypeScript 6.0, ESLint 9.39, Vitest 4.1, Playwright 1.63                                                                    | Newest majors (TS 7, ESLint 10) are not yet supported by typescript-eslint / jsx-a11y; Playwright matches the installed browsers |
+| D8  | Baseline CSP uses `'unsafe-inline'` for scripts and styles (no nonces) in Phase 1                                                          | Nonces force dynamic rendering. Revisit per app: apps (auth, dynamic) in Phase 3, website in Phase 4                             |
+| D9  | Design-skill conflicts resolved in favor of SPEC: Inter and lucide-react kept (SPEC 2, 5.4); no dark mode (SPEC defines light tokens only) | SPEC outranks skills                                                                                                             |
 
 ## Planned deviations from the mockup (Phase 4)
 
