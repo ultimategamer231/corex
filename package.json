@@ -16,7 +16,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint:root": "eslint . --max-warnings=0",
-    "typecheck:root": "tsc --noEmit"
+    "typecheck:root": "tsc --noEmit",
+    "db:local:start": "node scripts/supabase-local.mjs start",
+    "db:local:stop": "node scripts/supabase-local.mjs stop",
+    "db:local:status": "node scripts/supabase-local.mjs status",
+    "db:local:check": "node scripts/supabase-local.mjs check"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
@@ -26,6 +30,7 @@
     "eslint": "9.39.5",
     "prettier": "3.9.10",
     "prettier-plugin-tailwindcss": "0.8.1",
+    "supabase": "2.122.0",
     "turbo": "2.11.10",
     "typescript": "catalog:"
   }

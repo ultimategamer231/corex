@@ -5,7 +5,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Current status
 
 - **Phase:** 1 — Foundation (SPEC.md Step 1)
-- **Block:** 1.6 complete
+- **Block:** 1.7 complete
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
@@ -16,6 +16,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **1.4** (2026-10-23) App shell (SPEC 5.4): dark sidebar collapsible to an icon rail (per-device preference), mobile bottom bar with "More" sheet, top bar with org name/logo from props (settings in Phase 3), online/offline badge with pending-sync count (live region), user menu, skip link. 70 tests.
 - **1.5** (2026-10-23) Four Next.js 16 apps: `school`, `clinic`, `finance` render the shell with placeholder sections (static, 404 for unknown sections); `web` has a placeholder home with logo, real contacts (`content/site.ts`) and WhatsApp/tel links. Shared security headers verified on a running build. `.env.example`, `vercel.json` (turbo-ignore) and README per app. Official logo cropped to `apps/web/public/brand/corex-logo.png`. 14 app tests; all four builds pass.
 - **1.6** (2026-10-23) Playwright 1.63 + axe (WCAG 2.2 AA tags): every app at 360/390/768/1440px checks zero serious/critical violations, no horizontal scroll, 44px touch targets, skip link, sidebar collapse persistence, mobile More sheet (Escape returns focus), offline badge via `context.setOffline`, keyboard user menu, 404s and security headers. Fixed two WCAG 2.5.3 label-in-name issues axe found (user menu, logo link). 40 e2e tests.
+- **1.7** (2026-10-23) Local Supabase: CLI 2.122 as dev dependency, `supabase/config.toml` (sign-up off, 8-char mixed passwords, unused services off), `pnpm db:local:start|stop|status|check` wrapper (Docker Hub images), `docs/local-dev.md`, SessionStart hook for cloud sessions (pnpm install, start dockerd). Verified: auth and REST return 200, `psql` connects to Postgres 17.11.
 
 ## Owner answers (2026-10-23)
 
