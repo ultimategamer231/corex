@@ -1,19 +1,26 @@
 #!/usr/bin/env node
-// Writes apps/school/.env.local and .env.production.local for a local schema, with
+// Writes apps/<app>/.env.local and .env.production.local for a local schema, with
 // the local Supabase stack's development keys (never real ones). Next.js reads
 // these files for `dev`, `build` and `start`; both are git-ignored.
 //   node scripts/school-env.mjs --schema dev_school [--edition college]
+//   node scripts/school-env.mjs --app finance --schema dev_finance
 import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 
 const { values } = parseArgs({
-  options: { schema: { type: "string" }, edition: { type: "string" } },
+  options: { schema: { type: "string" }, edition: { type: "string" }, app: { type: "string" } },
 });
+const app = values.app ?? "school";
+const PORTS = { school: 3001, finance: 3003, clinic: 3002 };
+if (!(app in PORTS)) {
+  console.error("--app must be school, finance or clinic");
+  process.exit(2);
+}
 if (!values.schema || !/^[a-z][a-z0-9_]{2,62}$/.test(values.schema)) {
   console.error(
-    "Usage: node scripts/school-env.mjs --schema <name> [--edition college|highschool]",
+    "Usage: node scripts/school-env.mjs --schema <name> [--app school|finance|clinic] [--edition college|highschool]",
   );
   process.exit(2);
 }
@@ -27,11 +34,11 @@ const env = [
   `SUPABASE_SERVICE_ROLE_KEY=${local.SERVICE_ROLE_KEY}`,
   `NEXT_PUBLIC_DB_SCHEMA=${values.schema}`,
   `NEXT_PUBLIC_STORAGE_BUCKET=${values.schema}`,
-  `EDITION=${values.edition ?? "college"}`,
+  ...(app === "school" ? [`EDITION=${values.edition ?? "college"}`] : []),
   "DEMO_MODE=false",
-  "APP_URL=http://localhost:3001",
+  `APP_URL=http://localhost:${PORTS[app]}`,
   "",
 ].join("\n");
 for (const file of [".env.local", ".env.production.local"])
-  writeFileSync(join("apps", "school", file), env);
-console.log(`Wrote apps/school/.env.local and .env.production.local for ${values.schema}`);
+  writeFileSync(join("apps", app, file), env);
+console.log(`Wrote apps/${app}/.env.local and .env.production.local for ${values.schema}`);

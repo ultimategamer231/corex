@@ -6,6 +6,12 @@ import {
   TranscriptDocument,
   type TranscriptPdfData,
 } from "./academic";
+import {
+  PayslipDocument,
+  type PayslipPdfData,
+  ReportDocument,
+  type ReportPdfData,
+} from "./finance";
 import { InvoiceDocument, type InvoicePdfData } from "./invoice";
 import { ReportCardDocument, type ReportCardPdfData } from "./report-card";
 import { ReceiptDocument, type ReceiptPdfData } from "./receipt";
@@ -19,6 +25,12 @@ export {
   type TranscriptPdfData,
 } from "./academic";
 export { DocumentFooter } from "./document-footer";
+export {
+  PayslipDocument,
+  type PayslipPdfData,
+  ReportDocument,
+  type ReportPdfData,
+} from "./finance";
 export { documentNumber } from "./format";
 export { InvoiceDocument, type InvoicePdfData } from "./invoice";
 export { Letterhead, type LetterheadData } from "./letterhead";
@@ -48,4 +60,14 @@ export function renderTranscriptPdf(data: TranscriptPdfData): Promise<Buffer> {
 /** Renders a High School report card PDF. */
 export function renderReportCardPdf(data: ReportCardPdfData): Promise<Buffer> {
   return renderToBuffer(ReportCardDocument({ data }) as ReactElement<DocumentProps>);
+}
+
+/** Renders a payslip PDF from its approved lines. */
+export function renderPayslipPdf(data: PayslipPdfData): Promise<Buffer> {
+  return renderToBuffer(PayslipDocument({ data }) as ReactElement<DocumentProps>);
+}
+
+/** Renders a report table PDF (Finance reports). */
+export function renderReportPdf(data: ReportPdfData): Promise<Buffer> {
+  return renderToBuffer(ReportDocument({ data }) as ReactElement<DocumentProps>);
 }

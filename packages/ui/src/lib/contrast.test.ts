@@ -84,6 +84,11 @@ const uiPairs: [fg: string, bg: string][] = [
   ["ring", "tint"],
   ["ring-on-dark", "primary-dark"],
   ["ring-on-dark", "primary-darker"],
+  // Chart marks on cards and the app surface.
+  ["data-1", "background"],
+  ["data-1", "surface"],
+  ["data-2", "background"],
+  ["data-2", "surface"],
 ];
 
 describe("contrast of token pairs", () => {

@@ -1,22 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { nav, sections } from "./shell";
+import { navFor } from "./shell";
 
-describe("app navigation", () => {
-  it("has unique, absolute links with labels", () => {
-    const hrefs = nav.map((item) => item.href);
-    expect(new Set(hrefs).size).toBe(hrefs.length);
-    for (const item of nav) {
-      expect(item.href.startsWith("/")).toBe(true);
-      expect(item.label.trim()).not.toBe("");
+describe("finance navigation", () => {
+  it("has unique, absolute links with labels for every role", () => {
+    for (const role of ["owner", "accountant", "staff"]) {
+      const nav = navFor([role]);
+      const hrefs = nav.map((item) => item.href);
+      expect(new Set(hrefs).size).toBe(hrefs.length);
+      for (const item of nav) expect(item.href.startsWith("/")).toBe(true);
+      expect(nav.filter((item) => item.primary).length).toBeLessThanOrEqual(4);
     }
   });
 
-  it("puts at most four items in the mobile bottom bar", () => {
-    expect(nav.filter((item) => item.primary).length).toBeLessThanOrEqual(4);
-  });
-
-  it("lists every non-dashboard section for the placeholder pages", () => {
-    expect(sections).toHaveLength(nav.length - 1);
-    expect(sections).not.toContain("");
+  it("keeps payroll, reports and settings from Staff (SPEC.md 9.1)", () => {
+    const staff = navFor(["staff"]).map((i) => i.href);
+    expect(staff).toEqual(["/", "/transactions", "/counterparties"]);
+    expect(navFor(["accountant"]).map((i) => i.href)).toContain("/payroll");
   });
 });

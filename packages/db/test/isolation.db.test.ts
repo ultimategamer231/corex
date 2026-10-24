@@ -88,7 +88,8 @@ beforeAll(async () => {
     [userB],
   );
   await sql.unsafe(
-    `insert into ${schemaB}.invoices (party_type, party_id, currency) values ('counterparty', gen_random_uuid(), 'LRD')`,
+    `with c as (insert into ${schemaB}.counterparties (name, type) values ('Test customer', 'customer') returning id)
+     insert into ${schemaB}.invoices (party_type, party_id, currency) select 'counterparty', c.id, 'LRD' from c`,
   );
   clientA = await signedIn(emails.a);
   anon = anonClient();

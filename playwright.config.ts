@@ -4,9 +4,10 @@ import { defineConfig, devices } from "@playwright/test";
  * End-to-end and accessibility tests. Run after `pnpm build`:
  *   pnpm test:e2e                 all apps
  *   pnpm test:e2e --project=web   one app
- * School runs against the local Supabase stack: `pnpm db:local:start`, then
- * `node scripts/school-env.mjs --schema e2e_school` before building. Its setup
- * project rebuilds that schema with fixture data before the tests.
+ * School and Finance run against the local Supabase stack: `pnpm db:local:start`, then
+ * `node scripts/school-env.mjs --schema e2e_school` and
+ * `node scripts/school-env.mjs --app finance --schema e2e_finance` before building.
+ * Their setup projects rebuild those schemas with fixture data before the tests.
  */
 type App = {
   name: string;
@@ -38,7 +39,7 @@ const apps: App[] = [
     env: { DEMO_MODE: "true", DB_SCHEMA: "demo_college" },
   },
   { name: "clinic", port: 3002, testDir: "e2e/apps" },
-  { name: "finance", port: 3003, testDir: "e2e/apps" },
+  { name: "finance", port: 3003, testDir: "e2e/finance" },
 ];
 
 const ci = Boolean(process.env.CI);
@@ -76,13 +77,20 @@ export default defineConfig({
       testMatch: /setup\.ts$/,
       dependencies: ["school-setup"],
     },
+    { name: "finance-setup", testDir: "e2e/finance", testMatch: /setup\.ts$/ },
     ...apps.map((app) => ({
       name: app.name,
       testDir: app.testDir,
       use: { baseURL: `http://localhost:${app.port}` },
-      ...(app.name.startsWith("school")
+      ...(app.name.startsWith("school") || app.name === "finance"
         ? {
-            dependencies: [app.name === "school-demo" ? "school-demo-setup" : "school-setup"],
+            dependencies: [
+              app.name === "school-demo"
+                ? "school-demo-setup"
+                : app.name === "finance"
+                  ? "finance-setup"
+                  : "school-setup",
+            ],
             testIgnore: /setup\.ts$/,
           }
         : {}),

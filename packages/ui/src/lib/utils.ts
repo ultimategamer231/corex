@@ -40,6 +40,8 @@ const twMerge = extendTailwindMerge({
         "danger-foreground",
         "chart-1",
         "chart-2",
+        "data-1",
+        "data-2",
         "ring",
         "ring-on-dark",
       ],
