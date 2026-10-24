@@ -40,6 +40,14 @@ const apps: App[] = [
   },
   { name: "clinic", port: 3002, testDir: "e2e/apps" },
   { name: "finance", port: 3003, testDir: "e2e/finance" },
+  // The Finance build as its public demo on the seeded demo_finance schema.
+  {
+    name: "finance-demo",
+    port: 3006,
+    testDir: "e2e/finance-demo",
+    app: "finance",
+    env: { DEMO_MODE: "true", DB_SCHEMA: "demo_finance" },
+  },
 ];
 
 const ci = Boolean(process.env.CI);
@@ -77,20 +85,27 @@ export default defineConfig({
       testMatch: /setup\.ts$/,
       dependencies: ["school-setup"],
     },
-    { name: "finance-setup", testDir: "e2e/finance", testMatch: /setup\.ts$/ },
+    // Setups run one after another: a demo reset locks its tables, which delays
+    // deleting another fixture's users.
+    {
+      name: "finance-setup",
+      testDir: "e2e/finance",
+      testMatch: /setup\.ts$/,
+      dependencies: ["school-demo-setup"],
+    },
+    {
+      name: "finance-demo-setup",
+      testDir: "e2e/finance-demo",
+      testMatch: /setup\.ts$/,
+      dependencies: ["finance-setup"],
+    },
     ...apps.map((app) => ({
       name: app.name,
       testDir: app.testDir,
       use: { baseURL: `http://localhost:${app.port}` },
-      ...(app.name.startsWith("school") || app.name === "finance"
+      ...(app.name.startsWith("school") || app.name.startsWith("finance")
         ? {
-            dependencies: [
-              app.name === "school-demo"
-                ? "school-demo-setup"
-                : app.name === "finance"
-                  ? "finance-setup"
-                  : "school-setup",
-            ],
+            dependencies: [`${app.name}-setup`.replace("school-hs", "school")],
             testIgnore: /setup\.ts$/,
           }
         : {}),
