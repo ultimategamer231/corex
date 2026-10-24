@@ -5,7 +5,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Current status
 
 - **Phase:** 2 (Database, SPEC.md Step 2): in progress. Phase 1 merged to `main` (owner renamed the branch) with CI and E2E green.
-- **Block:** 2.8 complete (Phase 2 audit next)
+- **Block:** 2.9 complete (Phase 2 closed and self-audited; PR #5 awaiting owner permission to merge)
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
@@ -29,6 +29,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **2.6** (2026-10-24) Cross-client isolation through the real Supabase API (SPEC 4.3.3): two provisioned schemas, password sign-in; client A gets zero rows from all six of B's tables, cannot update B, cannot add itself as B's member, cannot write B's records, is not a member for B's helpers, cannot list/download/upload in B's bucket; anon gets 42501; public sign-up refused; suspended user sees nothing. 16 tests. Found and fixed a Phase 1 config bug: `[auth.email] enable_signup = false` disabled email login entirely.
 - **2.7** (2026-10-24) `db:backup` (SPEC 4.5): `pg_dump` custom format (compressed, `--no-owner`) of one schema using a version-matched binary (`PG_DUMP`, local, or the `postgres:<major>-alpine` image with the URL kept out of process arguments), uploaded to S3-compatible storage as `<project>/<schema>/<schema>-<UTC timestamp>.dump`, then backups older than 30 days pruned by key date. `--all true` backs up every registered schema and reports failures after trying them all. Nightly workflow `.github/workflows/backup.yml` (01:30 Monrovia) stays off until `BACKUPS_ENABLED=true` and the R2 secrets exist. Verified against local Storage S3: archive contains only that schema. 7 unit + 3 database tests.
 - **2.8** (2026-10-24) CI `database` job starts local Supabase on the runner and runs all database tests; `docs/database.md` (tenancy model, project labels and secrets, access rules, one-email-per-client limitation, provisioning runbook incl. Exposed schemas, migrations, R2 backup setup); README and CLAUDE.md updated; session hook clears stale Docker PID files after a container restore. Full check green from clean; 67 database tests; audit clean.
+- **2.9** (2026-10-24) Phase 2 self-audit: code review (10 findings, all fixed), security review (no exploitable findings), CI green on PR #5 including the database job.
 
 ## Owner answers (2026-10-23, 2026-10-24)
 
@@ -61,6 +62,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 | D12 | Top bar spans the full width with the sidebar below it                                                                                                            | Matches the mockup's AppPreview layout                                                                                           |
 | D13 | `memberships` primary key is (user_id, role)                                                                                                                      | SPEC lets one user hold two roles (Admin + Clinician, Owner + Accountant); `has_role` checks any active row                      |
 | D14 | Core grants administrators read access to billing tables but no writes; issuing invoices and posting payments go through Phase 3 server code and product policies | Keeps money rules (CORE-05..08) in one tested path                                                                               |
+| D15 | Corrected core migrations 0002/0003 in place during the Phase 2 audit                                                                                             | They had never run outside throwaway test schemas; from now on applied migrations are immutable                                  |
 
 ## Planned deviations from the mockup (Phase 4)
 
@@ -96,6 +98,20 @@ Phase 1 self-audit (code review + security review, 2026-10-24), all fixed:
 - Session hook could rewrite the lockfile: now `--frozen-lockfile` like CI.
 - Supabase helper hid a missing CLI and failed on a half-running stack: clear error, PATH includes local bin, start stops first.
 - Security: no secrets tracked, no server env in client bundles, CI tokens read-only, `pnpm audit` clean; GitHub Actions pinned to commit SHAs with weekly Dependabot updates.
+
+Phase 2 self-audit (code review + security review, 2026-10-24), all fixed:
+
+- Postgres grants EXECUTE on new functions to PUBLIC and that cannot be revoked per schema: the runner now revokes it from PUBLIC and anon on every function after each run.
+- Runner guard: any migration leaving a table without RLS or a view without `security_invoker` is rolled back.
+- One email per client is enforced by a `memberships` trigger (admins and scripts), not only by provisioning; non-admins are rejected by RLS without learning about other organizations.
+- `log_view` takes a uuid, needs a signed-in member, an existing table and an existing record; no service-role path.
+- Project labels resolve only their own `DATABASE_URL_<P>` / `SUPABASE_*_<P>`; `db:provision` requires `--project`; local schemas go to the git-ignored `schemas.local.json`.
+- Backups: R2-compatible checksum settings; per-object delete errors and write-stream errors are reported.
+- Shared helpers for local Supabase status and PostgREST exposed schemas (never writes an empty list).
+- CI database job pulls images from Docker Hub (ECR rate-limits GitHub runners).
+- Migrations 0002/0003 were corrected in place: they had only run in throwaway test schemas, never in a real database (D15).
+
+Security review notes below the exploit bar, for later phases: `log_view` lets a member confirm a record UUID exists in a table they cannot read (UUIDs are unguessable; revisit with CLN-02 in Phase 10); a target-organization admin could bypass the one-email rule with a crafted multi-row update (business rule only, no data exposure); Clinic must override `audit_row_visible()` before clinical tables exist (CLN-01).
 
 ## Open questions for the owner
 
