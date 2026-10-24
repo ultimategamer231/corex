@@ -5,7 +5,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Current status
 
 - **Phase:** 2 (Database, SPEC.md Step 2): in progress. Phase 1 merged to `main` (owner renamed the branch) with CI and E2E green.
-- **Block:** 2.5 complete
+- **Block:** 2.6 complete
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
@@ -26,6 +26,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **2.3** (2026-10-24) `0002_access.sql`: no privileges for anon, RLS-only access for authenticated, default privileges for later migrations; SECURITY DEFINER helpers `has_role`, `is_member`, `current_roles`, `is_admin` (empty search_path); policies for settings, memberships and admin access to shared tables, no delete on billing. 10 access tests run as the real `anon`/`authenticated` roles with JWT claims: anon denied, non-member and suspended member get no rows or writes, dual roles work.
 - **2.4** (2026-10-24) `0003_audit.sql` (CORE-03): generic `audit_row()` trigger (create, update, delete; status to `void` = void, to `approved` = approve; no-op updates skipped; `actor_id = auth.uid()`; reason from `corex.audit_reason` or `void_reason`), `enable_audit(table)` for product tables, append-only audit log (blocked even for the owner), `log_view()` for CLN-02, admin-only reads with a product hook `audit_row_visible()` so Clinic can hide clinical rows. 9 audit tests.
 - **2.5** (2026-10-24) `db:provision` (SPEC 4.4): validates input, enforces one email per client per project (4.3.7), migrates, writes settings, creates a private bucket, invites the first admin by email (super_admin / admin / owner by product), registers the schema, exposes it to the local API (prints the dashboard reminder for cloud). Idempotent re-runs. 8 tests plus a manual CLI run (invite email received in local Mailpit). Scripts read `SUPABASE_URL_<PROJECT>` / `SUPABASE_SERVICE_ROLE_KEY_<PROJECT>`.
+- **2.6** (2026-10-24) Cross-client isolation through the real Supabase API (SPEC 4.3.3): two provisioned schemas, password sign-in; client A gets zero rows from all six of B's tables, cannot update B, cannot add itself as B's member, cannot write B's records, is not a member for B's helpers, cannot list/download/upload in B's bucket; anon gets 42501; public sign-up refused; suspended user sees nothing. 16 tests. Found and fixed a Phase 1 config bug: `[auth.email] enable_signup = false` disabled email login entirely.
 
 ## Owner answers (2026-10-23, 2026-10-24)
 
@@ -75,6 +76,7 @@ Phase 1 self-checks (the formal audit of Phase 1 opens Phase 2):
 
 - axe found two WCAG 2.5.3 label-in-name failures (user menu button, logo link); fixed in 1.6.
 - Clean-checkout run found lint depending on generated Next types; fixed in 1.8.
+- Found in Phase 2: `supabase/config.toml` `[auth.email] enable_signup = false` disabled email login entirely; fixed (public sign-up stays off via `[auth]`).
 - Desktop sidebar was taller than the viewport after the full-width top bar change; fixed in 1.5.
 - Prettier's Tailwind plugin did not know the custom theme; now reads `apps/web/app/globals.css`.
 - Not yet measured: Lighthouse (website content arrives in Phase 4; the target applies there).
