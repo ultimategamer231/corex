@@ -199,9 +199,21 @@ importers:
 
   apps/school:
     dependencies:
+      '@corex/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@corex/pdf':
+        specifier: workspace:*
+        version: link:../../packages/pdf
       '@corex/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@supabase/ssr':
+        specifier: 0.12.7
+        version: 0.12.7(@supabase/supabase-js@2.118.0)
+      '@supabase/supabase-js':
+        specifier: 2.118.0
+        version: 2.118.0
       lucide-react:
         specifier: 'catalog:'
         version: 1.61.0(@types/react@19.3.0)(react@19.3.1)
@@ -214,10 +226,16 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.3.1(react@19.3.1)
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
     devDependencies:
       '@corex/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@corex/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@tailwindcss/postcss':
         specifier: 'catalog:'
         version: 4.3.3

@@ -12,14 +12,20 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@corex/core": "workspace:*",
+    "@corex/pdf": "workspace:*",
     "@corex/ui": "workspace:*",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
     "lucide-react": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@corex/config": "workspace:*",
+    "@corex/db": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
