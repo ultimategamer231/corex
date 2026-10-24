@@ -1,3 +1,4 @@
+import { Alert } from "@corex/ui/components/alert";
 import { Badge } from "@corex/ui/components/badge";
 import { Input } from "@corex/ui/components/input";
 import { PageHeader } from "@corex/ui/components/page-header";
@@ -10,6 +11,7 @@ import { ConfirmAction } from "@/components/confirm-action";
 import { Section } from "@/components/section";
 import { loadCategories } from "@/lib/finance";
 import { date, todayIso } from "@/lib/format";
+import { demoInstance } from "@/lib/demo";
 import { getSettings } from "@/lib/org";
 import { rows } from "@/lib/queries";
 import { MANAGER, OWNER, ROLE_LABEL, type Role } from "@/lib/roles";
@@ -27,6 +29,8 @@ export const metadata: Metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
   const { supabase, member } = await requireRoles(MANAGER);
+  // The demo shows organization settings and users read-only (SPEC.md 11.3).
+  const demo = demoInstance() !== null;
   const owner = memberHas(member, OWNER);
   const settings = await getSettings();
   const [categories, rates, members] = await Promise.all([
@@ -50,7 +54,12 @@ export default async function SettingsPage() {
     <>
       <PageHeader title="Settings" />
       <div className="flex flex-col gap-10">
-        {owner ? (
+        {demo ? (
+          <Alert tone="info">
+            Organization settings, users and roles cannot be changed in the demo.
+          </Alert>
+        ) : null}
+        {owner && !demo ? (
           <Section
             title="Organization"
             id="organization"
@@ -219,7 +228,7 @@ export default async function SettingsPage() {
           </ActionForm>
         </Section>
 
-        {owner ? (
+        {owner && !demo ? (
           <Section title="Users" id="users" description="Sign-ins and their roles.">
             <TableScroll label="Users">
               <Table>

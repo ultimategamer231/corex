@@ -5,7 +5,7 @@
 /** Published password of every demo account. */
 export const DEMO_PASSWORD = "Demo@2026";
 
-export type DemoName = "college" | "highschool";
+export type DemoName = "college" | "highschool" | "finance";
 
 export type DemoAccount = {
   /** The `?role=` value on the login page and the email's local part. */
@@ -22,7 +22,7 @@ export type DemoAccount = {
 export type DemoInstance = {
   name: DemoName;
   schema: string;
-  product: "school";
+  product: "school" | "finance";
   /** Quote form product on the website (`/contact?product=`). */
   quoteProduct: string;
   /** Sign-ins published on the login page and the website. */
@@ -87,5 +87,17 @@ export const DEMOS: Record<DemoName, DemoInstance> = {
     ].map(([slug = "", name = ""]) =>
       account("school.demo.corex.test", slug, "Teacher", "teacher", name),
     ),
+  },
+  finance: {
+    name: "finance",
+    schema: "demo_finance",
+    product: "finance",
+    quoteProduct: "finance",
+    accounts: [
+      account("finance.demo.corex.test", "owner", "Owner", "owner", "Musu Johnson"),
+      account("finance.demo.corex.test", "accountant", "Accountant", "accountant", "Prince Kollie"),
+      account("finance.demo.corex.test", "staff", "Staff", "staff", "Fatu Kamara"),
+    ],
+    staff: [],
   },
 };

@@ -10,6 +10,7 @@ import { exposeSchemaLocally } from "../provision.ts";
 import { assertSchemaName } from "../schema-name.ts";
 import type { AdminClient } from "../supabase-admin.ts";
 import { seededRandom } from "./random.ts";
+import { seedFinance } from "./finance.ts";
 import { seedCollege, seedHighSchool, type SeedContext } from "./school.ts";
 
 /**
@@ -26,9 +27,22 @@ export const DEMO_SEED = 20_261_024;
 const SEEDERS: Record<DemoName, (ctx: SeedContext) => Promise<void>> = {
   college: seedCollege,
   highschool: seedHighSchool,
+  finance: seedFinance,
 };
 
-export type ResetResult = { schema: string; migrations: MigrateResult; students: number };
+/** The main record each demo is counted by in the reset summary. */
+const MAIN_TABLE: Record<DemoName, string> = {
+  college: "students",
+  highschool: "students",
+  finance: "transactions",
+};
+
+export type ResetResult = {
+  schema: string;
+  migrations: MigrateResult;
+  /** Rows in the demo's main table, for example "300 students". */
+  summary: string;
+};
 
 /**
  * Creates missing demo users through the Auth API and (re)sets their passwords in SQL:
@@ -85,7 +99,7 @@ export async function resetDemo(
     loadMigrations(demo.product, undefined, { demo: true }),
   );
 
-  const students = await sql.begin(async (tx) => {
+  const records = await sql.begin(async (tx) => {
     await tx`select pg_advisory_xact_lock(hashtext(${`corex.demo.${s}`}))`;
     await tx.unsafe(`select ${s}.demo_prepare()`);
     const tables = await tx<{ name: string }[]>`
@@ -116,11 +130,11 @@ export async function resetDemo(
     // Seeding is not activity anyone did; start the audit log empty.
     await tx.unsafe(`truncate ${s}.audit_events`);
     const [count] = await tx.unsafe<{ n: string }[]>(
-      `select count(*)::text as n from ${s}.students`,
+      `select count(*)::text as n from ${s}.${MAIN_TABLE[name]}`,
     );
     return Number(count?.n ?? 0);
   });
 
   if (options.exposeLocally) await exposeSchemaLocally(sql, s);
-  return { schema: s, migrations, students };
+  return { schema: s, migrations, summary: `${records} ${MAIN_TABLE[name]}` };
 }
