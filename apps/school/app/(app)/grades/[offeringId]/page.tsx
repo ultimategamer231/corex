@@ -9,6 +9,7 @@ import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
 import { ConfirmAction } from "@/components/confirm-action";
 import { Section } from "@/components/section";
 import { personName } from "@/lib/format";
+import { requireEdition } from "@/lib/edition";
 import { isUuid } from "@/lib/ids";
 import { rows, termLabel } from "@/lib/queries";
 import { REGISTRAR, TEACHING } from "@/lib/roles";
@@ -29,6 +30,7 @@ type Props = { params: Promise<{ offeringId: string }> };
 
 export default async function OfferingGradesPage({ params }: Props) {
   const { supabase, member } = await requireRoles([...REGISTRAR, ...TEACHING]);
+  requireEdition("college");
   const { offeringId } = await params;
   if (!isUuid(offeringId)) notFound();
   const registrar = memberHas(member, REGISTRAR);

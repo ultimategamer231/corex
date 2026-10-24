@@ -9,12 +9,14 @@ import { Section } from "@/components/section";
 import { rows } from "@/lib/queries";
 import { REGISTRAR } from "@/lib/roles";
 import { requireRoles } from "@/lib/session";
+import { requireEdition } from "@/lib/edition";
 import { addGrade, removeGrade } from "../actions";
 
 export const metadata: Metadata = { title: "Grade scale" };
 
 export default async function GradeScalePage() {
   const { supabase } = await requireRoles(REGISTRAR);
+  requireEdition("college");
   const grades = rows(
     await supabase
       .from("grade_scale")

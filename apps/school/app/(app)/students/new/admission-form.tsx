@@ -20,10 +20,13 @@ function DuplicateConfirm() {
 }
 
 export function AdmissionForm({
+  sections,
   programs,
   terms,
   defaultTerm,
 }: {
+  /** High School: sections to place the student in; College: undefined. */
+  sections?: Option[];
   programs: Option[];
   terms: Option[];
   defaultTerm?: string;
@@ -66,29 +69,45 @@ export function AdmissionForm({
           <Textarea rows={2} />
         </FormField>
       </fieldset>
-      <fieldset className="grid gap-4 rounded-xl border border-border bg-background p-5 sm:grid-cols-2">
-        <legend className="px-1 text-lg font-bold">Program</legend>
-        <FormField name="program_id" label="Program" required>
-          <Select defaultValue="">
-            <option value="">Choose a program</option>
-            {programs.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.label}
-              </option>
-            ))}
-          </Select>
-        </FormField>
-        <FormField name="start_term_id" label="Start term" required>
-          <Select defaultValue={defaultTerm ?? ""}>
-            <option value="">Choose a term</option>
-            {terms.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.label}
-              </option>
-            ))}
-          </Select>
-        </FormField>
-      </fieldset>
+      {sections ? (
+        <fieldset className="grid gap-4 rounded-xl border border-border bg-background p-5 sm:grid-cols-2">
+          <legend className="px-1 text-lg font-bold">Class</legend>
+          <FormField name="section_id" label="Grade and section" required>
+            <Select defaultValue="">
+              <option value="">Choose a class</option>
+              {sections.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.label}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+        </fieldset>
+      ) : (
+        <fieldset className="grid gap-4 rounded-xl border border-border bg-background p-5 sm:grid-cols-2">
+          <legend className="px-1 text-lg font-bold">Program</legend>
+          <FormField name="program_id" label="Program" required>
+            <Select defaultValue="">
+              <option value="">Choose a program</option>
+              {programs.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+          <FormField name="start_term_id" label="Start term" required>
+            <Select defaultValue={defaultTerm ?? ""}>
+              <option value="">Choose a term</option>
+              {terms.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+        </fieldset>
+      )}
       <fieldset className="grid gap-4 rounded-xl border border-border bg-background p-5 sm:grid-cols-2">
         <legend className="px-1 text-lg font-bold">Guardian (optional)</legend>
         <FormField name="guardian_first_name" label="First name">

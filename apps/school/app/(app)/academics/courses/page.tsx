@@ -13,6 +13,7 @@ import { Section } from "@/components/section";
 import { rows } from "@/lib/queries";
 import { REGISTRAR } from "@/lib/roles";
 import { requireRoles } from "@/lib/session";
+import { requireEdition } from "@/lib/edition";
 import { createCourse } from "../actions";
 
 export const metadata: Metadata = { title: "Courses" };
@@ -21,6 +22,7 @@ type Props = { searchParams: Promise<{ q?: string; page?: string }> };
 
 export default async function CoursesPage({ searchParams }: Props) {
   const { supabase } = await requireRoles(REGISTRAR);
+  requireEdition("college");
   const params = await searchParams;
   const q = (params.q ?? "")
     .replace(/[,()*%\\]/g, " ")

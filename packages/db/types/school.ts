@@ -600,6 +600,28 @@ export type Database = {
           },
         ];
       };
+      grade_levels: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          sort_order: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          sort_order: number;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
       grade_scale: {
         Row: {
           grade_points: number | null;
@@ -751,6 +773,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      marking_periods: {
+        Row: {
+          created_at: string;
+          id: string;
+          is_exam: boolean;
+          name: string;
+          number: number;
+          term_id: string;
+          weight: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          is_exam?: boolean;
+          name: string;
+          number: number;
+          term_id: string;
+          weight?: number;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          is_exam?: boolean;
+          name?: string;
+          number?: number;
+          term_id?: string;
+          weight?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "marking_periods_term_id_fkey";
+            columns: ["term_id"];
+            isOneToOne: false;
+            referencedRelation: "terms";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       memberships: {
         Row: {
           created_at: string;
@@ -827,6 +888,74 @@ export type Database = {
             columns: ["invoice_id"];
             isOneToOne: false;
             referencedRelation: "invoices";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      period_scores: {
+        Row: {
+          approved_at: string | null;
+          approved_by: string | null;
+          created_at: string;
+          entered_by: string | null;
+          id: string;
+          locked_at: string | null;
+          marking_period_id: string;
+          score: number;
+          section_subject_id: string;
+          status: string;
+          student_id: string;
+          submitted_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          approved_at?: string | null;
+          approved_by?: string | null;
+          created_at?: string;
+          entered_by?: string | null;
+          id: string;
+          locked_at?: string | null;
+          marking_period_id: string;
+          score: number;
+          section_subject_id: string;
+          status?: string;
+          student_id: string;
+          submitted_at?: string | null;
+        };
+        Update: {
+          approved_at?: string | null;
+          approved_by?: string | null;
+          created_at?: string;
+          entered_by?: string | null;
+          id?: string;
+          locked_at?: string | null;
+          marking_period_id?: string;
+          score?: number;
+          section_subject_id?: string;
+          status?: string;
+          student_id?: string;
+          submitted_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "period_scores_marking_period_id_fkey";
+            columns: ["marking_period_id"];
+            isOneToOne: false;
+            referencedRelation: "marking_periods";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "period_scores_section_subject_id_fkey";
+            columns: ["section_subject_id"];
+            isOneToOne: false;
+            referencedRelation: "section_subjects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "period_scores_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
             referencedColumns: ["id"];
           },
         ];
@@ -960,6 +1089,52 @@ export type Database = {
           },
         ];
       };
+      promotions: {
+        Row: {
+          academic_year_id: string;
+          created_at: string;
+          decided_by: string | null;
+          decision: string;
+          id: string;
+          note: string | null;
+          student_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          academic_year_id: string;
+          created_at?: string;
+          decided_by?: string | null;
+          decision: string;
+          id?: string;
+          note?: string | null;
+          student_id: string;
+        };
+        Update: {
+          academic_year_id?: string;
+          created_at?: string;
+          decided_by?: string | null;
+          decision?: string;
+          id?: string;
+          note?: string | null;
+          student_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "promotions_academic_year_id_fkey";
+            columns: ["academic_year_id"];
+            isOneToOne: false;
+            referencedRelation: "academic_years";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "promotions_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       receipts: {
         Row: {
           id: string;
@@ -986,6 +1161,89 @@ export type Database = {
             columns: ["payment_id"];
             isOneToOne: true;
             referencedRelation: "payments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      section_subjects: {
+        Row: {
+          created_at: string;
+          id: string;
+          section_id: string;
+          subject_id: string;
+          teacher_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          section_id: string;
+          subject_id: string;
+          teacher_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          section_id?: string;
+          subject_id?: string;
+          teacher_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "section_subjects_section_id_fkey";
+            columns: ["section_id"];
+            isOneToOne: false;
+            referencedRelation: "sections";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "section_subjects_subject_id_fkey";
+            columns: ["subject_id"];
+            isOneToOne: false;
+            referencedRelation: "subjects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      sections: {
+        Row: {
+          academic_year_id: string;
+          created_at: string;
+          grade_level_id: string;
+          homeroom_teacher_id: string | null;
+          id: string;
+          name: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          academic_year_id: string;
+          created_at?: string;
+          grade_level_id: string;
+          homeroom_teacher_id?: string | null;
+          id?: string;
+          name: string;
+        };
+        Update: {
+          academic_year_id?: string;
+          created_at?: string;
+          grade_level_id?: string;
+          homeroom_teacher_id?: string | null;
+          id?: string;
+          name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sections_academic_year_id_fkey";
+            columns: ["academic_year_id"];
+            isOneToOne: false;
+            referencedRelation: "academic_years";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "sections_grade_level_id_fkey";
+            columns: ["grade_level_id"];
+            isOneToOne: false;
+            referencedRelation: "grade_levels";
             referencedColumns: ["id"];
           },
         ];
@@ -1083,6 +1341,53 @@ export type Database = {
         };
         Relationships: [];
       };
+      student_placements: {
+        Row: {
+          academic_year_id: string;
+          created_at: string;
+          id: string;
+          section_id: string;
+          student_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          academic_year_id: string;
+          created_at?: string;
+          id?: string;
+          section_id: string;
+          student_id: string;
+        };
+        Update: {
+          academic_year_id?: string;
+          created_at?: string;
+          id?: string;
+          section_id?: string;
+          student_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "student_placements_academic_year_id_fkey";
+            columns: ["academic_year_id"];
+            isOneToOne: false;
+            referencedRelation: "academic_years";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "student_placements_section_id_fkey";
+            columns: ["section_id"];
+            isOneToOne: false;
+            referencedRelation: "sections";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "student_placements_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       students: {
         Row: {
           address: string | null;
@@ -1145,6 +1450,28 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      subjects: {
+        Row: {
+          code: string;
+          created_at: string;
+          id: string;
+          name: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          created_at?: string;
+          id?: string;
+          name: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          id?: string;
+          name?: string;
+        };
+        Relationships: [];
       };
       term_invoices: {
         Row: {
@@ -1289,7 +1616,12 @@ export type Database = {
       };
     };
     Functions: {
+      apply_promotions: { Args: { p_from_year_id: string; p_to_year_id: string }; Returns: number };
       approve_grades: { Args: { p_offering_id: string }; Returns: number };
+      approve_period_scores: {
+        Args: { p_marking_period_id: string; p_section_subject_id: string };
+        Returns: number;
+      };
       audit_row_visible: { Args: { p_table_name: string }; Returns: boolean };
       billing_roles: { Args: Record<PropertyKey, never>; Returns: string[] };
       can_bill: { Args: Record<PropertyKey, never>; Returns: boolean };
@@ -1342,12 +1674,18 @@ export type Database = {
       grade_status: { Args: { p_offering_id: string; p_student_id: string }; Returns: string };
       has_passed: { Args: { p_course_id: string; p_student_id: string }; Returns: boolean };
       has_role: { Args: { roles: string[] }; Returns: boolean };
+      in_section: { Args: { p_section_id: string; p_student_id: string }; Returns: boolean };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_homeroom_teacher: { Args: { p_section_id: string }; Returns: boolean };
       is_member: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_registrar: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_school_office: { Args: Record<PropertyKey, never>; Returns: boolean };
       issue_invoice: { Args: { p_invoice_id: string }; Returns: number };
       lock_grades: { Args: { p_offering_id: string }; Returns: number };
+      lock_period_scores: {
+        Args: { p_marking_period_id: string; p_section_subject_id: string };
+        Returns: number;
+      };
       log_login: { Args: Record<PropertyKey, never>; Returns: undefined };
       log_view: { Args: { p_record_id: string; p_table_name: string }; Returns: undefined };
       members_with_role: {
@@ -1359,6 +1697,8 @@ export type Database = {
       };
       my_class_student_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
       my_offering_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
+      my_section_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
+      my_section_subject_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
       my_student_id: { Args: Record<PropertyKey, never>; Returns: string };
       my_student_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
       next_document_number: { Args: { p_kind: string }; Returns: number };
@@ -1403,13 +1743,33 @@ export type Database = {
         Args: { p_offering_id: string; p_reason: string; p_student_id?: string };
         Returns: number;
       };
+      reopen_period_scores: {
+        Args: {
+          p_marking_period_id: string;
+          p_reason: string;
+          p_section_subject_id: string;
+          p_student_id?: string;
+        };
+        Returns: number;
+      };
       require_billing_role: { Args: Record<PropertyKey, never>; Returns: undefined };
       return_plan: {
         Args: { p_note: string; p_student_id: string; p_term_id: string };
         Returns: number;
       };
       school_today: { Args: Record<PropertyKey, never>; Returns: string };
+      student_rank: {
+        Args: { p_student_id: string; p_term_id: string };
+        Returns: {
+          out_of: number;
+          rank: number;
+        }[];
+      };
       submit_grades: { Args: { p_offering_id: string }; Returns: number };
+      submit_period_scores: {
+        Args: { p_marking_period_id: string; p_section_subject_id: string };
+        Returns: number;
+      };
       submit_plan: {
         Args: { p_term_id: string };
         Returns: {
@@ -1420,6 +1780,7 @@ export type Database = {
         }[];
       };
       teaches_offering: { Args: { p_offering_id: string }; Returns: boolean };
+      teaches_section_subject: { Args: { p_section_subject_id: string }; Returns: boolean };
       term_credits: { Args: { p_student_id: string; p_term_id: string }; Returns: number };
       unplan_course: { Args: { p_registration_id: string }; Returns: undefined };
       void_invoice: { Args: { p_invoice_id: string; p_reason: string }; Returns: undefined };

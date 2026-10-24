@@ -11,6 +11,7 @@ import { Section } from "@/components/section";
 import { listTerms, rows, termLabel } from "@/lib/queries";
 import { REGISTRAR } from "@/lib/roles";
 import { requireRoles } from "@/lib/session";
+import { requireEdition } from "@/lib/edition";
 import { createOffering, updateOffering } from "../actions";
 
 export const metadata: Metadata = { title: "Course offerings" };
@@ -19,6 +20,7 @@ type Props = { searchParams: Promise<{ term?: string }> };
 
 export default async function OfferingsPage({ searchParams }: Props) {
   const { supabase } = await requireRoles(REGISTRAR);
+  requireEdition("college");
   const terms = await listTerms(supabase);
   const requested = (await searchParams).term;
   const term = terms.find((t) => t.id === requested) ?? terms.find((t) => t.is_current) ?? terms[0];

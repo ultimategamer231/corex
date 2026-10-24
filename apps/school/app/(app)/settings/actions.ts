@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ActionError, must, optionalText, requiredText, runAction } from "@/lib/action";
 import type { FormState } from "@/lib/form-state";
 import { schoolEnv } from "@/lib/env";
+import { edition } from "@/lib/edition";
 import { getSettings } from "@/lib/org";
 import { EDITION_ROLES, type Role } from "@/lib/roles";
 import { createMemberUser } from "@/lib/users";
@@ -31,14 +32,25 @@ const settingsSchema = z
       .trim()
       .toUpperCase()
       .regex(/^[A-Z]{2,6}$/, "Use 2 to 6 letters, for example STU"),
-    max_credits_per_term: credits("the maximum credits"),
-    min_credits_per_term: credits("the minimum credits"),
-    repeat_policy: z.enum(["latest", "best", "all"]),
+    // College rules.
+    max_credits_per_term: credits("the maximum credits").optional(),
+    min_credits_per_term: credits("the minimum credits").optional(),
+    repeat_policy: z.enum(["latest", "best", "all"]).optional(),
+    // High School rules.
+    pass_mark: z.coerce
+      .number({ error: "Enter the pass mark" })
+      .min(1, "Use 1 to 100")
+      .max(100, "Use 1 to 100")
+      .optional(),
+    show_rank: z.string().optional(),
   })
-  .refine((d) => d.min_credits_per_term <= d.max_credits_per_term, {
-    path: ["min_credits_per_term"],
-    message: "The minimum cannot be above the maximum",
-  });
+  .refine(
+    (d) => (d.min_credits_per_term ?? 0) <= (d.max_credits_per_term ?? Number.MAX_SAFE_INTEGER),
+    {
+      path: ["min_credits_per_term"],
+      message: "The minimum cannot be above the maximum",
+    },
+  );
 
 /** Organization details and College rules (CORE-01: read from settings, never hardcoded). */
 export async function saveSettings(_p: FormState, formData: FormData): Promise<FormState> {
@@ -67,9 +79,13 @@ export async function saveSettings(_p: FormState, formData: FormData): Promise<F
             config: {
               ...current.config,
               student_number_prefix: d.student_number_prefix,
-              max_credits_per_term: d.max_credits_per_term,
-              min_credits_per_term: d.min_credits_per_term,
-              repeat_policy: d.repeat_policy,
+              ...(edition() === "college"
+                ? {
+                    max_credits_per_term: d.max_credits_per_term,
+                    min_credits_per_term: d.min_credits_per_term,
+                    repeat_policy: d.repeat_policy,
+                  }
+                : { pass_mark: d.pass_mark, show_rank: d.show_rank === "on" }),
             },
           })
           .eq("id", true),

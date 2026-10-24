@@ -28,7 +28,7 @@ const METHOD = {
 } as const;
 
 export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
-  const { supabase, member } = await requireRoles([...BURSAR, "student"]);
+  const { supabase, member } = await requireRoles([...BURSAR, "student", "parent"]);
   const bursar = memberHas(member, BURSAR);
   const { id } = await params;
   if (!isUuid(id)) notFound();

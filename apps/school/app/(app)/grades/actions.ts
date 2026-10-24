@@ -128,3 +128,118 @@ export async function reopenGrades(_p: FormState, formData: FormData): Promise<F
     return `${n} grade${n === 1 ? "" : "s"} reopened for changes.`;
   });
 }
+
+// High School: scores per section subject and marking period (SPEC.md 7.4) ------------
+
+const hsScoresSchema = z.looseObject({ section_subject_id: uuid(), marking_period_id: uuid() });
+
+/**
+ * Saves a High School score sheet for one marking period. Each cell carries the
+ * existing score's id or a new one made when the sheet was drawn, so a retried save
+ * never duplicates (CORE-06). The database refuses changes to submitted scores.
+ */
+export async function saveHsScores(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, opts(hsScoresSchema, ["teacher"]), async (d, { supabase, member }) => {
+    const values = d as Record<string, unknown>;
+    const toInsert: {
+      id: string;
+      student_id: string;
+      section_subject_id: string;
+      marking_period_id: string;
+      score: number;
+      entered_by: string;
+    }[] = [];
+    const toUpdate: { id: string; score: number }[] = [];
+    for (const [key, raw] of Object.entries(values)) {
+      if (!key.startsWith("score_") || typeof raw !== "string" || raw.trim() === "") continue;
+      const studentId = key.slice("score_".length);
+      const id = values[`sid_${studentId}`];
+      const existing = values[`old_${studentId}`];
+      const score = Number(raw);
+      if (!Number.isFinite(score) || score < 0 || score > 100)
+        throw new ActionError(`"${raw}" is not a score from 0 to 100.`);
+      if (!z.uuid().safeParse(id).success || !z.uuid().safeParse(studentId).success) {
+        throw new ActionError("The score sheet is incomplete. Reload the page and try again.");
+      }
+      if (typeof existing === "string" && existing !== "") {
+        if (Number(existing) !== score) toUpdate.push({ id: id as string, score });
+      } else {
+        toInsert.push({
+          id: id as string,
+          student_id: studentId,
+          section_subject_id: d.section_subject_id,
+          marking_period_id: d.marking_period_id,
+          score,
+          entered_by: member.userId,
+        });
+      }
+    }
+    if (toInsert.length + toUpdate.length === 0) return "Nothing changed.";
+    if (toInsert.length) {
+      must(
+        await supabase
+          .from("period_scores")
+          .upsert(toInsert, { onConflict: "id", ignoreDuplicates: true }),
+      );
+    }
+    for (const u of toUpdate)
+      must(await supabase.from("period_scores").update({ score: u.score }).eq("id", u.id));
+    const n = toInsert.length + toUpdate.length;
+    return `${n} score${n === 1 ? "" : "s"} saved.`;
+  });
+}
+
+const periodSchema = z.object({ section_subject_id: uuid(), marking_period_id: uuid() });
+
+export async function submitPeriod(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, opts(periodSchema), async (d, { supabase }) => {
+    const n = must(
+      await supabase.rpc("submit_period_scores", {
+        p_section_subject_id: d.section_subject_id,
+        p_marking_period_id: d.marking_period_id,
+      }),
+    );
+    return `${n} score${n === 1 ? "" : "s"} submitted to the Registrar.`;
+  });
+}
+
+export async function approvePeriod(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, opts(periodSchema, REGISTRAR), async (d, { supabase }) => {
+    const n = must(
+      await supabase.rpc("approve_period_scores", {
+        p_section_subject_id: d.section_subject_id,
+        p_marking_period_id: d.marking_period_id,
+      }),
+    );
+    return `${n} score${n === 1 ? "" : "s"} approved.`;
+  });
+}
+
+export async function lockPeriod(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, opts(periodSchema, REGISTRAR), async (d, { supabase }) => {
+    const n = must(
+      await supabase.rpc("lock_period_scores", {
+        p_section_subject_id: d.section_subject_id,
+        p_marking_period_id: d.marking_period_id,
+      }),
+    );
+    return `${n} score${n === 1 ? "" : "s"} locked and published.`;
+  });
+}
+
+export async function reopenPeriod(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    opts(periodSchema.extend({ reason: requiredText("a reason", 500) }), REGISTRAR),
+    async (d, { supabase }) => {
+      const n = must(
+        await supabase.rpc("reopen_period_scores", {
+          p_section_subject_id: d.section_subject_id,
+          p_marking_period_id: d.marking_period_id,
+          p_reason: d.reason,
+        }),
+      );
+      return `${n} score${n === 1 ? "" : "s"} reopened for changes.`;
+    },
+  );
+}

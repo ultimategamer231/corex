@@ -1,3 +1,4 @@
+import type { CurrentMember } from "@corex/core/auth";
 import { Button } from "@corex/ui/components/button";
 import { EmptyState } from "@corex/ui/components/empty-state";
 import { Input } from "@corex/ui/components/input";
@@ -13,6 +14,7 @@ import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
 import { InvoiceTable } from "@/components/invoice-table";
 import { Section } from "@/components/section";
 import { money, personName } from "@/lib/format";
+import { familyStudents } from "@/lib/highschool";
 import { listTerms, rows, termLabel } from "@/lib/queries";
 import { BURSAR } from "@/lib/roles";
 import { memberHas, requireRoles } from "@/lib/session";
@@ -24,8 +26,8 @@ export const metadata: Metadata = { title: "Fees" };
 type Props = { searchParams: Promise<{ currency?: string; page?: string }> };
 
 export default async function FeesPage({ searchParams }: Props) {
-  const { supabase, member } = await requireRoles([...BURSAR, "student"]);
-  if (!memberHas(member, BURSAR)) return <StudentFees db={supabase} userId={member.userId} />;
+  const { supabase, member } = await requireRoles([...BURSAR, "student", "parent"]);
+  if (!memberHas(member, BURSAR)) return <FamilyFees db={supabase} member={member} />;
   const params = await searchParams;
   const currency =
     params.currency === "LRD" ? "LRD" : params.currency === "USD" ? "USD" : undefined;
@@ -184,53 +186,66 @@ export default async function FeesPage({ searchParams }: Props) {
   );
 }
 
-async function StudentFees({ db, userId }: { db: SchoolDb; userId: string }) {
-  const { data: student, error } = await db
-    .from("students")
-    .select("id")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!student)
-    return <PageHeader title="My fees" description="Your student record is not linked yet." />;
+/** Students and parents: balances and invoices of their own records (SPEC.md 7.5 portals). */
+async function FamilyFees({ db, member }: { db: SchoolDb; member: CurrentMember }) {
+  const children = await familyStudents(db, member);
+  const own =
+    children.length === 1 && memberHas(member, ["student"]) && !memberHas(member, ["parent"]);
+  if (children.length === 0) {
+    return (
+      <PageHeader title="Fees" description="No student record is linked to this account yet." />
+    );
+  }
   const balances = rows(
     await db
       .from("student_balances")
-      .select("currency, balance_minor")
-      .eq("student_id", student.id),
+      .select("student_id, currency, balance_minor")
+      .in(
+        "student_id",
+        children.map((c) => c.id),
+      ),
   );
   return (
     <>
-      <PageHeader title="My fees" />
-      <div className="flex flex-col gap-8">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {balances.length === 0 ? (
-            <Stat label="Balance due" value="Nothing due" />
-          ) : (
-            balances.map((b) => (
-              <Stat
-                key={b.currency}
-                label={`Balance due (${b.currency})`}
-                value={money(b.balance_minor ?? 0, b.currency ?? "USD")}
+      <PageHeader title={own ? "My fees" : "Fees"} />
+      <div className="flex flex-col gap-10">
+        {children.map((c) => {
+          const due = balances.filter((b) => b.student_id === c.id);
+          return (
+            <Section
+              key={c.id}
+              title={own ? "Balance and invoices" : personName(c)}
+              id={`fees-${c.id}`}
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                {due.length === 0 ? (
+                  <Stat label="Balance due" value="Nothing due" />
+                ) : (
+                  due.map((b) => (
+                    <Stat
+                      key={b.currency}
+                      label={`Balance due (${b.currency})`}
+                      value={money(b.balance_minor ?? 0, b.currency ?? "USD")}
+                    />
+                  ))
+                )}
+              </div>
+              <InvoiceTable
+                db={db}
+                studentId={c.id}
+                page={1}
+                hrefFor={() => "/fees"}
+                empty={
+                  <EmptyState
+                    icon={<Wallet />}
+                    title="No invoices"
+                    description="Fee invoices appear here."
+                  />
+                }
               />
-            ))
-          )}
-        </div>
-        <Section title="Invoices" id="invoices">
-          <InvoiceTable
-            db={db}
-            studentId={student.id}
-            page={1}
-            hrefFor={() => "/fees"}
-            empty={
-              <EmptyState
-                icon={<Wallet />}
-                title="No invoices"
-                description="Your fee invoices appear here."
-              />
-            }
-          />
-        </Section>
+            </Section>
+          );
+        })}
       </div>
     </>
   );

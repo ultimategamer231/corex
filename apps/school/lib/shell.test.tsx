@@ -33,10 +33,22 @@ describe("app navigation", () => {
     expect(labels(["registrar"])).not.toContain("Fees");
   });
 
-  it("hides College-only sections in the High School edition", () => {
+  it("hides College-only sections in the High School edition and the reverse", () => {
     const labels = navFor(["registrar", "student"], "highschool").map((i) => i.label);
     expect(labels).not.toContain("Course planning");
     expect(labels).not.toContain("Registration");
+    expect(labels).toContain("Promotions");
+    expect(navFor(["registrar"], "college").map((i) => i.label)).not.toContain("Promotions");
+  });
+
+  it("gives parents their children's grades, fees and reports", () => {
+    expect(navFor(["parent"], "highschool").map((i) => i.label)).toEqual([
+      "Dashboard",
+      "Grades",
+      "Fees",
+      "Reports",
+      "Announcements",
+    ]);
   });
 
   it("puts at most four items in the mobile bottom bar", () => {

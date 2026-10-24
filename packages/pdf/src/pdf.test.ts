@@ -4,6 +4,7 @@ import {
   renderGradeReportPdf,
   renderInvoicePdf,
   renderReceiptPdf,
+  renderReportCardPdf,
   renderTranscriptPdf,
 } from "./index";
 
@@ -205,5 +206,61 @@ describe("grade report and transcript PDFs (SCH-08)", () => {
     ]) {
       expect(content).toContain(expected);
     }
+  });
+});
+
+describe("report card PDF (SCH-08)", () => {
+  it("renders subjects, period scores, averages, attendance and letterhead", async () => {
+    const pdf = await renderReportCardPdf({
+      org,
+      timezone: "Africa/Monrovia",
+      documentNumber: "RC-BHS-2026-0007-S1",
+      student: {
+        name: "Kebeh Doe",
+        studentNumber: "BHS-2026-0007",
+        gradeSection: "Grade 11 A",
+        year: "2026/2027",
+      },
+      period: "Semester 1",
+      columns: ["P1", "P2", "P3", "Exam"],
+      rows: [
+        {
+          subject: "Mathematics",
+          scores: ["80.00", "75.00", "90.00", "70.00"],
+          average: "78.75",
+          passed: true,
+        },
+        {
+          subject: "Chemistry",
+          scores: ["60.00", "65.00", null, "62.00"],
+          average: "62.33",
+          passed: false,
+        },
+      ],
+      overallAverage: "70.54",
+      passMark: 70,
+      rank: "3 of 42",
+      attendance: { present: 58, absent: 2, late: 3, excused: 1 },
+      generatedAt,
+    });
+    const content = await text(pdf);
+    for (const expected of [
+      "Bethel High School",
+      "Report card",
+      "RC-BHS-2026-0007-S1",
+      "Kebeh Doe",
+      "Grade 11 A",
+      "Mathematics",
+      "78.75",
+      "62.33 *",
+      "70.54",
+      "3 of 42",
+      "Present 58",
+      "Generated 24 Oct 2026, 01:30",
+    ]) {
+      expect(content).toContain(expected);
+    }
+    // Labels print in capitals.
+    expect(content).toMatch(/TEACHER.S REMARKS/);
   });
 });

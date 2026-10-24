@@ -1,7 +1,11 @@
+"use client";
+
 import type * as React from "react";
 import { cn } from "../lib/utils";
+import { useFieldControlProps } from "./field";
 
-export function Textarea({ className, rows = 4, ...props }: React.ComponentProps<"textarea">) {
+export function Textarea(all: React.ComponentProps<"textarea">) {
+  const { className, rows = 4, ...props } = useFieldControlProps(all);
   return (
     <textarea
       data-slot="textarea"

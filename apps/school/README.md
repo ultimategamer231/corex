@@ -15,8 +15,8 @@ The same app serves both school editions. Set `EDITION=college` or `EDITION=high
 With the local Supabase stack (`pnpm db:local:start`) and a fictional sample College:
 
 ```bash
-pnpm db:fixture --schema dev_college                     # sign-ins per role, password Test@2026pass
-node scripts/school-env.mjs --schema dev_college         # writes .env.local for that schema
+pnpm db:fixture --schema dev_school                      # sign-ins per role, password Test@2026pass
+node scripts/school-env.mjs --schema dev_school          # writes .env.local; add --edition highschool
 pnpm --filter @corex/school dev                          # http://localhost:3001
 ```
 
@@ -29,8 +29,8 @@ pnpm --filter @corex/school lint
 pnpm --filter @corex/school typecheck
 pnpm --filter @corex/school test
 pnpm --filter @corex/school build
-node scripts/school-env.mjs --schema e2e_college        # before building for end-to-end tests
-pnpm test:e2e --project=school                          # from the repo root, after a build
+node scripts/school-env.mjs --schema e2e_school         # before building for end-to-end tests
+pnpm test:e2e --project=school --project=school-hs     # from the repo root, after a build
 ```
 
 ## Deploy (Vercel)

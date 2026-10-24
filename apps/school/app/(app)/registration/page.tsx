@@ -12,12 +12,14 @@ import { getSettings } from "@/lib/org";
 import { currentTerm, rows, termLabel } from "@/lib/queries";
 import { REGISTRAR } from "@/lib/roles";
 import { requireRoles } from "@/lib/session";
+import { requireEdition } from "@/lib/edition";
 import { approveAll, decide, returnPlan } from "./actions";
 
 export const metadata: Metadata = { title: "Registration" };
 
 export default async function RegistrationPage() {
   const { supabase } = await requireRoles(REGISTRAR);
+  requireEdition("college");
   const settings = await getSettings();
   const term = await currentTerm(supabase);
   if (!term) {

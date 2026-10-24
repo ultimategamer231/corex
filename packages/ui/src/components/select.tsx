@@ -1,8 +1,12 @@
+"use client";
+
 import type * as React from "react";
 import { cn } from "../lib/utils";
+import { useFieldControlProps } from "./field";
 
 /** Native select styled like Input; native keeps keyboard and screen reader support. */
-export function Select({ className, ...props }: React.ComponentProps<"select">) {
+export function Select(all: React.ComponentProps<"select">) {
+  const { className, ...props } = useFieldControlProps(all);
   return (
     <select
       data-slot="select"

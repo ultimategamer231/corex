@@ -8,10 +8,13 @@ import { Section } from "@/components/section";
 import { loadAcademicRecord } from "@/lib/academic";
 import { money, personName, todayIso } from "@/lib/format";
 import { getSettings } from "@/lib/org";
-import { rows } from "@/lib/queries";
+import { currentTerm, listTerms, rows, termLabel } from "@/lib/queries";
 import { BURSAR, OFFICE, REGISTRAR } from "@/lib/roles";
 import { memberHas, requireRoles } from "@/lib/session";
 import type { SchoolDb } from "@/lib/supabase";
+import type { CurrentMember } from "@corex/core/auth";
+import { edition } from "@/lib/edition";
+import { familyStudents } from "@/lib/highschool";
 
 export const metadata: Metadata = { title: "Reports" };
 
@@ -26,7 +29,8 @@ const METHOD = {
 } as const;
 
 export default async function ReportsPage({ searchParams }: Props) {
-  const { supabase, member } = await requireRoles([...OFFICE, "student"]);
+  const { supabase, member } = await requireRoles([...OFFICE, "student", "parent"]);
+  const college = edition() === "college";
   const params = await searchParams;
   const registrar = memberHas(member, REGISTRAR);
   const bursar = memberHas(member, BURSAR);
@@ -34,15 +38,30 @@ export default async function ReportsPage({ searchParams }: Props) {
     <>
       <PageHeader title="Reports" />
       <div className="flex flex-col gap-10">
-        {registrar ? <TranscriptFinder db={supabase} q={params.q} /> : null}
+        {registrar ? <TranscriptFinder db={supabase} q={params.q} college={college} /> : null}
         {bursar ? <PaymentsReport db={supabase} from={params.from} to={params.to} /> : null}
-        {!registrar && !bursar ? <MyDocuments db={supabase} userId={member.userId} /> : null}
+        {!registrar && !bursar ? (
+          college ? (
+            <MyDocuments db={supabase} userId={member.userId} />
+          ) : (
+            <FamilyReportCards db={supabase} member={member} />
+          )
+        ) : null}
       </div>
     </>
   );
 }
 
-async function TranscriptFinder({ db, q: raw }: { db: SchoolDb; q?: string }) {
+async function TranscriptFinder({
+  db,
+  q: raw,
+  college,
+}: {
+  db: SchoolDb;
+  q?: string;
+  college: boolean;
+}) {
+  const term = college ? null : await currentTerm(db);
   const q = (raw ?? "")
     .replace(/[,()*%\\]/g, " ")
     .trim()
@@ -92,12 +111,21 @@ async function TranscriptFinder({ db, q: raw }: { db: SchoolDb; q?: string }) {
                     <p className="text-sm text-muted">{s.student_number}</p>
                   </Td>
                   <Td className="text-right">
-                    <a
-                      className={buttonVariants({ variant: "secondary", size: "sm" })}
-                      href={`/reports/transcript/${s.id}`}
-                    >
-                      Transcript<span className="sr-only"> for {personName(s)}</span>
-                    </a>
+                    {college ? (
+                      <a
+                        className={buttonVariants({ variant: "secondary", size: "sm" })}
+                        href={`/reports/transcript/${s.id}`}
+                      >
+                        Transcript<span className="sr-only"> for {personName(s)}</span>
+                      </a>
+                    ) : term ? (
+                      <a
+                        className={buttonVariants({ variant: "secondary", size: "sm" })}
+                        href={`/reports/report-card/${s.id}/${term.id}`}
+                      >
+                        Report card<span className="sr-only"> for {personName(s)}</span>
+                      </a>
+                    ) : null}
                   </Td>
                 </tr>
               ))}
@@ -224,5 +252,38 @@ async function MyDocuments({ db, userId }: { db: SchoolDb; userId: string }) {
         ))}
       </div>
     </Section>
+  );
+}
+
+async function FamilyReportCards({ db, member }: { db: SchoolDb; member: CurrentMember }) {
+  const [children, term, terms] = await Promise.all([
+    familyStudents(db, member),
+    currentTerm(db),
+    listTerms(db),
+  ]);
+  const yearTerms = term
+    ? terms.filter((t) => t.academic_year_id === term.academic_year_id).reverse()
+    : [];
+  if (children.length === 0)
+    return <p className="text-muted">No student record is linked to this account yet.</p>;
+  return (
+    <>
+      {children.map((c) => (
+        <Section key={c.id} title={`Report cards: ${personName(c)}`} id={`cards-${c.id}`}>
+          <div className="flex flex-wrap gap-2">
+            {yearTerms.map((t) => (
+              <a
+                key={t.id}
+                className={buttonVariants({ variant: "secondary" })}
+                href={`/reports/report-card/${c.id}/${t.id}`}
+              >
+                {termLabel(t)}
+                <span className="sr-only"> for {personName(c)}</span>
+              </a>
+            ))}
+          </div>
+        </Section>
+      ))}
+    </>
   );
 }

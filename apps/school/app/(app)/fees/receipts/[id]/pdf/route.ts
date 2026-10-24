@@ -12,7 +12,7 @@ const METHODS = ["cash", "mobile_money", "bank", "other"] as const;
 
 /** Receipt PDF; a voided payment's receipt stays printable, marked void (CORE-07). */
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { supabase } = await requireRoles([...BURSAR, "student"]);
+  const { supabase } = await requireRoles([...BURSAR, "student", "parent"]);
   const { id } = await params;
   if (!isUuid(id)) notFound();
   const receipt = await supabase

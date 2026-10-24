@@ -1,5 +1,6 @@
 import { renderTranscriptPdf } from "@corex/pdf";
 import { notFound } from "next/navigation";
+import { requireEdition } from "@/lib/edition";
 import { isUuid } from "@/lib/ids";
 import { getSettings } from "@/lib/org";
 import { letterhead, pdfResponse } from "@/lib/pdf";
@@ -11,6 +12,7 @@ export async function GET(
   { params }: { params: Promise<{ studentId: string }> },
 ) {
   const { studentId } = await params;
+  requireEdition("college");
   if (!isUuid(studentId)) notFound();
   const { student, heading, record, creditsRequired } = await loadStudentRecord(studentId);
   const settings = await getSettings();

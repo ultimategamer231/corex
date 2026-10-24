@@ -1,5 +1,6 @@
 import type { ShellNavItem } from "@corex/ui/shell";
 import {
+  ArrowUpRight,
   BookOpen,
   CalendarCheck,
   ClipboardCheck,
@@ -36,6 +37,13 @@ const ENTRIES: NavEntry[] = [
   },
   { href: "/academics", label: "Academics", icon: <BookOpen />, roles: REGISTRAR },
   {
+    href: "/promotions",
+    label: "Promotions",
+    icon: <ArrowUpRight />,
+    roles: REGISTRAR,
+    editions: ["highschool"],
+  },
+  {
     href: "/attendance",
     label: "Attendance",
     icon: <CalendarCheck />,
@@ -45,10 +53,15 @@ const ENTRIES: NavEntry[] = [
     href: "/grades",
     label: "Grades",
     icon: <GraduationCap />,
-    roles: [...REGISTRAR, ...TEACHING, "student"],
+    roles: [...REGISTRAR, ...TEACHING, "student", "parent"],
   },
-  { href: "/fees", label: "Fees", icon: <Wallet />, roles: [...BURSAR, "student"] },
-  { href: "/reports", label: "Reports", icon: <FileBarChart />, roles: [...OFFICE, "student"] },
+  { href: "/fees", label: "Fees", icon: <Wallet />, roles: [...BURSAR, "student", "parent"] },
+  {
+    href: "/reports",
+    label: "Reports",
+    icon: <FileBarChart />,
+    roles: [...OFFICE, "student", "parent"],
+  },
   { href: "/announcements", label: "Announcements", icon: <Megaphone />, roles: "all" },
   { href: "/settings", label: "Settings", icon: <Settings />, roles: ["super_admin"] },
 ];

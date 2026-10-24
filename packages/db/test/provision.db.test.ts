@@ -65,7 +65,12 @@ describe("db:provision (SPEC.md 4.4)", () => {
       "core/0004_billing",
     ];
     const expected = {
-      [schoolSchema]: [...core, "school/0001_school", "school/0002_college"],
+      [schoolSchema]: [
+        ...core,
+        "school/0001_school",
+        "school/0002_college",
+        "school/0003_highschool",
+      ],
       [clinicSchema]: core,
     };
     for (const [schema, ids] of Object.entries(expected)) {

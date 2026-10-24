@@ -110,32 +110,62 @@ export default async function SettingsPage() {
               >
                 <Input defaultValue={prefix} />
               </FormField>
-              <FormField name="repeat_policy" label="Repeated courses in CGPA" required>
-                <Select defaultValue={repeat}>
-                  <option value="latest">Latest attempt counts</option>
-                  <option value="best">Best attempt counts</option>
-                  <option value="all">Every attempt counts</option>
-                </Select>
-              </FormField>
-              <FormField name="max_credits_per_term" label="Maximum credits per term" required>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  defaultValue={configNumber(settings, "max_credits_per_term", 21)}
-                />
-              </FormField>
-              <FormField
-                name="min_credits_per_term"
-                label="Minimum credits per term"
-                hint="Below this, students see a warning."
-                required
-              >
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  defaultValue={configNumber(settings, "min_credits_per_term", 12)}
-                />
-              </FormField>
+              {edition === "college" ? (
+                <>
+                  <FormField name="repeat_policy" label="Repeated courses in CGPA" required>
+                    <Select defaultValue={repeat}>
+                      <option value="latest">Latest attempt counts</option>
+                      <option value="best">Best attempt counts</option>
+                      <option value="all">Every attempt counts</option>
+                    </Select>
+                  </FormField>
+                  <FormField name="max_credits_per_term" label="Maximum credits per term" required>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      defaultValue={configNumber(settings, "max_credits_per_term", 21)}
+                    />
+                  </FormField>
+                  <FormField
+                    name="min_credits_per_term"
+                    label="Minimum credits per term"
+                    hint="Below this, students see a warning."
+                    required
+                  >
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      defaultValue={configNumber(settings, "min_credits_per_term", 12)}
+                    />
+                  </FormField>
+                </>
+              ) : (
+                <>
+                  <FormField
+                    name="pass_mark"
+                    label="Pass mark"
+                    hint="Averages below this are marked on report cards."
+                    required
+                  >
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={100}
+                      defaultValue={configNumber(settings, "pass_mark", 70)}
+                    />
+                  </FormField>
+                  <label className="flex min-h-11 items-center gap-3 self-end">
+                    <input
+                      type="checkbox"
+                      name="show_rank"
+                      defaultChecked={settings.config.show_rank === true}
+                      className="size-5"
+                    />
+                    Show rank in class on report cards
+                  </label>
+                </>
+              )}
             </div>
             <div>
               <SubmitButton>Save settings</SubmitButton>

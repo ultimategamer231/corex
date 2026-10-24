@@ -39,3 +39,6 @@ supabase/.temp/
 .vscode/*
 !.vscode/extensions.json
 packages/db/schemas.local.json
+
+# Written by `next dev` (Next.js agent rules); not part of the repo
+apps/*/AGENTS.md

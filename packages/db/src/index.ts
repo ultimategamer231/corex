@@ -42,10 +42,10 @@ export {
   type SupabaseAdminConfig,
 } from "./supabase-admin.ts";
 export {
-  COLLEGE_ROLES,
-  type CollegeFixture,
-  type CollegeRole,
   FIXTURE_PASSWORD,
   fixtureEmail,
-  seedCollegeFixture,
-} from "./fixtures/college.ts";
+  SCHOOL_ROLES,
+  type SchoolFixture,
+  type SchoolRole,
+  seedSchoolFixture,
+} from "./fixtures/school.ts";

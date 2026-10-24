@@ -10,7 +10,7 @@ import { requireRoles } from "@/lib/session";
 
 /** Invoice PDF with letterhead, number and generation time (CORE-10). */
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { supabase } = await requireRoles([...BURSAR, "student"]);
+  const { supabase } = await requireRoles([...BURSAR, "student", "parent"]);
   const { id } = await params;
   if (!isUuid(id)) notFound();
   const invoice = await supabase

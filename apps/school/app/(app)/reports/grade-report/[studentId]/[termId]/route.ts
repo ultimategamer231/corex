@@ -1,5 +1,6 @@
 import { renderGradeReportPdf } from "@corex/pdf";
 import { notFound } from "next/navigation";
+import { requireEdition } from "@/lib/edition";
 import { isUuid } from "@/lib/ids";
 import { academicRecord, parseRepeatPolicy } from "@/lib/gpa";
 import { getSettings } from "@/lib/org";
@@ -12,6 +13,7 @@ export async function GET(
   { params }: { params: Promise<{ studentId: string; termId: string }> },
 ) {
   const { studentId, termId } = await params;
+  requireEdition("college");
   if (!isUuid(studentId) || !isUuid(termId)) notFound();
   const { student, heading, record } = await loadStudentRecord(studentId);
   const term = record.terms.find((t) => t.termId === termId);

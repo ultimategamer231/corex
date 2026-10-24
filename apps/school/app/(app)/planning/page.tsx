@@ -13,6 +13,7 @@ import { date, todayIso } from "@/lib/format";
 import { getSettings } from "@/lib/org";
 import { currentTerm, rows, termLabel } from "@/lib/queries";
 import { requireRoles } from "@/lib/session";
+import { requireEdition } from "@/lib/edition";
 import { planCourse, submitPlan, unplanCourse } from "./actions";
 
 export const metadata: Metadata = { title: "Course planning" };
@@ -27,6 +28,7 @@ const STATUS_BADGE = {
 
 export default async function PlanningPage() {
   const { supabase, member } = await requireRoles(["student"]);
+  requireEdition("college");
   const settings = await getSettings();
   const { data: student, error } = await supabase
     .from("students")
