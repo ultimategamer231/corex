@@ -53,7 +53,7 @@ afterAll(async () => {
 });
 
 describe("audit trigger (CORE-03)", () => {
-  it("records create, update and void with the acting user", async () => {
+  it("records create and void with the acting user and the reason", async () => {
     const invoice = crypto.randomUUID();
     const payment = crypto.randomUUID();
     await sql.unsafe(
@@ -61,34 +61,32 @@ describe("audit trigger (CORE-03)", () => {
       [invoice],
     );
     await sql.unsafe(
-      `insert into ${schema}.payments (id, invoice_id, amount_minor, currency, method) values ($1, $2, 2500, 'USD', 'cash')`,
-      [payment, invoice],
+      `insert into ${schema}.invoice_lines (invoice_id, description, unit_amount_minor, amount_minor) values ($1, 'Goods', 2500, 0)`,
+      [invoice],
     );
-    // A billing-role policy arrives with the products; here the owner acts through a temporary policy.
-    await sql.unsafe(
-      `create policy test_owner_update on ${schema}.payments for update to authenticated using (${schema}.is_admin()) with check (${schema}.is_admin())`,
-    );
+    await asUser(sql, admin, async (tx) => {
+      await tx.unsafe(`select ${schema}.issue_invoice($1)`, [invoice]);
+      await tx.unsafe(`select * from ${schema}.record_payment($1, $2, 2500, 'USD', 'cash')`, [
+        payment,
+        invoice,
+      ]);
+    });
     await asUser(sql, admin, (tx) =>
-      tx.unsafe(`update ${schema}.payments set reference = 'MM-123' where id = $1`, [payment]),
-    );
-    await asUser(sql, admin, (tx) =>
-      tx.unsafe(
-        `update ${schema}.payments set status = 'void', void_reason = 'Duplicate entry' where id = $1`,
-        [payment],
-      ),
+      tx.unsafe(`select ${schema}.void_payment($1, 'Duplicate entry')`, [payment]),
     );
 
     const rows = await auditFor(payment);
-    expect(rows.map((r) => r.action)).toEqual(["create", "update", "void"]);
-    expect(rows[0]?.actor_id).toBeNull(); // inserted by the migration/service connection, no JWT
-    expect(rows[1]?.actor_id).toBe(admin);
-    expect(rows[2]).toMatchObject({
+    expect(rows.map((r) => r.action)).toEqual(["create", "void"]);
+    expect(rows[0]?.actor_id).toBe(admin);
+    expect(rows[1]).toMatchObject({
       actor_id: admin,
       table_name: "payments",
       reason: "Duplicate entry",
     });
-    expect(rows[2]?.before).toMatchObject({ status: "posted" });
-    expect(rows[2]?.after).toMatchObject({ status: "void" });
+    expect(rows[1]?.before).toMatchObject({ status: "posted" });
+    expect(rows[1]?.after).toMatchObject({ status: "void" });
+    const invoiceRows = await auditFor(invoice);
+    expect(invoiceRows.map((r) => r.action)).toEqual(["create", "update", "update", "update"]);
   });
 
   it("records approvals as approve", async () => {
