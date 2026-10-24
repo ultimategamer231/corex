@@ -54,6 +54,6 @@ Images are pulled from Docker Hub (`SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`)
 
 ## Sample data
 
-`pnpm db:fixture --schema dev_college` rebuilds a small fictional College in the local stack with one sign-in per role (password `Test@2026pass`) and prints the emails. `node scripts/school-env.mjs --schema dev_college` writes the School app's `.env.local` for it. The end-to-end tests use the schema `e2e_college` the same way.
+`pnpm db:fixture --schema dev_school` rebuilds a small fictional school in the local stack, with College and High School data and one sign-in per role (password `Test@2026pass`), and prints the emails. `node scripts/school-env.mjs --schema dev_school` writes the School app's `.env.local` for it (add `--edition highschool` for the High School edition). The end-to-end tests use the schema `e2e_school` the same way, running the app once per edition.
 
 After changing a migration, run `pnpm db:types` to regenerate `packages/db/types/`; CI fails if they differ.

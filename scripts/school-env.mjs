@@ -2,7 +2,7 @@
 // Writes apps/school/.env.local and .env.production.local for a local schema, with
 // the local Supabase stack's development keys (never real ones). Next.js reads
 // these files for `dev`, `build` and `start`; both are git-ignored.
-//   node scripts/school-env.mjs --schema dev_college [--edition college]
+//   node scripts/school-env.mjs --schema dev_school [--edition college]
 import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
