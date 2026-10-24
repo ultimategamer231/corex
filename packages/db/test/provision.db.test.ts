@@ -66,6 +66,7 @@ describe("db:provision (SPEC.md 4.4)", () => {
         "core/0001_core_tables",
         "core/0002_access",
         "core/0003_audit",
+        "core/0004_billing",
       ]);
     }
   });
