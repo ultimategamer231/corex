@@ -4,8 +4,8 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 
 ## Current status
 
-- **Phase:** 1 (Foundation, SPEC.md Step 1): complete and self-audited, awaiting owner permission to create `main` and merge
-- **Block:** 1.9 complete (phase closed)
+- **Phase:** 2 (Database, SPEC.md Step 2): in progress. Phase 1 merged to `main` (owner renamed the branch) with CI and E2E green.
+- **Block:** 2.1 complete
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
@@ -20,7 +20,12 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **1.8** (2026-10-23) GitHub Actions: `ci.yml` (format, lint, typecheck, unit tests, build, `pnpm audit --audit-level high`) on every push and PR; `e2e.yml` (build, Playwright + axe, report artifact) on `main` and on demand. A clean-checkout dry run caught lint depending on generated Next types; section pages now declare their own prop types.
 - **1.9** (2026-10-23) Phase close: `pnpm check` green from a clean build, 40/40 e2e, `pnpm audit` clean, `CLAUDE.md` added, screenshots at 360/390/768/1440 reviewed.
 
+- **2.0** (2026-10-24) Merged Dependabot PRs #1-#4 (checkout 7.0.1, setup-node 7.1.0, upload-artifact 7.0.2, pnpm/action-setup 6.1.0) with owner approval; CI and E2E green on `main`.
+- **2.1** (2026-10-24) `packages/db`: migration runner (core + product folders, `{{schema}}` rendering with strict schema-name validation, SHA-256 checksums, one transaction per schema, advisory lock, product lock-in), `db:migrate` and `db:migrate:all`, `schemas.json` registry with per-project `DATABASE_URL_<PROJECT>`. 20 unit + 6 database tests.
+
 ## Owner answers (2026-10-23, 2026-10-24)
+
+- Phase 2 plan approved. Backups go to Cloudflare R2. Dependabot PRs merged.
 
 - No manual reviews by the owner: Claude reviews and audits its own work (code review, security review, tests, screenshots against the mockup), fixes findings, confirms CI is green, then asks permission to push/merge. Send screenshots when a phase includes UI.
 - Install essential dependencies without asking; ask when a dependency is risky or critical.

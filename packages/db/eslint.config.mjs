@@ -1,0 +1,10 @@
+import corex from "@corex/config/eslint";
+
+const config = [
+  ...corex,
+  { settings: { react: { version: "19" } } },
+  // Command-line scripts report progress on the console.
+  { files: ["src/cli/**"], rules: { "no-console": "off" } },
+];
+
+export default config;

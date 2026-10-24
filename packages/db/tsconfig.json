@@ -1,0 +1,10 @@
+{
+  "extends": "@corex/config/tsconfig/base.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["src", "test", "*.ts", "*.mjs"],
+  "exclude": ["node_modules"]
+}
