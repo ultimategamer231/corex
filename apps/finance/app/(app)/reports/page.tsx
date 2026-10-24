@@ -5,6 +5,7 @@ import { PageHeader } from "@corex/ui/components/page-header";
 import { Select } from "@corex/ui/components/select";
 import { Table, TableScroll, Td, Th } from "@corex/ui/components/table";
 import type { Metadata } from "next";
+import { DEMO_EXPORT_ROWS, demoInstance } from "@/lib/demo";
 import { loadAccounts } from "@/lib/finance";
 import { todayIso } from "@/lib/format";
 import { getSettings } from "@/lib/org";
@@ -32,6 +33,8 @@ export default async function ReportsPage({ searchParams }: Props) {
     buildReport(supabase, request, settings.baseCurrency),
   ]);
   const query = reportQuery(request).toString();
+  // The demo exports at most 200 rows (SPEC.md 11.3).
+  const exportable = !demoInstance() || (table?.rows.length ?? 0) <= DEMO_EXPORT_ROWS;
   return (
     <>
       <PageHeader
@@ -84,20 +87,26 @@ export default async function ReportsPage({ searchParams }: Props) {
               </h2>
               <p className="text-[15px] text-muted">{table.subtitle}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <a
-                className={buttonVariants({ variant: "secondary", size: "sm" })}
-                href={`/reports/export?format=pdf&${query}`}
-              >
-                Download PDF
-              </a>
-              <a
-                className={buttonVariants({ variant: "secondary", size: "sm" })}
-                href={`/reports/export?format=xlsx&${query}`}
-              >
-                Download Excel
-              </a>
-            </div>
+            {exportable ? (
+              <div className="flex flex-wrap gap-2">
+                <a
+                  className={buttonVariants({ variant: "secondary", size: "sm" })}
+                  href={`/reports/export?format=pdf&${query}`}
+                >
+                  Download PDF
+                </a>
+                <a
+                  className={buttonVariants({ variant: "secondary", size: "sm" })}
+                  href={`/reports/export?format=xlsx&${query}`}
+                >
+                  Download Excel
+                </a>
+              </div>
+            ) : (
+              <p className="text-sm text-muted">
+                Demo exports are limited to {DEMO_EXPORT_ROWS} rows. Choose a shorter period.
+              </p>
+            )}
           </div>
           {table.rows.length === 0 ? (
             <p className="text-muted">Nothing in this period.</p>

@@ -2,6 +2,7 @@ import { buildXlsx, XLSX_TYPE } from "@corex/core/xlsx";
 import { renderReportPdf } from "@corex/pdf";
 import { notFound } from "next/navigation";
 import type { NextRequest } from "next/server";
+import { DEMO_EXPORT_ROWS, demoInstance } from "@/lib/demo";
 import { todayIso } from "@/lib/format";
 import { getSettings } from "@/lib/org";
 import { letterhead, pdfResponse } from "@/lib/pdf";
@@ -24,6 +25,12 @@ export async function GET(request: NextRequest) {
     settings.baseCurrency,
   );
   if (!table) notFound();
+  if (demoInstance() && table.rows.length > DEMO_EXPORT_ROWS) {
+    return new Response(
+      `Demo exports are limited to ${DEMO_EXPORT_ROWS} rows. Choose a shorter period.`,
+      { status: 403, headers: { "Content-Type": "text/plain; charset=utf-8" } },
+    );
+  }
   const name = `${table.slug}-${params.from ?? ""}-${params.to ?? ""}`.replace(/[^\w.-]/g, "_");
   if (params.format === "xlsx") {
     return new Response(new Uint8Array(buildXlsx(toSheet(table, settings.orgName))), {
