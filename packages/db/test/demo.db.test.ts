@@ -242,3 +242,39 @@ describe("high school demo seed", () => {
     ).toBe(2);
   }, 120_000);
 });
+
+describe("finance demo seed", () => {
+  const f = DEMOS.finance.schema;
+
+  it("has the sizes SPEC.md 11.4 asks for", async () => {
+    await resetDemo(sql, admin, "finance", { exposeLocally: true });
+    expect(await count(`${f}.accounts`)).toBe(3);
+    expect(await count(`(select distinct currency from ${f}.accounts) c`)).toBe(2);
+    expect(await count(`${f}.counterparties`)).toBe(25);
+    expect(await count(`${f}.invoices`)).toBe(30);
+    expect(await count(`${f}.employees`)).toBe(12);
+    expect(await count(`${f}.payroll_runs where status = 'paid'`)).toBe(12);
+    expect(
+      await count(`(select distinct date_trunc('month', date) from ${f}.transactions) m`),
+    ).toBe(18);
+    expect(await count(`${f}.transactions where not is_seed`)).toBe(0);
+    const negative = await count(`${f}.account_balances where balance_minor < 0`);
+    expect(negative).toBe(0);
+  }, 120_000);
+
+  it("keeps sample entries from being voided by visitors", async () => {
+    const accountant = (
+      await one<{ id: string }>(`select id from auth.users where email = $1`, [
+        DEMOS.finance.accounts.find((a) => a.slug === "accountant")?.email,
+      ])
+    ).id;
+    const entry = await one<{ id: string }>(
+      `select id from ${f}.transactions where status = 'posted' and invoice_payment_id is null limit 1`,
+    );
+    await expect(
+      asUser(sql, accountant, (tx) =>
+        tx.unsafe(`select ${f}.void_transaction($1, 'Mistake')`, [entry.id]),
+      ),
+    ).rejects.toThrow(/sample records/);
+  });
+});

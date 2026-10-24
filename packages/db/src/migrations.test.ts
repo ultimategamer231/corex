@@ -36,7 +36,8 @@ describe("loadMigrations", () => {
     const plain = loadMigrations("school").map((m) => m.id);
     const demo = loadMigrations("school", undefined, { demo: true }).map((m) => m.id);
     expect(plain.some((id) => id.startsWith("demo/"))).toBe(false);
-    expect(demo.at(-1)).toBe("demo/0001_demo");
+    expect(demo.filter((id) => id.startsWith("demo/")).at(0)).toBe("demo/0001_demo");
+    expect(demo.at(-1)?.startsWith("demo/")).toBe(true);
     expect(demo.slice(0, plain.length)).toEqual(plain);
   });
 });

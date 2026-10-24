@@ -3,62 +3,21 @@
 // inside the reset transaction with `corex.demo_seeding` on, so every row is marked
 // as a sample record (is_seed).
 import { randomUUID } from "node:crypto";
-import type { TransactionSql } from "postgres";
 import { address, firstName, person, phone, type Person } from "./people.ts";
 import type { Random } from "./random.ts";
+import {
+  addDays,
+  asUser,
+  DAY,
+  day,
+  insert,
+  type Row,
+  type SeedContext,
+  userId,
+  yearOf,
+} from "./seed.ts";
 
-type Value = string | number | boolean | null | Record<string, unknown>;
-type Row = Record<string, Value>;
-
-export type SeedContext = {
-  tx: TransactionSql;
-  schema: string;
-  random: Random;
-  /** User ids by account slug (admin, registrar, ..., faculty1, ...). */
-  users: Record<string, string>;
-};
-
-const DAY = 86_400_000;
-
-/** Today's date in Monrovia (UTC, no daylight saving) plus `offset` days, as yyyy-mm-dd. */
-export function day(offset = 0, now = Date.now()): string {
-  return new Date(now + offset * DAY).toISOString().slice(0, 10);
-}
-
-function addDays(iso: string, days: number): string {
-  return new Date(Date.parse(`${iso}T00:00:00Z`) + days * DAY).toISOString().slice(0, 10);
-}
-
-function yearOf(iso: string): number {
-  return Number(iso.slice(0, 4));
-}
-
-function userId(ctx: SeedContext, slug: string): string {
-  const id = ctx.users[slug];
-  if (!id) throw new Error(`Demo account "${slug}" is missing.`);
-  return id;
-}
-
-/** Multi-row insert in chunks that stay under Postgres's parameter limit. */
-async function insert(ctx: SeedContext, table: string, rows: Row[]): Promise<void> {
-  const first = rows[0];
-  if (!first) return;
-  const size = Math.max(1, Math.floor(20_000 / Object.keys(first).length));
-  for (let i = 0; i < rows.length; i += size) {
-    const chunk = rows.slice(i, i + size);
-    await ctx.tx`insert into ${ctx.tx(`${ctx.schema}.${table}`)} ${ctx.tx(chunk)}`;
-  }
-}
-
-/** Runs `fn` as a signed-in user, for functions that check the caller's role. */
-async function asUser<T>(ctx: SeedContext, id: string, fn: () => Promise<T>): Promise<T> {
-  await ctx.tx`select set_config('request.jwt.claims', ${JSON.stringify({ sub: id, role: "authenticated" })}, true)`;
-  try {
-    return await fn();
-  } finally {
-    await ctx.tx`select set_config('request.jwt.claims', '', true)`;
-  }
-}
+export { day, type SeedContext };
 
 type Term = { id: string; name: string; startsOn: string; endsOn: string };
 

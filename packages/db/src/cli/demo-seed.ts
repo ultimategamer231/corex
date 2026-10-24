@@ -1,4 +1,4 @@
-// pnpm demo:seed --demo <college|highschool> [--project <label>]
+// pnpm demo:seed --demo <college|highschool|finance> [--project <label>]
 // Rebuilds a public demo with its sample data and sign-ins (SPEC.md 11.4, 11.5).
 // Without --project it uses the local stack; the nightly reset passes --project demo
 // (DATABASE_URL_DEMO, SUPABASE_URL_DEMO, SUPABASE_SERVICE_ROLE_KEY_DEMO).
@@ -10,8 +10,8 @@ import { resetDemo } from "../demo/reset.ts";
 import { supabaseAdmin, supabaseAdminConfig } from "../supabase-admin.ts";
 import { parseOptions, run } from "./args.ts";
 
-const options = parseOptions("demo:seed --demo <college|highschool> [--project <label>]", {
-  demo: z.enum(["college", "highschool"]),
+const options = parseOptions("demo:seed --demo <college|highschool|finance> [--project <label>]", {
+  demo: z.enum(["college", "highschool", "finance"]),
   project: z.string().default(LOCAL_PROJECT),
 });
 
@@ -24,7 +24,7 @@ run(async () => {
       exposeLocally: options.project === LOCAL_PROJECT,
     });
     console.log(
-      `${result.schema}: ${result.students} students, migrations applied ${result.migrations.applied.length}, ${((Date.now() - started) / 1000).toFixed(1)}s`,
+      `${result.schema}: ${result.summary}, migrations applied ${result.migrations.applied.length}, ${((Date.now() - started) / 1000).toFixed(1)}s`,
     );
     console.log(`Sign in with password ${DEMO_PASSWORD}:`);
     for (const a of DEMOS[options.demo].accounts) console.log(`  ${a.label.padEnd(11)} ${a.email}`);
