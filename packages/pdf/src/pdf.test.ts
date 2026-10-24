@@ -3,7 +3,9 @@ import { extractText, getDocumentProxy } from "unpdf";
 import {
   renderGradeReportPdf,
   renderInvoicePdf,
+  renderPayslipPdf,
   renderReceiptPdf,
+  renderReportPdf,
   renderReportCardPdf,
   renderTranscriptPdf,
 } from "./index";
@@ -262,5 +264,55 @@ describe("report card PDF (SCH-08)", () => {
     }
     // Labels print in capitals.
     expect(content).toMatch(/TEACHER.S REMARKS/);
+  });
+});
+
+describe("finance PDFs", () => {
+  it("renders a payslip from its saved lines (FIN-06)", async () => {
+    const usd = (minor: bigint) => ({ amountMinor: minor, currency: "USD" as const });
+    const out = await text(
+      await renderPayslipPdf({
+        org,
+        timezone: "Africa/Monrovia",
+        period: "October 2026",
+        employee: {
+          name: "Korpo Wleh",
+          number: "EMP-001",
+          position: "Sales",
+          paymentMethod: "mobile money",
+        },
+        lines: [
+          { name: "Base salary", kind: "base", amount: usd(45000n) },
+          { name: "Transport allowance", kind: "allowance", amount: usd(5000n) },
+          { name: "Pension", kind: "deduction", amount: usd(1350n) },
+        ],
+        gross: usd(50000n),
+        deductions: usd(1350n),
+        net: usd(48650n),
+        status: "approved",
+        generatedAt,
+      }),
+    );
+    expect(out).toContain("Payslip");
+    expect(out).toContain("Korpo Wleh");
+    expect(out).toContain("Transport allowance");
+    expect(out).toContain("$486.50");
+  });
+
+  it("renders a report table with its total", async () => {
+    const out = await text(
+      await renderReportPdf({
+        org,
+        timezone: "Africa/Monrovia",
+        title: "Income and expense summary (cash basis)",
+        subtitle: "2026-10-01 to 2026-10-31, in USD",
+        columns: [{ label: "Month" }, { label: "Income", numeric: true }],
+        rows: [["2026-10", "$1,200.00"]],
+        total: ["Total", "$1,200.00"],
+        generatedAt,
+      }),
+    );
+    expect(out).toContain("cash basis");
+    expect(out).toContain("$1,200.00");
   });
 });
