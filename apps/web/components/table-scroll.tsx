@@ -15,7 +15,7 @@ export function TableScroll({
 }) {
   return (
     <div
-      className={cn("overflow-x-auto rounded-2xl border border-border", className)}
+      className={cn("relative overflow-x-auto rounded-2xl border border-border", className)}
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be keyboard focusable
       tabIndex={0}
       role="region"
