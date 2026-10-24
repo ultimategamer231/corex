@@ -36,7 +36,7 @@ async function auditFor(recordId: string): Promise<AuditRow[]> {
 }
 
 beforeAll(async () => {
-  await migrateSchema(sql, schema, "finance");
+  await migrateSchema(sql, schema, "school");
   admin = await createTestUser(keys, testEmail("owner"), "Test@2026pass");
   member = await createTestUser(keys, testEmail("staff"), "Test@2026pass");
   await sql.unsafe(
@@ -57,7 +57,7 @@ describe("audit trigger (CORE-03)", () => {
     const invoice = crypto.randomUUID();
     const payment = crypto.randomUUID();
     await sql.unsafe(
-      `insert into ${schema}.invoices (id, party_type, party_id, currency) values ($1, 'counterparty', gen_random_uuid(), 'USD')`,
+      `insert into ${schema}.invoices (id, party_type, party_id, currency) values ($1, 'student', gen_random_uuid(), 'USD')`,
       [invoice],
     );
     await sql.unsafe(
