@@ -29,6 +29,14 @@ const apps: App[] = [
     app: "school",
     env: { EDITION: "highschool" },
   },
+  // The College build as a public demo: demo mode on the seeded demo_college schema.
+  {
+    name: "school-demo",
+    port: 3005,
+    testDir: "e2e/school-demo",
+    app: "school",
+    env: { DEMO_MODE: "true", DB_SCHEMA: "demo_college" },
+  },
   { name: "clinic", port: 3002, testDir: "e2e/apps" },
   { name: "finance", port: 3003, testDir: "e2e/apps" },
 ];
@@ -61,12 +69,22 @@ export default defineConfig({
   },
   projects: [
     { name: "school-setup", testDir: "e2e/school", testMatch: /setup\.ts$/ },
+    // After the fixture: a demo reset locks its tables, which delays deleting fixture users.
+    {
+      name: "school-demo-setup",
+      testDir: "e2e/school-demo",
+      testMatch: /setup\.ts$/,
+      dependencies: ["school-setup"],
+    },
     ...apps.map((app) => ({
       name: app.name,
       testDir: app.testDir,
       use: { baseURL: `http://localhost:${app.port}` },
       ...(app.name.startsWith("school")
-        ? { dependencies: ["school-setup"], testIgnore: /setup\.ts$/ }
+        ? {
+            dependencies: [app.name === "school-demo" ? "school-demo-setup" : "school-setup"],
+            testIgnore: /setup\.ts$/,
+          }
         : {}),
     })),
   ],
