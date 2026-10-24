@@ -1,0 +1,29 @@
+{
+  "name": "@corex/pdf",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@corex/core": "workspace:*",
+    "@react-pdf/renderer": "4.9.0",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@corex/config": "workspace:*",
+    "@testing-library/jest-dom": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "eslint": "9.39.5",
+    "typescript": "catalog:",
+    "unpdf": "1.9.1",
+    "vitest": "catalog:"
+  }
+}

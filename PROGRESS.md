@@ -5,7 +5,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Current status
 
 - **Phase:** 3 (Core, SPEC.md Step 3): in progress. Phases 1-2 merged to `main`.
-- **Block:** 3.0
+- **Block:** Phase 3 complete
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
@@ -30,6 +30,8 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **2.7** (2026-10-24) `db:backup` (SPEC 4.5): `pg_dump` custom format (compressed, `--no-owner`) of one schema using a version-matched binary (`PG_DUMP`, local, or the `postgres:<major>-alpine` image with the URL kept out of process arguments), uploaded to S3-compatible storage as `<project>/<schema>/<schema>-<UTC timestamp>.dump`, then backups older than 30 days pruned by key date. `--all true` backs up every registered schema and reports failures after trying them all. Nightly workflow `.github/workflows/backup.yml` (01:30 Monrovia) stays off until `BACKUPS_ENABLED=true` and the R2 secrets exist. Verified against local Storage S3: archive contains only that schema. 7 unit + 3 database tests.
 - **2.8** (2026-10-24) CI `database` job starts local Supabase on the runner and runs all database tests; `docs/database.md` (tenancy model, project labels and secrets, access rules, one-email-per-client limitation, provisioning runbook incl. Exposed schemas, migrations, R2 backup setup); README and CLAUDE.md updated; session hook clears stale Docker PID files after a container restore. Full check green from clean; 67 database tests; audit clean.
 - **2.9** (2026-10-24) Phase 2 self-audit: code review (10 findings, all fixed), security review (no exploitable findings), CI green on PR #5 including the database job.
+
+- **Phase 3** (2026-10-24) `core/migrations/0004_billing.sql`: `billing_roles()`/`can_bill()` (products extend), gapless per-schema document numbers (CORE-08, concurrency-tested), line amounts computed in the database, `issue_invoice`, idempotent `record_payment` with receipt (CORE-06), `void_payment`/`void_invoice` with reasons (CORE-07), currency match enforced (CORE-05), `invoice_balances` view, never-delete triggers, `log_login()`. `packages/core`: money (bigint, CORE-04/05), `requireMember` with role and session-age checks (CORE-02, 5.3), settings (CORE-01), env, Supabase server/browser clients with schema, billing client, Dexie offline outbox with auto-sync and logout wipe (SPEC 10), Monrovia dates. `packages/pdf`: letterhead, invoice and receipt PDFs with number and generation time (CORE-10). Tests: 89 database, 43 core, 3 PDF (text-checked) plus visual check.
 
 ## Owner answers (2026-10-23, 2026-10-24)
 
@@ -65,6 +67,9 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 | D13 | `memberships` primary key is (user_id, role)                                                                                                                      | SPEC lets one user hold two roles (Admin + Clinician, Owner + Accountant); `has_role` checks any active row                      |
 | D14 | Core grants administrators read access to billing tables but no writes; issuing invoices and posting payments go through Phase 3 server code and product policies | Keeps money rules (CORE-05..08) in one tested path                                                                               |
 | D15 | Corrected core migrations 0002/0003 in place during the Phase 2 audit                                                                                             | They had never run outside throwaway test schemas; from now on applied migrations are immutable                                  |
+| D16 | Invoice line amount = quantity x unit price rounded half away from zero to the minor unit (database and TypeScript agree)                                         | Standard commercial rounding; SPEC gives no rule                                                                                 |
+| D17 | Payments above the balance due are refused; an invoice with posted payments must have them voided before the invoice can be voided                                | Conservative default; no credit or refund flow in SPEC                                                                           |
+| D18 | Login pages and wiring the apps to Supabase move to each app's own phase (School: Phase 5)                                                                        | Phase 3 delivers the shared helpers; apps keep placeholders until their phase                                                    |
 
 ## Planned deviations from the mockup (Phase 4)
 
