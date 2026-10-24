@@ -70,7 +70,10 @@ export async function seedSchoolFixture(
   const emails = SCHOOL_ROLES.map((r) => fixtureEmail(s, r));
   const old = await sql<{ id: string }[]>`select id from auth.users where email = any(${emails})`;
   await sql.unsafe(`drop schema if exists ${s} cascade`);
-  for (const { id } of old) await admin.auth.admin.deleteUser(id);
+  for (const { id } of old) {
+    const { error } = await admin.auth.admin.deleteUser(id);
+    if (error) throw new Error(`Could not delete fixture user ${id}: ${error.message}`);
+  }
 
   await migrateSchema(sql, s, "school");
   await sql.unsafe(

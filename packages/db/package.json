@@ -14,6 +14,7 @@
     "test:db": "vitest run --config vitest.db.config.ts"
   },
   "dependencies": {
+    "@corex/core": "workspace:*",
     "@aws-sdk/client-s3": "3.1156.0",
     "@supabase/supabase-js": "2.118.0",
     "postgres": "3.4.9",
