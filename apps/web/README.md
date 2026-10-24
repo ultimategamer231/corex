@@ -1,6 +1,10 @@
 # Corex website (`apps/web`)
 
-Marketing website (SPEC.md 6). Phase 1 contains a placeholder home page with the Corex theme, logo and contact details; all routes, content files and the quote form are built in Phase 4.
+Marketing website (SPEC.md 6). All copy lives in typed files under `content/`; components hold no placeholder text.
+
+- Pages: `/`, `/software`, `/software/{school,clinic,finance,on-request}`, `/services/{ai-automation,it-consultancy,training}`, `/work` (hidden until a case study is published), `/pricing`, `/about`, `/contact`, `/legal/{terms,privacy,license}`.
+- Case studies: MDX in `content/work/`; `draft: true` shows only in development.
+- Quote form: `app/contact/actions.ts` validates with `lib/leads/schema.ts`, rate-limits (5 per IP per hour) and stores leads in the `corex_web` schema of the website's own Supabase project (`pnpm db:migrate --schema corex_web --product web --project web`). Email notification is optional (Resend).
 
 - Design reference: `docs/mockup/` (see the route mapping in the master prompt)
 - Contact details: `content/site.ts`
