@@ -51,3 +51,9 @@ Images are pulled from Docker Hub (`SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`)
 | School  | 3001 | `pnpm --filter @corex/school dev`  |
 | Clinic  | 3002 | `pnpm --filter @corex/clinic dev`  |
 | Finance | 3003 | `pnpm --filter @corex/finance dev` |
+
+## Sample data
+
+`pnpm db:fixture --schema dev_college` rebuilds a small fictional College in the local stack with one sign-in per role (password `Test@2026pass`) and prints the emails. `node scripts/school-env.mjs --schema dev_college` writes the School app's `.env.local` for it. The end-to-end tests use the schema `e2e_college` the same way.
+
+After changing a migration, run `pnpm db:types` to regenerate `packages/db/types/`; CI fails if they differ.

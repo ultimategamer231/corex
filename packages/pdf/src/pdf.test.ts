@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { extractText, getDocumentProxy } from "unpdf";
-import { renderInvoicePdf, renderReceiptPdf } from "./index";
+import {
+  renderGradeReportPdf,
+  renderInvoicePdf,
+  renderReceiptPdf,
+  renderTranscriptPdf,
+} from "./index";
 
 const org = {
   orgName: "Bethel High School",
@@ -98,6 +103,105 @@ describe("invoice PDF", () => {
       "Balance due",
       "L$10,000.00",
       "1 Oct 2026",
+    ]) {
+      expect(content).toContain(expected);
+    }
+  });
+});
+
+const student = { name: "Ama Kpadeh", studentNumber: "TC-2026-0001", program: "BSc Computing" };
+const rows = [
+  {
+    code: "MATH 101",
+    title: "College Algebra",
+    credits: 3,
+    score: "85.00",
+    letter: "B",
+    gradePoints: "3.00",
+  },
+  {
+    code: "ENG 101",
+    title: "English Composition",
+    credits: 3,
+    score: "92.50",
+    letter: "A",
+    gradePoints: "4.00",
+  },
+];
+
+describe("grade report and transcript PDFs (SCH-08)", () => {
+  it("renders the grade report with letterhead, results and GPA", async () => {
+    const pdf = await renderGradeReportPdf({
+      org,
+      timezone: "Africa/Monrovia",
+      documentNumber: "GR-TC-2026-0001-S1",
+      student,
+      term: "2026/2027 Semester 1",
+      rows,
+      termGpa: "3.50",
+      cgpa: "3.50",
+      creditsEarned: 6,
+      generatedAt,
+    });
+    const content = await text(pdf);
+    for (const expected of [
+      "Bethel High School",
+      "Excellence in learning",
+      "Grade report",
+      "GR-TC-2026-0001-S1",
+      "Ama Kpadeh",
+      "TC-2026-0001",
+      "2026/2027 Semester 1",
+      "MATH 101",
+      "92.50",
+      "Term GPA",
+      "3.50",
+      "Generated 24 Oct 2026, 01:30",
+    ]) {
+      expect(content).toContain(expected);
+    }
+  });
+
+  it("renders the transcript with every term, CGPA and credits", async () => {
+    const pdf = await renderTranscriptPdf({
+      org,
+      timezone: "Africa/Monrovia",
+      documentNumber: "TR-TC-2026-0001-202610240130",
+      student,
+      terms: [
+        { name: "2025/2026 Semester 1", rows, gpa: "3.50", creditsEarned: 6 },
+        {
+          name: "2025/2026 Semester 2",
+          rows: [
+            {
+              code: "MATH 201",
+              title: "Calculus",
+              credits: 3,
+              score: "71.00",
+              letter: "C",
+              gradePoints: "2.00",
+              note: "Repeated later",
+            },
+          ],
+          gpa: "2.00",
+          creditsEarned: 3,
+        },
+      ],
+      cgpa: "3.00",
+      creditsEarned: 9,
+      creditsRequired: 120,
+      generatedAt,
+    });
+    const content = await text(pdf);
+    for (const expected of [
+      "Academic transcript",
+      "TR-TC-2026-0001-202610240130",
+      "2025/2026 Semester 1",
+      "2025/2026 Semester 2",
+      "Repeated later",
+      "Cumulative GPA",
+      "9 of 120",
+      "Generated 24 Oct 2026, 01:30",
     ]) {
       expect(content).toContain(expected);
     }

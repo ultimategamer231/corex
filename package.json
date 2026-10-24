@@ -24,7 +24,9 @@
     "db:migrate": "node packages/db/src/cli/migrate.ts",
     "db:migrate:all": "node packages/db/src/cli/migrate-all.ts",
     "db:provision": "node packages/db/src/cli/provision.ts",
-    "db:backup": "node packages/db/src/cli/backup.ts"
+    "db:backup": "node packages/db/src/cli/backup.ts",
+    "db:types": "node scripts/gen-types.mjs",
+    "db:fixture": "node packages/db/src/cli/fixture.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
