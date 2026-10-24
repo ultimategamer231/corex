@@ -1,9 +1,12 @@
 import { DemoBanner } from "@corex/ui/shell";
+import { connection } from "next/server";
 import type * as React from "react";
 import { demoInstance, quoteUrl } from "@/lib/demo";
 
 /** Centered card for sign-in pages. */
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  // DEMO_MODE is read per request, never fixed at build time.
+  await connection();
   const demo = demoInstance();
   return (
     <>
