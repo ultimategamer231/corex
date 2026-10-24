@@ -26,7 +26,8 @@
     "db:provision": "node packages/db/src/cli/provision.ts",
     "db:backup": "node packages/db/src/cli/backup.ts",
     "db:types": "node scripts/gen-types.mjs",
-    "db:fixture": "node packages/db/src/cli/fixture.ts"
+    "db:fixture": "node packages/db/src/cli/fixture.ts",
+    "demo:seed": "node packages/db/src/cli/demo-seed.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

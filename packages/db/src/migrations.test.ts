@@ -31,4 +31,12 @@ describe("loadMigrations", () => {
     const ids = loadMigrations("clinic", fixtures).map((m) => m.id);
     expect(ids).not.toContain("school/0001_school_items");
   });
+
+  it("adds the demo layer last only when asked", () => {
+    const plain = loadMigrations("school").map((m) => m.id);
+    const demo = loadMigrations("school", undefined, { demo: true }).map((m) => m.id);
+    expect(plain.some((id) => id.startsWith("demo/"))).toBe(false);
+    expect(demo.at(-1)).toBe("demo/0001_demo");
+    expect(demo.slice(0, plain.length)).toEqual(plain);
+  });
 });

@@ -56,7 +56,7 @@ const settingsSchema = z
 export async function saveSettings(_p: FormState, formData: FormData): Promise<FormState> {
   return runAction(
     formData,
-    { roles: ADMIN, schema: settingsSchema, revalidate: ["/"] },
+    { roles: ADMIN, schema: settingsSchema, revalidate: ["/"], demoBlocked: true },
     async (d, { supabase }) => {
       const current = await getSettings();
       const enabled = [
@@ -105,7 +105,7 @@ const userSchema = z.object({
 export async function createUser(_p: FormState, formData: FormData): Promise<FormState> {
   return runAction(
     formData,
-    { roles: ADMIN, schema: userSchema, revalidate: ["/settings"] },
+    { roles: ADMIN, schema: userSchema, revalidate: ["/settings"], demoBlocked: true },
     async (d, { supabase }) => {
       const roles: readonly string[] = EDITION_ROLES[schoolEnv().edition];
       if (!roles.includes(d.role) || d.role === "student" || d.role === "parent") {
@@ -131,7 +131,7 @@ const statusSchema = z.object({
 export async function setMembershipStatus(_p: FormState, formData: FormData): Promise<FormState> {
   return runAction(
     formData,
-    { roles: ADMIN, schema: statusSchema, revalidate: ["/settings"] },
+    { roles: ADMIN, schema: statusSchema, revalidate: ["/settings"], demoBlocked: true },
     async (d, { supabase, member }) => {
       if (d.user_id === member.userId)
         throw new ActionError("You cannot suspend your own account.");

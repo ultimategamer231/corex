@@ -1,4 +1,4 @@
-import type { Sql } from "postgres";
+import type { Sql, TransactionSql } from "postgres";
 import { migrateSchema, type MigrateResult } from "./migrations.ts";
 import { FIRST_ADMIN_ROLE, type Product } from "./products.ts";
 import { addToRegistry } from "./registry.ts";
@@ -54,7 +54,7 @@ async function otherMemberships(sql: Sql, userId: string, schema: string): Promi
 const ALWAYS_EXPOSED = ["public", "graphql_public"];
 
 /** Schemas PostgREST serves, from the authenticator role's `pgrst.db_schemas` setting. */
-export async function readExposedSchemas(sql: Sql): Promise<string[]> {
+export async function readExposedSchemas(sql: Sql | TransactionSql): Promise<string[]> {
   const [row] = await sql<{ current: string | null }[]>`
     select (
       select split_part(cfg, '=', 2)
@@ -69,7 +69,10 @@ export async function readExposedSchemas(sql: Sql): Promise<string[]> {
 }
 
 /** Sets the exposed schemas (local stack only); `public` and `graphql_public` always stay. */
-export async function writeExposedSchemas(sql: Sql, schemas: string[]): Promise<void> {
+export async function writeExposedSchemas(
+  sql: Sql | TransactionSql,
+  schemas: string[],
+): Promise<void> {
   const list = [
     ...new Set([
       ...ALWAYS_EXPOSED,
@@ -81,19 +84,31 @@ export async function writeExposedSchemas(sql: Sql, schemas: string[]): Promise<
   await sql`notify pgrst, 'reload schema'`;
 }
 
+/**
+ * Reads, changes and writes the exposed schemas under a lock, so parallel scripts
+ * (test setups seeding different schemas) do not drop each other's entries.
+ */
+async function changeExposedSchemas(
+  sql: Sql,
+  change: (current: string[]) => string[] | null,
+): Promise<void> {
+  await sql.begin(async (tx) => {
+    await tx`select pg_advisory_xact_lock(hashtext('corex.exposed_schemas'))`;
+    const next = change(await readExposedSchemas(tx));
+    if (next) await writeExposedSchemas(tx, next);
+  });
+}
+
 /** Adds `schema` to PostgREST's exposed schemas (local development and tests). */
 export async function exposeSchemaLocally(sql: Sql, schema: string): Promise<void> {
-  const current = await readExposedSchemas(sql);
-  if (!current.includes(schema)) await writeExposedSchemas(sql, [...current, schema]);
+  await changeExposedSchemas(sql, (current) =>
+    current.includes(schema) ? null : [...current, schema],
+  );
 }
 
 /** Removes schemas from PostgREST's exposed schemas (local development and tests). */
 export async function unexposeSchemasLocally(sql: Sql, ...schemas: string[]): Promise<void> {
-  const current = await readExposedSchemas(sql);
-  await writeExposedSchemas(
-    sql,
-    current.filter((s) => !schemas.includes(s)),
-  );
+  await changeExposedSchemas(sql, (current) => current.filter((s) => !schemas.includes(s)));
 }
 
 /**

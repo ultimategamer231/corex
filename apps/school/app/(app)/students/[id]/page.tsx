@@ -18,6 +18,7 @@ import { edition } from "@/lib/edition";
 import { loadTermReport } from "@/lib/highschool";
 import { date, money, percent, personName } from "@/lib/format";
 import { formatGpa } from "@/lib/gpa";
+import { schoolEnv } from "@/lib/env";
 import { getSettings } from "@/lib/org";
 import { currentTerm, listTerms, rows, termLabel } from "@/lib/queries";
 import { BURSAR, OFFICE, REGISTRAR } from "@/lib/roles";
@@ -47,6 +48,8 @@ export default async function StudentPage({ params, searchParams }: Props) {
   const registrar = memberHas(member, REGISTRAR);
   const bursar = memberHas(member, BURSAR);
   const superAdmin = memberHas(member, ["super_admin"]);
+  // Creating sign-ins is turned off on the demo (SPEC.md 11.3).
+  const canCreateLogins = superAdmin && !schoolEnv().demo;
   const college = edition() === "college";
   const settings = await getSettings();
 
@@ -297,7 +300,7 @@ export default async function StudentPage({ params, searchParams }: Props) {
                         Parent sign-in active
                       </Badge>
                     ) : null}
-                    {superAdmin && !college ? (
+                    {canCreateLogins && !college ? (
                       // Stays mounted after saving so the one-time password message remains visible.
                       <ActionForm
                         action={createParentLogin}
@@ -627,7 +630,7 @@ export default async function StudentPage({ params, searchParams }: Props) {
           </Section>
         ) : null}
 
-        {memberHas(member, ["super_admin"]) ? (
+        {canCreateLogins ? (
           <Section title="Portal sign-in" id="portal">
             <p className="text-ink-soft">
               The student can see their published grades, attendance, fees and announcements.

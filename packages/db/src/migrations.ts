@@ -52,13 +52,19 @@ function readFolder(root: string, folder: string): Migration[] {
 /**
  * Core migrations first, then the product's, each folder in file-name order. The
  * `web` target (corex_web) is not a client schema and gets only its own folder.
+ * Public demo schemas also get the `demo` folder last (SPEC.md 11.3).
  */
 export function loadMigrations(
   product: MigrationTarget,
   root = DEFAULT_MIGRATIONS_ROOT,
+  options: { demo?: boolean } = {},
 ): Migration[] {
   if (product === "web") return readFolder(root, "web");
-  return [...readFolder(root, "core"), ...readFolder(root, product)];
+  return [
+    ...readFolder(root, "core"),
+    ...readFolder(root, product),
+    ...(options.demo ? readFolder(root, "demo") : []),
+  ];
 }
 
 export type MigrateResult = { schema: string; applied: string[]; skipped: string[] };
@@ -95,7 +101,7 @@ export async function migrateSchema(
     const applied = new Map(rows.map((row) => [row.id, row.checksum]));
 
     const otherProduct = [...applied.keys()].find(
-      (id) => !id.startsWith("core/") && !id.startsWith(`${product}/`),
+      (id) => !id.startsWith("core/") && !id.startsWith("demo/") && !id.startsWith(`${product}/`),
     );
     if (otherProduct) {
       throw new MigrationError(

@@ -61,6 +61,8 @@ pnpm db:migrate:all --product <school|clinic|finance> [--project <label>]
 
 `db:migrate:all` migrates every registered schema of a product and stops at the first failure. Never edit an applied migration; add a new file (see `packages/db/README.md`).
 
+Demo schemas are migrated by `pnpm demo:seed`, which also applies the demo-only layer in `packages/db/demo/migrations` (see `docs/demos.md`). Never apply that layer to a client schema.
+
 ## Backups (SPEC.md 4.5)
 
 `pnpm db:backup --schema <name> --project <label>` dumps one schema (`pg_dump` custom format, compressed) to S3-compatible storage at `<project>/<schema>/<schema>-<UTC timestamp>.dump`, then deletes that schema's backups older than 30 days. `--all true` does this for every registered schema.

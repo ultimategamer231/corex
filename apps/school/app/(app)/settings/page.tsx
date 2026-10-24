@@ -1,3 +1,4 @@
+import { Alert } from "@corex/ui/components/alert";
 import { Badge } from "@corex/ui/components/badge";
 import { Input } from "@corex/ui/components/input";
 import { PageHeader } from "@corex/ui/components/page-header";
@@ -36,6 +37,9 @@ export default async function SettingsPage() {
   const repeat =
     typeof settings.config.repeat_policy === "string" ? settings.config.repeat_policy : "latest";
 
+  // The demo shows settings and users read-only (SPEC.md 11.3).
+  const demo = schoolEnv().demo;
+
   return (
     <>
       <PageHeader
@@ -43,6 +47,9 @@ export default async function SettingsPage() {
         description={`${edition === "college" ? "College / University" : "High School"} edition`}
       />
       <div className="flex flex-col gap-10">
+        {demo ? (
+          <Alert tone="info">Settings, users and roles cannot be changed in the demo.</Alert>
+        ) : null}
         <Section
           title="Organization"
           id="organization"
@@ -167,9 +174,11 @@ export default async function SettingsPage() {
                 </>
               )}
             </div>
-            <div>
-              <SubmitButton>Save settings</SubmitButton>
-            </div>
+            {demo ? null : (
+              <div>
+                <SubmitButton>Save settings</SubmitButton>
+              </div>
+            )}
           </ActionForm>
         </Section>
 
@@ -199,7 +208,7 @@ export default async function SettingsPage() {
                       <Badge variant={m.status === "active" ? "brand" : "danger"}>{m.status}</Badge>
                     </Td>
                     <Td className="text-right">
-                      {m.user_id === member.userId ? null : (
+                      {demo || m.user_id === member.userId ? null : (
                         <ConfirmAction
                           action={setMembershipStatus}
                           fields={{
@@ -232,35 +241,37 @@ export default async function SettingsPage() {
               </tbody>
             </Table>
           </TableScroll>
-          <ActionForm
-            action={createUser}
-            resetOnSuccess={false}
-            aria-label="Add a staff member"
-            className="max-w-3xl rounded-xl border border-border bg-background p-5"
-          >
-            <h3 className="text-lg font-bold">Add a staff member</h3>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <FormField name="display_name" label="Name" required>
-                <Input />
-              </FormField>
-              <FormField name="email" label="Email" required>
-                <Input type="email" />
-              </FormField>
-              <FormField name="role" label="Role" required>
-                <Select defaultValue="">
-                  <option value="">Choose a role</option>
-                  {staffRoles.map((r) => (
-                    <option key={r} value={r}>
-                      {ROLE_LABEL[r]}
-                    </option>
-                  ))}
-                </Select>
-              </FormField>
-            </div>
-            <div>
-              <SubmitButton>Create account</SubmitButton>
-            </div>
-          </ActionForm>
+          {demo ? null : (
+            <ActionForm
+              action={createUser}
+              resetOnSuccess={false}
+              aria-label="Add a staff member"
+              className="max-w-3xl rounded-xl border border-border bg-background p-5"
+            >
+              <h3 className="text-lg font-bold">Add a staff member</h3>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <FormField name="display_name" label="Name" required>
+                  <Input />
+                </FormField>
+                <FormField name="email" label="Email" required>
+                  <Input type="email" />
+                </FormField>
+                <FormField name="role" label="Role" required>
+                  <Select defaultValue="">
+                    <option value="">Choose a role</option>
+                    {staffRoles.map((r) => (
+                      <option key={r} value={r}>
+                        {ROLE_LABEL[r]}
+                      </option>
+                    ))}
+                  </Select>
+                </FormField>
+              </div>
+              <div>
+                <SubmitButton>Create account</SubmitButton>
+              </div>
+            </ActionForm>
+          )}
         </Section>
       </div>
     </>

@@ -12,7 +12,8 @@
     "./supabase/browser": "./src/supabase/browser.ts",
     "./env": "./src/env.ts",
     "./offline": "./src/offline/outbox.ts",
-    "./dates": "./src/dates.ts"
+    "./dates": "./src/dates.ts",
+    "./demo": "./src/demo.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
