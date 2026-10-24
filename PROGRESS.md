@@ -5,7 +5,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Current status
 
 - **Phase:** 5 (School, College edition, SPEC.md Step 5) complete. Phases 1-4 merged to `main`.
-- **Next:** five-phase audit (`docs/audits/`), then Phase 6 (School, High School edition).
+- **Next:** Phase 6 (School, High School edition). Audit after Phases 1-5 done (`docs/audits/phases-1-5.md`).
 - **Branch:** `claude/questions-clarity-qmgcs5` (each phase merges to `main` once CI is green; owner rule 2026-10-24)
 
 ## Block log
@@ -38,6 +38,8 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Owner answers (2026-10-23, 2026-10-24)
 
 - **Working rule (2026-10-24, overrides earlier per-phase rules):** save tokens. Full review and audit after every 5 phases (next after Phase 5), reported in an `.md` file under `docs/audits/` covering only critical or important items. If an audit finds nothing needing the owner, push, merge and continue automatically. Between audits: build, test, push, merge each phase without stopping for plan approval; keep chat updates short. Still ask before must-ask decisions (money/grading/payroll/clinical rule changes, schema beyond SPEC, auth approach changes, risky dependencies).
+
+- **After the Phase 1-5 audit (2026-10-24):** use the defaults for grading (D26) and other open rules; they will be adjusted later. Defer the email provider, demo hosting (domain, Vercel Pro, demo Supabase project), the real contact email, `BUSINESS.md` and R2 secrets until the owner raises them; keep building.
 
 - Phase 2 plan approved. Backups go to Cloudflare R2. Dependabot PRs merged.
 
@@ -134,4 +136,5 @@ Security review notes below the exploit bar, for later phases: `log_view` lets a
 
 1. **`BUSINESS.md` not received.** Needed before Phase 4 to confirm pricing copy (mockup prices are used until then).
 1. **Placeholder email `info@cds.com`.** `cds.com` is a registered domain owned by someone else; mail sent to it would reach them. It stays a marked placeholder in content and must be replaced before the site goes public.
+1. **Deferred by the owner (2026-10-24):** email provider for password resets (custom SMTP in Supabase, for example Resend); demo hosting for Phase 7 (root domain, Vercel Pro, demo Supabase project); R2 secrets and `BACKUPS_ENABLED`.
 1. **Later-phase gaps** (to be raised in those phases' plans): per-app session timeout when demos share one Supabase project (5.3); cross-currency transfers (FIN-04); whether demo visitors may approve seeded records (11.3); backup storage provider (4.5); Vercel Pro plan before going public.
