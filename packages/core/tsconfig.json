@@ -1,0 +1,5 @@
+{
+  "extends": "@corex/config/tsconfig/react-library.json",
+  "include": ["src", "*.ts", "*.mjs"],
+  "exclude": ["node_modules"]
+}
