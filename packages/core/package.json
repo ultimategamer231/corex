@@ -13,7 +13,8 @@
     "./env": "./src/env.ts",
     "./offline": "./src/offline/outbox.ts",
     "./dates": "./src/dates.ts",
-    "./demo": "./src/demo.ts"
+    "./demo": "./src/demo.ts",
+    "./xlsx": "./src/xlsx.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
