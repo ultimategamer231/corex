@@ -61,6 +61,10 @@
   /* Charts */
   --color-chart-1: #0b6a67;
   --color-chart-2: #ff8a4c;
+  /* App charts: categorical slots in fixed order, checked with the dataviz
+     palette validator (chroma, colour-blind separation, 3:1 on white) */
+  --color-data-1: #00908a;
+  --color-data-2: #d9480f;
 
   /* Focus rings: primary on light surfaces, white on dark panels */
   --color-ring: #0b6a67;
