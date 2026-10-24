@@ -49,5 +49,7 @@ export default defineConfig({
     url: `http://localhost:${app.port}`,
     reuseExistingServer: !ci,
     timeout: 120_000,
+    // The website keeps quote requests in memory under test instead of Supabase.
+    env: app.name === "web" ? { LEAD_STORE: "memory" } : ({} as Record<string, string>),
   })),
 });

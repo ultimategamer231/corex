@@ -31,14 +31,19 @@ export async function expectNoHorizontalOverflow(page: Page) {
 
 /**
  * Visible links, buttons and form controls are at least 44x44px. Links inside
- * running text are exempt (WCAG 2.5.8 inline exception).
+ * running text are exempt (WCAG 2.5.8 inline exception), and a checkbox or radio
+ * is measured by the label that wraps it, since the whole label is the target.
  */
 export async function expectTouchTargets(page: Page) {
   const small = await page.evaluate(() => {
     const selector = "a[href], button, input:not([type=hidden]), select, textarea, [role=button]";
     return [...document.querySelectorAll<HTMLElement>(selector)]
       .filter((el) => {
-        const r = el.getBoundingClientRect();
+        const target =
+          el.matches("input[type=checkbox], input[type=radio]") && el.closest("label")
+            ? (el.closest("label") as HTMLElement)
+            : el;
+        const r = target.getBoundingClientRect();
         const style = getComputedStyle(el);
         const visible =
           r.width > 0 &&
@@ -47,7 +52,7 @@ export async function expectTouchTargets(page: Page) {
           r.bottom > 0 &&
           r.right > 0 &&
           r.top < window.innerHeight * 4;
-        const inline = el.tagName === "A" && el.closest("p, li > p, dd") !== null;
+        const inline = el.tagName === "A" && el.closest("p, li > p, dd, label") !== null;
         return visible && !inline && (r.width < 44 || r.height < 44);
       })
       .map((el) => {
@@ -61,6 +66,12 @@ export async function expectTouchTargets(page: Page) {
 
 /** Full-page screenshot kept as a test artifact for visual review against the mockup. */
 export async function saveScreenshot(page: Page, testInfo: TestInfo, name: string) {
+  // Show content that would fade in on scroll (website Reveal) before capturing.
+  await page.evaluate(() => {
+    for (const el of document.querySelectorAll("[data-reveal]"))
+      el.setAttribute("data-revealed", "");
+  });
+  await page.waitForTimeout(600);
   const path = testInfo.outputPath(`${name}.png`);
   await page.screenshot({ path, fullPage: true });
   await testInfo.attach(name, { path, contentType: "image/png" });
