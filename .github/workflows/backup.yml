@@ -1,0 +1,50 @@
+name: Nightly backup
+
+# SPEC.md 4.5: back up every registered client schema each night and keep 30 days.
+# Off until configured: set the repository variable BACKUPS_ENABLED=true and the
+# secrets below (Settings > Secrets and variables > Actions).
+on:
+  schedule:
+    # 01:30 UTC = 01:30 Africa/Monrovia (UTC+0, no daylight saving).
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    name: Back up registered schemas
+    if: ${{ vars.BACKUPS_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      # Cloudflare R2 (S3-compatible). Set a 30-day lifecycle rule on the bucket as a safety net.
+      BACKUP_S3_ENDPOINT: ${{ secrets.BACKUP_S3_ENDPOINT }}
+      BACKUP_S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+      BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+      BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+      # One database URL per Supabase project label used in packages/db/schemas.json.
+      # Add a line here when a client gets a dedicated project.
+      DATABASE_URL_DEMO: ${{ secrets.DATABASE_URL_DEMO }}
+      DATABASE_URL_CLIENTS: ${{ secrets.DATABASE_URL_CLIENTS }}
+      DATABASE_URL_WEB: ${{ secrets.DATABASE_URL_WEB }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Back up and prune
+        run: pnpm db:backup --all true --keep-days 30

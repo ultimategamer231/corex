@@ -134,3 +134,26 @@ export async function userIdsByEmail(sql: Sql, ...emails: string[]): Promise<str
   const rows = await sql<{ id: string }[]>`select id from auth.users where email = any(${emails})`;
   return rows.map((r) => r.id);
 }
+
+/** The local stack's S3-compatible Storage endpoint and keys (stand-in for Cloudflare R2). */
+export function localS3(bucket: string) {
+  const result = spawnSync("pnpm", ["exec", "supabase", "status", "--output", "json"], {
+    cwd: new URL("../../..", import.meta.url).pathname,
+    encoding: "utf8",
+  });
+  const status = z
+    .object({
+      STORAGE_S3_URL: z.string(),
+      S3_PROTOCOL_ACCESS_KEY_ID: z.string(),
+      S3_PROTOCOL_ACCESS_KEY_SECRET: z.string(),
+      S3_PROTOCOL_REGION: z.string(),
+    })
+    .parse(JSON.parse(result.stdout.slice(result.stdout.indexOf("{"))));
+  return {
+    endpoint: status.STORAGE_S3_URL,
+    region: status.S3_PROTOCOL_REGION,
+    bucket,
+    accessKeyId: status.S3_PROTOCOL_ACCESS_KEY_ID,
+    secretAccessKey: status.S3_PROTOCOL_ACCESS_KEY_SECRET,
+  };
+}

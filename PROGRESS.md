@@ -5,7 +5,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Current status
 
 - **Phase:** 2 (Database, SPEC.md Step 2): in progress. Phase 1 merged to `main` (owner renamed the branch) with CI and E2E green.
-- **Block:** 2.6 complete
+- **Block:** 2.7 complete
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
@@ -27,6 +27,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **2.4** (2026-10-24) `0003_audit.sql` (CORE-03): generic `audit_row()` trigger (create, update, delete; status to `void` = void, to `approved` = approve; no-op updates skipped; `actor_id = auth.uid()`; reason from `corex.audit_reason` or `void_reason`), `enable_audit(table)` for product tables, append-only audit log (blocked even for the owner), `log_view()` for CLN-02, admin-only reads with a product hook `audit_row_visible()` so Clinic can hide clinical rows. 9 audit tests.
 - **2.5** (2026-10-24) `db:provision` (SPEC 4.4): validates input, enforces one email per client per project (4.3.7), migrates, writes settings, creates a private bucket, invites the first admin by email (super_admin / admin / owner by product), registers the schema, exposes it to the local API (prints the dashboard reminder for cloud). Idempotent re-runs. 8 tests plus a manual CLI run (invite email received in local Mailpit). Scripts read `SUPABASE_URL_<PROJECT>` / `SUPABASE_SERVICE_ROLE_KEY_<PROJECT>`.
 - **2.6** (2026-10-24) Cross-client isolation through the real Supabase API (SPEC 4.3.3): two provisioned schemas, password sign-in; client A gets zero rows from all six of B's tables, cannot update B, cannot add itself as B's member, cannot write B's records, is not a member for B's helpers, cannot list/download/upload in B's bucket; anon gets 42501; public sign-up refused; suspended user sees nothing. 16 tests. Found and fixed a Phase 1 config bug: `[auth.email] enable_signup = false` disabled email login entirely.
+- **2.7** (2026-10-24) `db:backup` (SPEC 4.5): `pg_dump` custom format (compressed, `--no-owner`) of one schema using a version-matched binary (`PG_DUMP`, local, or the `postgres:<major>-alpine` image with the URL kept out of process arguments), uploaded to S3-compatible storage as `<project>/<schema>/<schema>-<UTC timestamp>.dump`, then backups older than 30 days pruned by key date. `--all true` backs up every registered schema and reports failures after trying them all. Nightly workflow `.github/workflows/backup.yml` (01:30 Monrovia) stays off until `BACKUPS_ENABLED=true` and the R2 secrets exist. Verified against local Storage S3: archive contains only that schema. 7 unit + 3 database tests.
 
 ## Owner answers (2026-10-23, 2026-10-24)
 
