@@ -5,7 +5,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 ## Current status
 
 - **Phase:** 2 (Database, SPEC.md Step 2): in progress. Phase 1 merged to `main` (owner renamed the branch) with CI and E2E green.
-- **Block:** 2.1 complete
+- **Block:** 2.2 complete
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
@@ -22,6 +22,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 
 - **2.0** (2026-10-24) Merged Dependabot PRs #1-#4 (checkout 7.0.1, setup-node 7.1.0, upload-artifact 7.0.2, pnpm/action-setup 6.1.0) with owner approval; CI and E2E green on `main`.
 - **2.1** (2026-10-24) `packages/db`: migration runner (core + product folders, `{{schema}}` rendering with strict schema-name validation, SHA-256 checksums, one transaction per schema, advisory lock, product lock-in), `db:migrate` and `db:migrate:all`, `schemas.json` registry with per-project `DATABASE_URL_<PROJECT>`. 20 unit + 6 database tests.
+- **2.2** (2026-10-24) Core tables (SPEC 5.1) in `core/migrations/0001_core_tables.sql`: single-row settings, memberships keyed by (user, role), append-only audit events, files, announcements, shared billing (invoices, lines, payments, receipts) with bigint minor units, USD/LRD checks, void-needs-reason; RLS enabled on every table. Shape tests compare columns with SPEC.
 
 ## Owner answers (2026-10-23, 2026-10-24)
 
@@ -38,20 +39,22 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 
 ## Decisions made on the owner's behalf
 
-| #   | Decision                                                                                                                                   | Reason                                                                                                                           |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| D1  | Lighthouse targets follow the prompt's Section 7 (Perf ≥ 90; A11y, Best Practices, SEO ≥ 95), stricter than SPEC 6.7                       | Prompt Section 3 makes Section 7 part of every "Done when"                                                                       |
-| D2  | Extra theme tokens beyond SPEC 5.4 (surface, primary-darker, ink-soft, border-subtle, border-strong, on-dark, warning, info, chart-2)      | The mockup uses ~20 more colors; tokens keep them consistent. SPEC's 9 tokens stay canonical                                     |
-| D3  | Footer uses `primary-darker` `#052F2D` (mockup) instead of `primary-dark`                                                                  | Separates the footer from the dark CTA band above it                                                                             |
-| D4  | `border-strong` `#7E918F` for form controls                                                                                                | `#D9E3E2` is 1.3:1 on white and fails WCAG 1.4.11 (needs 3:1)                                                                    |
-| D5  | Tailwind v4 CSS-first theme in `packages/ui/src/styles/theme.css` instead of a JS "tailwind preset" in `packages/config`                   | Tailwind v4 has no JS preset; `packages/config` holds tsconfig, ESLint, Prettier, Vitest and Next.js config                      |
-| D6  | Phase 1 creates four minimal Next.js apps (no features)                                                                                    | The shell needs a host to render; CI and Vercel need real targets                                                                |
-| D7  | Tool versions: TypeScript 6.0, ESLint 9.39, Vitest 4.1, Playwright 1.63                                                                    | Newest majors (TS 7, ESLint 10) are not yet supported by typescript-eslint / jsx-a11y; Playwright matches the installed browsers |
-| D8  | Baseline CSP uses `'unsafe-inline'` for scripts and styles (no nonces) in Phase 1                                                          | Nonces force dynamic rendering. Revisit per app: apps (auth, dynamic) in Phase 3, website in Phase 4                             |
-| D9  | Design-skill conflicts resolved in favor of SPEC: Inter and lucide-react kept (SPEC 2, 5.4); no dark mode (SPEC defines light tokens only) | SPEC outranks skills                                                                                                             |
-| D10 | `typedRoutes` off in all apps                                                                                                              | The shared shell passes string hrefs to `next/link`; typed routes would reject them. Revisit if apps need it                     |
-| D11 | jsdom 29 instead of 30                                                                                                                     | jsdom 30 needs Node 22.22.2+; this environment has 22.22.0                                                                       |
-| D12 | Top bar spans the full width with the sidebar below it                                                                                     | Matches the mockup's AppPreview layout                                                                                           |
+| #   | Decision                                                                                                                                                          | Reason                                                                                                                           |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Lighthouse targets follow the prompt's Section 7 (Perf ≥ 90; A11y, Best Practices, SEO ≥ 95), stricter than SPEC 6.7                                              | Prompt Section 3 makes Section 7 part of every "Done when"                                                                       |
+| D2  | Extra theme tokens beyond SPEC 5.4 (surface, primary-darker, ink-soft, border-subtle, border-strong, on-dark, warning, info, chart-2)                             | The mockup uses ~20 more colors; tokens keep them consistent. SPEC's 9 tokens stay canonical                                     |
+| D3  | Footer uses `primary-darker` `#052F2D` (mockup) instead of `primary-dark`                                                                                         | Separates the footer from the dark CTA band above it                                                                             |
+| D4  | `border-strong` `#7E918F` for form controls                                                                                                                       | `#D9E3E2` is 1.3:1 on white and fails WCAG 1.4.11 (needs 3:1)                                                                    |
+| D5  | Tailwind v4 CSS-first theme in `packages/ui/src/styles/theme.css` instead of a JS "tailwind preset" in `packages/config`                                          | Tailwind v4 has no JS preset; `packages/config` holds tsconfig, ESLint, Prettier, Vitest and Next.js config                      |
+| D6  | Phase 1 creates four minimal Next.js apps (no features)                                                                                                           | The shell needs a host to render; CI and Vercel need real targets                                                                |
+| D7  | Tool versions: TypeScript 6.0, ESLint 9.39, Vitest 4.1, Playwright 1.63                                                                                           | Newest majors (TS 7, ESLint 10) are not yet supported by typescript-eslint / jsx-a11y; Playwright matches the installed browsers |
+| D8  | Baseline CSP uses `'unsafe-inline'` for scripts and styles (no nonces) in Phase 1                                                                                 | Nonces force dynamic rendering. Revisit per app: apps (auth, dynamic) in Phase 3, website in Phase 4                             |
+| D9  | Design-skill conflicts resolved in favor of SPEC: Inter and lucide-react kept (SPEC 2, 5.4); no dark mode (SPEC defines light tokens only)                        | SPEC outranks skills                                                                                                             |
+| D10 | `typedRoutes` off in all apps                                                                                                                                     | The shared shell passes string hrefs to `next/link`; typed routes would reject them. Revisit if apps need it                     |
+| D11 | jsdom 29 instead of 30                                                                                                                                            | jsdom 30 needs Node 22.22.2+; this environment has 22.22.0                                                                       |
+| D12 | Top bar spans the full width with the sidebar below it                                                                                                            | Matches the mockup's AppPreview layout                                                                                           |
+| D13 | `memberships` primary key is (user_id, role)                                                                                                                      | SPEC lets one user hold two roles (Admin + Clinician, Owner + Accountant); `has_role` checks any active row                      |
+| D14 | Core grants administrators read access to billing tables but no writes; issuing invoices and posting payments go through Phase 3 server code and product policies | Keeps money rules (CORE-05..08) in one tested path                                                                               |
 
 ## Planned deviations from the mockup (Phase 4)
 
