@@ -22,7 +22,29 @@ const users = {} as Record<
   "registrar" | "teacher" | "otherTeacher" | "bursar" | "parent" | "otherParent" | "student",
   string
 >;
-const ids = {} as Record<string, string>;
+const ids = {} as Record<
+  | "year"
+  | "nextYear"
+  | "term"
+  | "g11"
+  | "g12"
+  | "sectionA"
+  | "sectionB"
+  | "g12A"
+  | "nextG12A"
+  | "nextG11A"
+  | "math"
+  | "mathA"
+  | "mathB"
+  | "p1"
+  | "kebeh"
+  | "sando"
+  | "garmai"
+  | "senior"
+  | "guardian"
+  | "otherGuardian",
+  string
+>;
 
 function as<T = Record<string, unknown>>(userId: string, query: string, params: unknown[] = []) {
   return asUser(sql, userId, (tx: TransactionSql) => tx.unsafe<T[]>(query, params as never[]));
