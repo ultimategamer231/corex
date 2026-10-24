@@ -60,6 +60,10 @@ jobs:
         name: High School demo
         run: pnpm demo:seed --demo highschool --project demo
 
+      - if: steps.config.outputs.ready == 'true' && !cancelled()
+        name: Finance demo
+        run: pnpm demo:seed --demo finance --project demo
+
       # GitHub emails the workflow's owner when a scheduled run fails; the team email
       # notification is added with the email provider (PROGRESS.md, deferred).
       - if: failure()
