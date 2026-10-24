@@ -6,7 +6,9 @@ import { z } from "zod";
 import { ActionError, must, optionalText, requiredText, runAction, uuid } from "@/lib/action";
 import type { FormState } from "@/lib/form-state";
 import { personName } from "@/lib/format";
+import { edition } from "@/lib/edition";
 import { REGISTRAR } from "@/lib/roles";
+import type { SchoolDb } from "@/lib/supabase";
 import { createMemberUser } from "@/lib/users";
 
 const optionalDate = z
@@ -35,10 +37,18 @@ const personFields = {
   address: optionalText,
 };
 
+const optionalId = z
+  .string()
+  .optional()
+  .transform((v) => (v ? v : null))
+  .refine((v) => v === null || z.uuid().safeParse(v).success, "Choose an option");
+
 const admissionSchema = z.object({
   ...personFields,
-  program_id: uuid("a program"),
-  start_term_id: uuid("the start term"),
+  // College: program and start term. High School: section.
+  program_id: optionalId,
+  start_term_id: optionalId,
+  section_id: optionalId,
   guardian_first_name: optionalText,
   guardian_last_name: optionalText,
   guardian_relationship: optionalText,
@@ -46,7 +56,10 @@ const admissionSchema = z.object({
   confirm_duplicate: z.string().optional(),
 });
 
-/** Admission: student, optional guardian and program enrollment (SPEC.md 7.5). */
+/**
+ * Admission: student, optional guardian, then enrollment: a program (College) or a
+ * section placement (High School) (SPEC.md 7.5).
+ */
 export async function admitStudent(_previous: FormState, formData: FormData): Promise<FormState> {
   let newId = "";
   const result = await runAction(
@@ -69,6 +82,20 @@ export async function admitStudent(_previous: FormState, formData: FormData): Pr
             .map((s) => `${personName(s)} (${s.student_number})`)
             .join(", ")}. Check it is not the same person, then confirm below.`,
           data: { duplicates: duplicates.map((s) => s.student_number).join(", ") },
+        };
+      }
+      const college = edition() === "college";
+      if (college && (!d.program_id || !d.start_term_id)) {
+        const fieldErrors: Record<string, string> = {};
+        if (!d.program_id) fieldErrors.program_id = "Choose a program";
+        if (!d.start_term_id) fieldErrors.start_term_id = "Choose the start term";
+        return { status: "error", message: "Please check the highlighted fields.", fieldErrors };
+      }
+      if (!college && !d.section_id) {
+        return {
+          status: "error",
+          message: "Please check the highlighted fields.",
+          fieldErrors: { section_id: "Choose a class" },
         };
       }
       if ((d.guardian_first_name === null) !== (d.guardian_last_name === null)) {
@@ -95,13 +122,17 @@ export async function admitStudent(_previous: FormState, formData: FormData): Pr
           .select("id, student_number")
           .single(),
       );
-      must(
-        await supabase.from("program_enrollments").insert({
-          student_id: student.id,
-          program_id: d.program_id,
-          start_term_id: d.start_term_id,
-        }),
-      );
+      if (college && d.program_id && d.start_term_id) {
+        must(
+          await supabase.from("program_enrollments").insert({
+            student_id: student.id,
+            program_id: d.program_id,
+            start_term_id: d.start_term_id,
+          }),
+        );
+      } else if (d.section_id) {
+        await placeInSection(supabase, student.id, d.section_id);
+      }
       if (d.guardian_first_name && d.guardian_last_name) {
         const guardian = must(
           await supabase
@@ -289,6 +320,74 @@ export async function createStudentLogin(
           .eq("id", d.student_id),
       );
       return `Portal sign-in created for ${d.email}. Temporary password: ${password} (shown once; ask the student to change it).`;
+    },
+  );
+}
+
+/** Places a student in a section for the section's year, replacing that year's placement. */
+async function placeInSection(supabase: SchoolDb, studentId: string, sectionId: string) {
+  const section = must(
+    await supabase.from("sections").select("academic_year_id").eq("id", sectionId).single(),
+  );
+  must(
+    await supabase.from("student_placements").upsert(
+      {
+        student_id: studentId,
+        section_id: sectionId,
+        academic_year_id: section.academic_year_id,
+      },
+      { onConflict: "student_id,academic_year_id" },
+    ),
+  );
+}
+
+const placementSchema = z.object({ student_id: uuid(), section_id: uuid("a class") });
+
+export async function placeStudent(_previous: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    { roles: REGISTRAR, schema: placementSchema, revalidate: ["/students", "/academics"] },
+    async (d, { supabase }) => {
+      await placeInSection(supabase, d.student_id, d.section_id);
+      return "Class placement saved.";
+    },
+  );
+}
+
+const guardianLoginSchema = z.object({
+  guardian_id: uuid(),
+  email: z.email("Enter a valid email address").transform((v) => v.toLowerCase()),
+});
+
+/** Creates a parent's portal sign-in for a guardian (Super Admin, High School). */
+export async function createParentLogin(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  return runAction(
+    formData,
+    { roles: ["super_admin"], schema: guardianLoginSchema, revalidate: ["/students"] },
+    async (d, { supabase }) => {
+      const guardian = must(
+        await supabase
+          .from("guardians")
+          .select("first_name, last_name, user_id")
+          .eq("id", d.guardian_id)
+          .single(),
+      );
+      if (guardian.user_id) throw new ActionError("This guardian already has a portal sign-in.");
+      const { userId, password } = await createMemberUser(supabase, {
+        email: d.email,
+        displayName: `${guardian.first_name} ${guardian.last_name}`,
+        role: "parent",
+      });
+      must(
+        await supabase
+          .from("guardians")
+          .update({ user_id: userId, email: d.email })
+          .eq("id", d.guardian_id),
+      );
+      return `Parent sign-in created for ${d.email}. Temporary password: ${password} (shown once; ask them to change it).`;
     },
   );
 }

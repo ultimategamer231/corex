@@ -13,6 +13,9 @@ import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
 import { ConfirmAction } from "@/components/confirm-action";
 import { Section } from "@/components/section";
 import { loadAcademicRecord } from "@/lib/academic";
+import { formatScore } from "@/lib/averages";
+import { edition } from "@/lib/edition";
+import { loadTermReport } from "@/lib/highschool";
 import { date, money, percent, personName } from "@/lib/format";
 import { formatGpa } from "@/lib/gpa";
 import { getSettings } from "@/lib/org";
@@ -21,8 +24,10 @@ import { BURSAR, OFFICE, REGISTRAR } from "@/lib/roles";
 import { memberHas, requireRoles } from "@/lib/session";
 import {
   addGuardian,
+  createParentLogin,
   createStudentLogin,
   enrollInProgram,
+  placeStudent,
   registrarDrop,
   registrarRegister,
   updateStudent,
@@ -41,6 +46,8 @@ export default async function StudentPage({ params, searchParams }: Props) {
   if (!UUID.test(id)) notFound();
   const registrar = memberHas(member, REGISTRAR);
   const bursar = memberHas(member, BURSAR);
+  const superAdmin = memberHas(member, ["super_admin"]);
+  const college = edition() === "college";
   const settings = await getSettings();
 
   const { data: student, error } = await supabase
@@ -54,7 +61,9 @@ export default async function StudentPage({ params, searchParams }: Props) {
   const [guardians, enrollments, registrations, programs, terms, term] = await Promise.all([
     supabase
       .from("student_guardians")
-      .select("is_primary, guardians(id, first_name, last_name, relationship, phone, email)")
+      .select(
+        "is_primary, guardians(id, first_name, last_name, relationship, phone, email, user_id)",
+      )
       .eq("student_id", id)
       .then(rows),
     supabase
@@ -63,7 +72,7 @@ export default async function StudentPage({ params, searchParams }: Props) {
       .eq("student_id", id)
       .order("created_at", { ascending: false })
       .then(rows),
-    registrar
+    registrar && college
       ? supabase
           .from("course_registrations")
           .select(
@@ -72,13 +81,13 @@ export default async function StudentPage({ params, searchParams }: Props) {
           .eq("student_id", id)
           .then(rows)
       : [],
-    supabase.from("programs").select("id, code, name").order("code").then(rows),
+    college ? supabase.from("programs").select("id, code, name").order("code").then(rows) : [],
     listTerms(supabase),
     currentTerm(supabase),
   ]);
 
-  const [record, attendance, balances, offerings] = await Promise.all([
-    registrar ? loadAcademicRecord(supabase, id) : null,
+  const [record, attendance, balances, offerings, placements, sections] = await Promise.all([
+    registrar && college ? loadAcademicRecord(supabase, id) : null,
     registrar ? supabase.from("attendance").select("status").eq("student_id", id).then(rows) : [],
     bursar
       ? supabase
@@ -87,7 +96,7 @@ export default async function StudentPage({ params, searchParams }: Props) {
           .eq("student_id", id)
           .then(rows)
       : [],
-    registrar && term
+    registrar && term && college
       ? supabase
           .from("course_offerings")
           .select("id, section, courses(code, title)")
@@ -95,7 +104,42 @@ export default async function StudentPage({ params, searchParams }: Props) {
           .eq("status", "open")
           .then(rows)
       : [],
+    college
+      ? []
+      : supabase
+          .from("student_placements")
+          .select(
+            "id, academic_year_id, sections(id, name, grade_levels(name)), academic_years(name, starts_on)",
+          )
+          .eq("student_id", id)
+          .then(rows),
+    !college && registrar && term
+      ? supabase
+          .from("sections")
+          .select("id, name, grade_levels(name, sort_order)")
+          .eq("academic_year_id", term.academic_year_id)
+          .then(rows)
+      : [],
   ]);
+  placements.sort((a, b) =>
+    (b.academic_years?.starts_on ?? "").localeCompare(a.academic_years?.starts_on ?? ""),
+  );
+  sections.sort(
+    (a, b) =>
+      (a.grade_levels?.sort_order ?? 0) - (b.grade_levels?.sort_order ?? 0) ||
+      a.name.localeCompare(b.name),
+  );
+  const currentPlacement = term
+    ? placements.find((p) => p.academic_year_id === term.academic_year_id)
+    : undefined;
+  const yearTerms =
+    !college && term
+      ? terms.filter((t) => t.academic_year_id === term.academic_year_id).reverse()
+      : [];
+  const termReports =
+    !college && registrar
+      ? await Promise.all(yearTerms.map((t) => loadTermReport(supabase, id, t.id)))
+      : [];
 
   const activeEnrollment = enrollments.find((e) => e.status === "active");
   const sortedRegs = [...registrations].sort((a, b) =>
@@ -109,9 +153,24 @@ export default async function StudentPage({ params, searchParams }: Props) {
     <>
       <PageHeader
         title={personName(student)}
-        description={`${student.student_number} · ${activeEnrollment?.programs ? `${activeEnrollment.programs.code} ${activeEnrollment.programs.name}` : "No active program"}`}
+        description={`${student.student_number} · ${
+          college
+            ? activeEnrollment?.programs
+              ? `${activeEnrollment.programs.code} ${activeEnrollment.programs.name}`
+              : "No active program"
+            : currentPlacement?.sections
+              ? `${currentPlacement.sections.grade_levels?.name ?? ""} ${currentPlacement.sections.name}`
+              : "Not placed this year"
+        }`}
         actions={
-          registrar ? (
+          registrar && !college && term ? (
+            <a
+              className={buttonVariants({ variant: "secondary" })}
+              href={`/reports/report-card/${id}/${term.id}`}
+            >
+              Report card PDF
+            </a>
+          ) : registrar ? (
             <>
               <a
                 className={buttonVariants({ variant: "secondary" })}
@@ -233,6 +292,39 @@ export default async function StudentPage({ params, searchParams }: Props) {
                         Primary
                       </Badge>
                     ) : null}
+                    {g.guardians.user_id ? (
+                      <Badge variant="info" className="ml-2">
+                        Parent sign-in active
+                      </Badge>
+                    ) : null}
+                    {superAdmin && !college ? (
+                      // Stays mounted after saving so the one-time password message remains visible.
+                      <ActionForm
+                        action={createParentLogin}
+                        resetOnSuccess={false}
+                        aria-label={`Parent sign-in for ${g.guardians.first_name}`}
+                        className="mt-3 max-w-md"
+                      >
+                        {g.guardians.user_id ? null : (
+                          <>
+                            <input type="hidden" name="guardian_id" value={g.guardians.id} />
+                            <FormField
+                              name="email"
+                              label="Parent email"
+                              id={`parent-email-${g.guardians.id}`}
+                              required
+                            >
+                              <Input type="email" defaultValue={g.guardians.email ?? ""} />
+                            </FormField>
+                            <div>
+                              <SubmitButton variant="secondary" size="sm">
+                                Create parent sign-in
+                              </SubmitButton>
+                            </div>
+                          </>
+                        )}
+                      </ActionForm>
+                    ) : null}
                   </li>
                 ) : null,
               )}
@@ -270,60 +362,120 @@ export default async function StudentPage({ params, searchParams }: Props) {
           ) : null}
         </Section>
 
-        <Section title="Program" id="program">
-          {enrollments.length === 0 ? (
-            <p className="text-muted">Not enrolled in a program.</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {enrollments.map((e) => (
-                <li key={e.id} className="rounded-lg border border-border bg-background px-4 py-3">
-                  <span className="font-semibold">
-                    {e.programs?.code} {e.programs?.name}
-                  </span>{" "}
-                  from {e.terms ? termLabel(e.terms) : "-"}{" "}
-                  <Badge variant={e.status === "active" ? "brand" : "neutral"}>{e.status}</Badge>
-                </li>
-              ))}
-            </ul>
-          )}
-          {registrar ? (
-            <details className="max-w-3xl rounded-xl border border-border bg-background p-4">
-              <summary className="min-h-11 cursor-pointer content-center font-semibold text-primary">
-                {activeEnrollment ? "Change program" : "Enroll in a program"}
-              </summary>
-              <ActionForm action={enrollInProgram} aria-label="Program enrollment" className="mt-3">
+        {college ? (
+          <Section title="Program" id="program">
+            {enrollments.length === 0 ? (
+              <p className="text-muted">Not enrolled in a program.</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {enrollments.map((e) => (
+                  <li
+                    key={e.id}
+                    className="rounded-lg border border-border bg-background px-4 py-3"
+                  >
+                    <span className="font-semibold">
+                      {e.programs?.code} {e.programs?.name}
+                    </span>{" "}
+                    from {e.terms ? termLabel(e.terms) : "-"}{" "}
+                    <Badge variant={e.status === "active" ? "brand" : "neutral"}>{e.status}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {registrar ? (
+              <details className="max-w-3xl rounded-xl border border-border bg-background p-4">
+                <summary className="min-h-11 cursor-pointer content-center font-semibold text-primary">
+                  {activeEnrollment ? "Change program" : "Enroll in a program"}
+                </summary>
+                <ActionForm
+                  action={enrollInProgram}
+                  aria-label="Program enrollment"
+                  className="mt-3"
+                >
+                  <input type="hidden" name="student_id" value={id} />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField name="program_id" label="Program" required>
+                      <Select defaultValue="">
+                        <option value="">Choose a program</option>
+                        {programs.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.code} {p.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                    <FormField name="start_term_id" label="Start term" required>
+                      <Select defaultValue={term?.id ?? ""}>
+                        <option value="">Choose a term</option>
+                        {terms.map((t) => (
+                          <option key={t.id} value={t.id}>
+                            {termLabel(t)}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                  </div>
+                  <div>
+                    <SubmitButton>Save enrollment</SubmitButton>
+                  </div>
+                </ActionForm>
+              </details>
+            ) : null}
+          </Section>
+        ) : (
+          <Section title="Class" id="class">
+            {placements.length === 0 ? (
+              <p className="text-muted">Not placed in a class.</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {placements.map((p) => (
+                  <li
+                    key={p.id}
+                    className="rounded-lg border border-border bg-background px-4 py-3"
+                  >
+                    <span className="font-semibold">
+                      {p.sections?.grade_levels?.name} {p.sections?.name}
+                    </span>{" "}
+                    in {p.academic_years?.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {registrar && sections.length > 0 ? (
+              <ActionForm
+                action={placeStudent}
+                resetOnSuccess={false}
+                aria-label="Class placement"
+                className="max-w-md"
+              >
                 <input type="hidden" name="student_id" value={id} />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField name="program_id" label="Program" required>
-                    <Select defaultValue="">
-                      <option value="">Choose a program</option>
-                      {programs.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.code} {p.name}
-                        </option>
-                      ))}
-                    </Select>
-                  </FormField>
-                  <FormField name="start_term_id" label="Start term" required>
-                    <Select defaultValue={term?.id ?? ""}>
-                      <option value="">Choose a term</option>
-                      {terms.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {termLabel(t)}
-                        </option>
-                      ))}
-                    </Select>
-                  </FormField>
-                </div>
+                <FormField
+                  name="section_id"
+                  label={
+                    currentPlacement
+                      ? "Move to another class this year"
+                      : "Place in a class this year"
+                  }
+                  required
+                >
+                  <Select defaultValue={currentPlacement?.sections?.id ?? ""}>
+                    <option value="">Choose a class</option>
+                    {sections.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.grade_levels?.name} {c.name}
+                      </option>
+                    ))}
+                  </Select>
+                </FormField>
                 <div>
-                  <SubmitButton>Save enrollment</SubmitButton>
+                  <SubmitButton variant="secondary">Save class</SubmitButton>
                 </div>
               </ActionForm>
-            </details>
-          ) : null}
-        </Section>
+            ) : null}
+          </Section>
+        )}
 
-        {registrar ? (
+        {registrar && college ? (
           <Section title="Courses" id="courses">
             {sortedRegs.length === 0 ? (
               <p className="text-muted">No course registrations.</p>
@@ -431,6 +583,24 @@ export default async function StudentPage({ params, searchParams }: Props) {
                   {t.termName}: GPA {formatGpa(t.gpa)}, {t.creditsEarned} credits
                 </p>
               ))
+            )}
+          </Section>
+        ) : null}
+
+        {termReports.length > 0 ? (
+          <Section title="Results" id="results" description="Published scores for this year.">
+            {termReports.map((r) =>
+              r ? (
+                <p key={r.term.id}>
+                  {r.term.label}: overall average <strong>{formatScore(r.overall)}</strong>{" "}
+                  <a
+                    className="inline-flex min-h-11 items-center font-semibold text-primary underline"
+                    href={`/reports/report-card/${id}/${r.term.id}`}
+                  >
+                    Report card<span className="sr-only"> for {r.term.label}</span>
+                  </a>
+                </p>
+              ) : null,
             )}
           </Section>
         ) : null}

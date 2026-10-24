@@ -343,3 +343,141 @@ export async function removeGrade(_p: FormState, formData: FormData): Promise<Fo
     return "Grade removed.";
   });
 }
+
+// High School: grade levels, sections, subjects, marking periods (SPEC.md 7.4) ---------
+
+const optionalUser = z
+  .string()
+  .optional()
+  .transform((v) => (v ? v : null))
+  .refine((v) => v === null || z.uuid().safeParse(v).success, "Choose a teacher");
+
+const gradeLevelSchema = z.object({
+  name: requiredText("the grade level name", 40),
+  sort_order: wholeNumber("the order", 0, 50),
+});
+
+export async function createGradeLevel(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, opts(gradeLevelSchema), async (d, { supabase }) => {
+    must(await supabase.from("grade_levels").insert(d));
+    return `${d.name} added.`;
+  });
+}
+
+const sectionSchema = z.object({
+  grade_level_id: uuid("a grade level"),
+  academic_year_id: uuid("the academic year"),
+  name: requiredText("the section name", 10).transform((v) => v.toUpperCase()),
+  homeroom_teacher_id: optionalUser,
+});
+
+export async function createSection(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, opts(sectionSchema), async (d, { supabase }) => {
+    must(await supabase.from("sections").insert(d));
+    return `Section ${d.name} added.`;
+  });
+}
+
+export async function updateSection(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    opts(z.object({ id: uuid(), homeroom_teacher_id: optionalUser })),
+    async ({ id, homeroom_teacher_id }, { supabase }) => {
+      must(await supabase.from("sections").update({ homeroom_teacher_id }).eq("id", id));
+      return "Homeroom teacher saved.";
+    },
+  );
+}
+
+const subjectSchema = z.object({
+  name: requiredText("the subject name", 80),
+  code: code("a code", /^[A-Z0-9]{2,8}$/, "MATH"),
+});
+
+export async function createSubject(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, opts(subjectSchema), async (d, { supabase }) => {
+    must(await supabase.from("subjects").insert(d));
+    return `${d.name} added.`;
+  });
+}
+
+const sectionSubjectSchema = z.object({
+  section_id: uuid(),
+  subject_id: uuid("a subject"),
+  teacher_id: optionalUser,
+});
+
+export async function addSectionSubject(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, opts(sectionSubjectSchema), async (d, { supabase }) => {
+    must(await supabase.from("section_subjects").insert(d));
+    return "Subject added to the section.";
+  });
+}
+
+export async function updateSectionSubject(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    opts(z.object({ id: uuid(), teacher_id: optionalUser })),
+    async ({ id, teacher_id }, { supabase }) => {
+      must(await supabase.from("section_subjects").update({ teacher_id }).eq("id", id));
+      return "Teacher saved.";
+    },
+  );
+}
+
+const periodSchema = z.object({
+  term_id: uuid("a term"),
+  number: wholeNumber("the number", 1, 20),
+  name: requiredText("the name", 40),
+  is_exam: flag,
+  weight: z.coerce
+    .number({ error: "Enter the weight" })
+    .gt(0, "Use more than 0")
+    .max(100, "Use at most 100"),
+});
+
+export async function createMarkingPeriod(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, opts(periodSchema), async (d, { supabase }) => {
+    must(await supabase.from("marking_periods").insert(d));
+    return `${d.name} added.`;
+  });
+}
+
+/** Three periods and a semester exam with equal weights (SPEC.md 7.4 default). */
+export async function addDefaultPeriods(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    opts(z.object({ term_id: uuid("a term") })),
+    async ({ term_id }, { supabase }) => {
+      const existing = must(
+        await supabase.from("marking_periods").select("id").eq("term_id", term_id),
+      );
+      if (existing.length > 0) throw new ActionError("This term already has marking periods.");
+      must(
+        await supabase.from("marking_periods").insert(
+          [
+            { number: 1, name: "Period 1", is_exam: false },
+            { number: 2, name: "Period 2", is_exam: false },
+            { number: 3, name: "Period 3", is_exam: false },
+            { number: 4, name: "Semester exam", is_exam: true },
+          ].map((p) => ({ ...p, term_id, weight: 1 })),
+        ),
+      );
+      return "Default marking periods added.";
+    },
+  );
+}
+
+export async function removeMarkingPeriod(_p: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, opts(z.object({ id: uuid() })), async ({ id }, { supabase }) => {
+    const { count, error } = await supabase
+      .from("period_scores")
+      .select("id", { count: "exact", head: true })
+      .eq("marking_period_id", id);
+    if (error) throw new ActionError(error.message);
+    if (count)
+      throw new ActionError("This marking period already has scores, so it cannot be removed.");
+    must(await supabase.from("marking_periods").delete().eq("id", id));
+    return "Marking period removed.";
+  });
+}

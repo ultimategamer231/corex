@@ -9,12 +9,14 @@ import { Section } from "@/components/section";
 import { rows } from "@/lib/queries";
 import { REGISTRAR } from "@/lib/roles";
 import { requireRoles } from "@/lib/session";
+import { requireEdition } from "@/lib/edition";
 import { createProgram } from "../actions";
 
 export const metadata: Metadata = { title: "Programs" };
 
 export default async function ProgramsPage() {
   const { supabase } = await requireRoles(REGISTRAR);
+  requireEdition("college");
   const [programs, departments] = await Promise.all([
     supabase
       .from("programs")

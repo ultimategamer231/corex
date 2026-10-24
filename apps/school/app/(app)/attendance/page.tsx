@@ -12,6 +12,7 @@ import { CalendarCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
 import { personName, todayIso } from "@/lib/format";
+import { edition } from "@/lib/edition";
 import { isUuid } from "@/lib/ids";
 import { getSettings } from "@/lib/org";
 import { currentTerm, rows, termLabel } from "@/lib/queries";
@@ -23,7 +24,7 @@ export const metadata: Metadata = { title: "Attendance" };
 
 const STATUSES = ["present", "absent", "late", "excused"] as const;
 
-type Props = { searchParams: Promise<{ offering?: string; date?: string }> };
+type Props = { searchParams: Promise<{ class?: string; offering?: string; date?: string }> };
 
 export default async function AttendancePage({ searchParams }: Props) {
   const { supabase, member } = await requireRoles([...TEACHING, ...REGISTRAR]);
@@ -38,31 +39,64 @@ export default async function AttendancePage({ searchParams }: Props) {
   const term = await currentTerm(supabase);
   if (!term) return <PageHeader title="Attendance" description="Set a current term first." />;
 
-  let offeringsQuery = supabase
-    .from("course_offerings")
-    .select("id, section, instructor_id, courses(code, title)")
-    .eq("term_id", term.id);
-  if (!registrar) offeringsQuery = offeringsQuery.eq("instructor_id", member.userId);
-  const offerings = rows(await offeringsQuery);
-  offerings.sort((a, b) => (a.courses?.code ?? "").localeCompare(b.courses?.code ?? ""));
-  const offering =
-    offerings.find((o) => o.id === params.offering) ??
-    (offerings.length === 1 ? offerings[0] : undefined);
+  // College: course offerings by their instructor. High School: sections by their
+  // homeroom teacher (SPEC.md 7.5). The Registrar sees every class of the term.
+  const college = edition() === "college";
+  const refType = college ? "offering" : "section";
+  let classes: { id: string; label: string }[];
+  if (college) {
+    let q = supabase
+      .from("course_offerings")
+      .select("id, section, instructor_id, courses(code, title)")
+      .eq("term_id", term.id);
+    if (!registrar) q = q.eq("instructor_id", member.userId);
+    classes = rows(await q)
+      .map((o) => ({
+        id: o.id,
+        label: `${o.courses?.code ?? ""} ${o.courses?.title ?? ""} (${o.section})`,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  } else {
+    let q = supabase
+      .from("sections")
+      .select("id, name, homeroom_teacher_id, grade_levels(name, sort_order)")
+      .eq("academic_year_id", term.academic_year_id);
+    if (!registrar) q = q.eq("homeroom_teacher_id", member.userId);
+    classes = rows(await q)
+      .sort(
+        (a, b) =>
+          (a.grade_levels?.sort_order ?? 0) - (b.grade_levels?.sort_order ?? 0) ||
+          a.name.localeCompare(b.name),
+      )
+      .map((c) => ({ id: c.id, label: `${c.grade_levels?.name ?? ""} ${c.name}` }));
+  }
+  const wanted = params.class ?? params.offering;
+  const selected =
+    classes.find((c) => c.id === wanted) ?? (classes.length === 1 ? classes[0] : undefined);
+  const offering = selected;
 
+  const studentColumns =
+    "student_id, students(id, student_number, first_name, middle_name, last_name)";
   const [classList, recorded] =
-    offering && isUuid(offering.id)
+    selected && isUuid(selected.id)
       ? await Promise.all([
-          supabase
-            .from("course_registrations")
-            .select("student_id, students(id, student_number, first_name, middle_name, last_name)")
-            .eq("offering_id", offering.id)
-            .eq("status", "approved")
-            .then(rows),
+          college
+            ? supabase
+                .from("course_registrations")
+                .select(studentColumns)
+                .eq("offering_id", selected.id)
+                .eq("status", "approved")
+                .then(rows)
+            : supabase
+                .from("student_placements")
+                .select(studentColumns)
+                .eq("section_id", selected.id)
+                .then(rows),
           supabase
             .from("attendance")
             .select("id, student_id, status, note")
-            .eq("class_ref_type", "offering")
-            .eq("class_ref_id", offering.id)
+            .eq("class_ref_type", refType)
+            .eq("class_ref_id", selected.id)
             .eq("date", day)
             .then(rows),
         ])
@@ -78,12 +112,12 @@ export default async function AttendancePage({ searchParams }: Props) {
       <PageHeader title="Attendance" description={termLabel(term)} />
       <form className="mb-6 flex flex-wrap items-end gap-3" aria-label="Choose a class and date">
         <div className="flex w-80 max-w-full flex-col gap-1.5">
-          <Label htmlFor="offering">Class</Label>
-          <Select id="offering" name="offering" defaultValue={offering?.id ?? ""}>
+          <Label htmlFor="class">Class</Label>
+          <Select id="class" name="class" defaultValue={offering?.id ?? ""}>
             <option value="">Choose a class</option>
-            {offerings.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.courses?.code} {o.courses?.title} ({o.section})
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
               </option>
             ))}
           </Select>
@@ -97,7 +131,7 @@ export default async function AttendancePage({ searchParams }: Props) {
         </Button>
       </form>
 
-      {offerings.length === 0 ? (
+      {classes.length === 0 ? (
         <EmptyState
           icon={<CalendarCheck />}
           title="No classes"
@@ -109,64 +143,64 @@ export default async function AttendancePage({ searchParams }: Props) {
         <p className="text-muted">No students are registered in this class yet.</p>
       ) : (
         <div className="flex flex-col gap-6">
-          {unrecorded.length > 0 ? (
-            <ActionForm
-              action={recordAttendance}
-              aria-label="Class register"
-              resetOnSuccess={false}
-            >
-              <input type="hidden" name="offering_id" value={offering.id} />
-              <input type="hidden" name="date" value={day} />
-              <TableScroll label="Class register">
-                <Table>
-                  <thead>
-                    <tr>
-                      <Th>Student</Th>
-                      {STATUSES.map((s) => (
-                        <Th key={s} className="text-center capitalize">
-                          {s}
-                        </Th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {unrecorded.map((c) => (
-                      <tr key={c.student_id}>
-                        <Td>
-                          <input
-                            type="hidden"
-                            name={`id_${c.student_id}`}
-                            value={crypto.randomUUID()}
-                          />
-                          <span className="font-semibold">
-                            {c.students ? personName(c.students) : ""}
-                          </span>
-                          <p className="text-sm text-muted">{c.students?.student_number}</p>
-                        </Td>
+          {/* Stays mounted after saving so the confirmation remains visible. */}
+          <ActionForm action={recordAttendance} aria-label="Class register" resetOnSuccess={false}>
+            {unrecorded.length > 0 ? (
+              <>
+                <input type="hidden" name="class_id" value={offering.id} />
+                <input type="hidden" name="class_ref_type" value={refType} />
+                <input type="hidden" name="date" value={day} />
+                <TableScroll label="Class register">
+                  <Table>
+                    <thead>
+                      <tr>
+                        <Th>Student</Th>
                         {STATUSES.map((s) => (
-                          <Td key={s} className="text-center">
-                            <input
-                              type="radio"
-                              name={`status_${c.student_id}`}
-                              value={s}
-                              defaultChecked={s === "present"}
-                              aria-label={`${s} - ${c.students ? personName(c.students) : ""}`}
-                              className="size-6"
-                            />
-                          </Td>
+                          <Th key={s} className="text-center capitalize">
+                            {s}
+                          </Th>
                         ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </TableScroll>
-              <div>
-                <SubmitButton variant="accent" pendingLabel="Saving register...">
-                  Save register
-                </SubmitButton>
-              </div>
-            </ActionForm>
-          ) : null}
+                    </thead>
+                    <tbody>
+                      {unrecorded.map((c) => (
+                        <tr key={c.student_id}>
+                          <Td>
+                            <input
+                              type="hidden"
+                              name={`id_${c.student_id}`}
+                              value={crypto.randomUUID()}
+                            />
+                            <span className="font-semibold">
+                              {c.students ? personName(c.students) : ""}
+                            </span>
+                            <p className="text-sm text-muted">{c.students?.student_number}</p>
+                          </Td>
+                          {STATUSES.map((s) => (
+                            <Td key={s} className="text-center">
+                              <input
+                                type="radio"
+                                name={`status_${c.student_id}`}
+                                value={s}
+                                defaultChecked={s === "present"}
+                                aria-label={`${s} - ${c.students ? personName(c.students) : ""}`}
+                                className="size-6"
+                              />
+                            </Td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </TableScroll>
+                <div>
+                  <SubmitButton variant="accent" pendingLabel="Saving register...">
+                    Save register
+                  </SubmitButton>
+                </div>
+              </>
+            ) : null}
+          </ActionForm>
 
           {recorded.length > 0 ? (
             <section aria-labelledby="recorded-title" className="flex flex-col gap-3">

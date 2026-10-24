@@ -11,6 +11,7 @@ import { Section } from "@/components/section";
 import { rows } from "@/lib/queries";
 import { REGISTRAR } from "@/lib/roles";
 import { requireRoles } from "@/lib/session";
+import { requireEdition } from "@/lib/edition";
 import { isUuid } from "@/lib/ids";
 import { addRequirement, removeRequirement } from "../../actions";
 
@@ -18,6 +19,7 @@ export const metadata: Metadata = { title: "Program" };
 
 export default async function ProgramPage({ params }: { params: Promise<{ id: string }> }) {
   const { supabase } = await requireRoles(REGISTRAR);
+  requireEdition("college");
   const { id } = await params;
   if (!isUuid(id)) notFound();
   const { data: program, error } = await supabase

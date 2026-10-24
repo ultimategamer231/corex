@@ -9,12 +9,14 @@ import { isUuid } from "@/lib/ids";
 import { rows } from "@/lib/queries";
 import { REGISTRAR } from "@/lib/roles";
 import { requireRoles } from "@/lib/session";
+import { requireEdition } from "@/lib/edition";
 import { addPrerequisite, removePrerequisite } from "../../actions";
 
 export const metadata: Metadata = { title: "Course" };
 
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { supabase } = await requireRoles(REGISTRAR);
+  requireEdition("college");
   const { id } = await params;
   if (!isUuid(id)) notFound();
   const { data: course, error } = await supabase

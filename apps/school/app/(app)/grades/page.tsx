@@ -8,16 +8,31 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Section } from "@/components/section";
 import { loadAcademicRecord } from "@/lib/academic";
+import { edition } from "@/lib/edition";
 import { formatGpa } from "@/lib/gpa";
 import { currentTerm, rows, termLabel } from "@/lib/queries";
 import { REGISTRAR, TEACHING } from "@/lib/roles";
 import { memberHas, requireRoles } from "@/lib/session";
 import type { SchoolDb } from "@/lib/supabase";
+import { HighSchoolFamilyGrades, HighSchoolStaffGrades } from "./highschool";
 
 export const metadata: Metadata = { title: "Grades" };
 
-export default async function GradesPage() {
-  const { supabase, member } = await requireRoles([...REGISTRAR, ...TEACHING, "student"]);
+type Props = { searchParams: Promise<{ student?: string }> };
+
+export default async function GradesPage({ searchParams }: Props) {
+  const { supabase, member } = await requireRoles([...REGISTRAR, ...TEACHING, "student", "parent"]);
+  if (edition() === "highschool") {
+    return memberHas(member, [...REGISTRAR, ...TEACHING]) ? (
+      <HighSchoolStaffGrades db={supabase} member={member} />
+    ) : (
+      <HighSchoolFamilyGrades
+        db={supabase}
+        member={member}
+        studentId={(await searchParams).student}
+      />
+    );
+  }
   if (memberHas(member, ["student"]) && !memberHas(member, [...REGISTRAR, ...TEACHING])) {
     return <StudentGrades db={supabase} userId={member.userId} />;
   }

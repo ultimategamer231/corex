@@ -7,6 +7,7 @@ import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
 import { ConfirmAction } from "@/components/confirm-action";
 import { Section } from "@/components/section";
 import { money } from "@/lib/format";
+import { edition } from "@/lib/edition";
 import { getSettings } from "@/lib/org";
 import { listTerms, rows, termLabel } from "@/lib/queries";
 import { BURSAR } from "@/lib/roles";
@@ -18,7 +19,7 @@ export const metadata: Metadata = { title: "Fee structures" };
 export default async function FeeStructuresPage() {
   const { supabase } = await requireRoles(BURSAR);
   const settings = await getSettings();
-  const [structures, years, terms, programs] = await Promise.all([
+  const [structures, years, terms, programs, gradeLevels] = await Promise.all([
     supabase
       .from("fee_structures")
       .select("id, applies_to, item, amount_minor, currency, academic_years(name), terms(name)")
@@ -31,12 +32,17 @@ export default async function FeeStructuresPage() {
       .then(rows),
     listTerms(supabase),
     supabase.from("programs").select("code, name").order("code").then(rows),
+    supabase.from("grade_levels").select("name").order("sort_order").then(rows),
   ]);
+  const groups =
+    edition() === "college"
+      ? programs.map((p) => ({ value: p.code, label: `${p.code} ${p.name}` }))
+      : gradeLevels.map((g) => ({ value: g.name, label: g.name }));
   return (
     <>
       <PageHeader
         title="Fee structures"
-        description="Items charged per term, for all students or one program."
+        description="Items charged per term, for all students or one program or grade level."
       />
       <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
         <Section title="Fee items" id="list">
@@ -134,9 +140,9 @@ export default async function FeeStructuresPage() {
             <FormField name="applies_to" label="Applies to">
               <Select defaultValue="all">
                 <option value="all">All students</option>
-                {programs.map((p) => (
-                  <option key={p.code} value={p.code}>
-                    {p.code} {p.name}
+                {groups.map((g) => (
+                  <option key={g.value} value={g.value}>
+                    {g.label}
                   </option>
                 ))}
               </Select>

@@ -9,7 +9,11 @@ import { REGISTRAR, TEACHING } from "@/lib/roles";
 
 const STATUS = z.enum(["present", "absent", "late", "excused"]);
 
-const recordSchema = z.looseObject({ offering_id: uuid("a class"), date: isoDate("the date") });
+const recordSchema = z.looseObject({
+  class_id: uuid("a class"),
+  class_ref_type: z.enum(["offering", "section"]),
+  date: isoDate("the date"),
+});
 
 /**
  * Saves a class register. Each row has an id made when the form was drawn, so a
@@ -41,8 +45,8 @@ export async function recordAttendance(_p: FormState, formData: FormData): Promi
             id: id as string,
             date: d.date,
             student_id: studentId,
-            class_ref_type: "offering",
-            class_ref_id: d.offering_id,
+            class_ref_type: d.class_ref_type,
+            class_ref_id: d.class_id,
             status: status.data,
             recorded_by: member.userId,
           };

@@ -7,12 +7,14 @@ import { Section } from "@/components/section";
 import { rows } from "@/lib/queries";
 import { REGISTRAR } from "@/lib/roles";
 import { requireRoles } from "@/lib/session";
+import { requireEdition } from "@/lib/edition";
 import { createDepartment } from "../actions";
 
 export const metadata: Metadata = { title: "Departments" };
 
 export default async function DepartmentsPage() {
   const { supabase } = await requireRoles(REGISTRAR);
+  requireEdition("college");
   const departments = rows(
     await supabase
       .from("departments")
