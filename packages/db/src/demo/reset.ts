@@ -12,6 +12,14 @@ import type { AdminClient } from "../supabase-admin.ts";
 import { seededRandom } from "./random.ts";
 import { seedCollege, seedHighSchool, type SeedContext } from "./school.ts";
 
+/**
+ * A random password for accounts nobody signs in to, with the upper-case letter,
+ * lower-case letter and digit the Auth password rules require.
+ */
+function unpublishedPassword(): string {
+  return `Dx7${randomBytes(24).toString("base64url")}`;
+}
+
 /** Fixed seed: the same data on every run (SPEC.md 11.4). */
 export const DEMO_SEED = 20_261_024;
 
@@ -41,7 +49,7 @@ export async function ensureDemoUsers(
     if (ids.has(account.email)) continue;
     const { data, error } = await admin.auth.admin.createUser({
       email: account.email,
-      password: randomBytes(24).toString("base64url"),
+      password: unpublishedPassword(),
       email_confirm: true,
       user_metadata: { name: account.name },
     });
@@ -50,9 +58,7 @@ export async function ensureDemoUsers(
   }
   const published = new Set(demo.accounts.map((a) => a.email));
   for (const account of accounts) {
-    const password = published.has(account.email)
-      ? DEMO_PASSWORD
-      : randomBytes(24).toString("base64url");
+    const password = published.has(account.email) ? DEMO_PASSWORD : unpublishedPassword();
     await sql`
       update auth.users
       set encrypted_password = extensions.crypt(${password}, extensions.gen_salt('bf')),
