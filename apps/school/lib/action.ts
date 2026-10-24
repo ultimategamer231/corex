@@ -2,6 +2,8 @@ import { AuthError, requireMember, SESSION_HOURS } from "@corex/core/auth";
 import type { CurrentMember } from "@corex/core/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { DEMO_DISABLED } from "./demo";
+import { schoolEnv } from "./env";
 import type { FormState } from "./form-state";
 import { hasAnyRole, type Role } from "./roles";
 import { asAuthClient, getSupabase, type SchoolDb } from "./supabase";
@@ -60,13 +62,31 @@ export const isoDate = (label: string) =>
 
 type Context = { supabase: SchoolDb; member: CurrentMember };
 
+type ActionOptions<T> = {
+  roles: readonly Role[];
+  schema: z.ZodType<T>;
+  revalidate?: string[];
+  /** Turned off on the public demos: settings, users, roles (SPEC.md 11.3). */
+  demoBlocked?: boolean;
+};
+
+/** Demo only: 60 writes per user per minute, counted by the demo database layer. */
+async function demoWriteAllowed(supabase: SchoolDb): Promise<boolean> {
+  const db = supabase as unknown as {
+    rpc(fn: "demo_write_allowed"): PromiseLike<{ data: unknown; error: unknown }>;
+  };
+  const { data, error } = await db.rpc("demo_write_allowed");
+  return !error && data === true;
+}
+
 /**
  * Runs a server action: checks the session and role (CORE-02; row-level security
- * checks again), validates the form, runs `handler`, revalidates and reports.
+ * checks again), validates the form, runs `handler`, revalidates and reports. On a
+ * public demo it also applies the demo restrictions and write limit.
  */
 export async function runAction<T>(
   formData: FormData,
-  options: { roles: readonly Role[]; schema: z.ZodType<T>; revalidate?: string[] },
+  options: ActionOptions<T>,
   handler: (data: T, ctx: Context) => Promise<string | FormState | void>,
 ): Promise<FormState> {
   let ctx: Context;
@@ -78,6 +98,7 @@ export async function runAction<T>(
     if (!hasAnyRole(member.roles, options.roles)) {
       return { status: "error", message: "Your role cannot do this." };
     }
+    if (schoolEnv().demo && options.demoBlocked) return { status: "error", message: DEMO_DISABLED };
     ctx = { supabase, member };
   } catch (error) {
     if (error instanceof AuthError) return { status: "error", message: error.message };
@@ -92,6 +113,13 @@ export async function runAction<T>(
       fieldErrors[key] ??= issue.message;
     }
     return { status: "error", message: "Please check the highlighted fields.", fieldErrors };
+  }
+
+  if (schoolEnv().demo && !(await demoWriteAllowed(ctx.supabase))) {
+    return {
+      status: "error",
+      message: "Too many changes in a short time. Wait a minute and try again.",
+    };
   }
 
   try {

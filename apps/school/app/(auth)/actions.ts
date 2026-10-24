@@ -1,16 +1,40 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { formObject } from "@/lib/action";
+import { DEMO_DISABLED } from "@/lib/demo";
+import { schoolEnv } from "@/lib/env";
 import type { FormState } from "@/lib/form-state";
-import { getSupabase } from "@/lib/supabase";
+import { getAdminSupabase, getSupabase } from "@/lib/supabase";
 
 const signInSchema = z.object({
   email: z.email("Enter your email address"),
   password: z.string().min(1, "Enter your password"),
   next: z.string().optional(),
 });
+
+/**
+ * Demo only: 10 sign-in attempts per IP address per 15 minutes (SPEC.md 11.3). The
+ * counter lives in the demo schema and is updated with the service-role key.
+ */
+async function demoLoginAllowed(): Promise<boolean> {
+  const forwarded = (await headers()).get("x-forwarded-for");
+  const ip = forwarded?.split(",")[0]?.trim() || "unknown";
+  const db = getAdminSupabase() as unknown as {
+    rpc(
+      fn: "demo_rate_hit",
+      args: { p_key: string; p_limit: number; p_window_seconds: number },
+    ): PromiseLike<{ data: unknown; error: unknown }>;
+  };
+  const { data, error } = await db.rpc("demo_rate_hit", {
+    p_key: `login:${ip}`,
+    p_limit: 10,
+    p_window_seconds: 900,
+  });
+  return !error && data === true;
+}
 
 /** Only same-site paths are followed after sign-in. */
 function safeNext(next: string | undefined): string {
@@ -23,6 +47,12 @@ export async function signIn(_previous: FormState, formData: FormData): Promise<
     const fieldErrors: Record<string, string> = {};
     for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0])] ??= issue.message;
     return { status: "error", message: "Please check the highlighted fields.", fieldErrors };
+  }
+  if (schoolEnv().demo && !(await demoLoginAllowed())) {
+    return {
+      status: "error",
+      message: "Too many sign-in attempts. Wait 15 minutes and try again.",
+    };
   }
   const supabase = await getSupabase();
   const { error } = await supabase.auth.signInWithPassword({
@@ -52,6 +82,8 @@ export async function requestPasswordReset(
   _previous: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  // The demo sends no email (SPEC.md 11.3).
+  if (schoolEnv().demo) return { status: "error", message: DEMO_DISABLED };
   const parsed = resetSchema.safeParse(formObject(formData));
   if (!parsed.success) {
     return { status: "error", fieldErrors: { email: "Enter your email address" } };
@@ -84,6 +116,7 @@ const newPasswordSchema = z
   });
 
 export async function updatePassword(_previous: FormState, formData: FormData): Promise<FormState> {
+  if (schoolEnv().demo) return { status: "error", message: DEMO_DISABLED };
   const parsed = newPasswordSchema.safeParse(formObject(formData));
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};

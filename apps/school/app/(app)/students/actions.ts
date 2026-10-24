@@ -298,7 +298,7 @@ export async function createStudentLogin(
 ): Promise<FormState> {
   return runAction(
     formData,
-    { roles: ["super_admin"], schema: portalSchema, revalidate: ["/students"] },
+    { roles: ["super_admin"], schema: portalSchema, revalidate: ["/students"], demoBlocked: true },
     async (d, { supabase }) => {
       const student = must(
         await supabase
@@ -366,7 +366,12 @@ export async function createParentLogin(
 ): Promise<FormState> {
   return runAction(
     formData,
-    { roles: ["super_admin"], schema: guardianLoginSchema, revalidate: ["/students"] },
+    {
+      roles: ["super_admin"],
+      schema: guardianLoginSchema,
+      revalidate: ["/students"],
+      demoBlocked: true,
+    },
     async (d, { supabase }) => {
       const guardian = must(
         await supabase
