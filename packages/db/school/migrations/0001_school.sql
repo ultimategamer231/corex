@@ -38,6 +38,23 @@ $$;
 grant execute on function {{schema}}.is_registrar() to authenticated, service_role;
 grant execute on function {{schema}}.is_school_office() to authenticated, service_role;
 
+-- Active members with a role, for assigning instructors and teachers. Office staff
+-- only; returns names, never emails (memberships themselves stay admin-only).
+create function {{schema}}.members_with_role(p_role text)
+returns table (user_id uuid, display_name text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select m.user_id, m.display_name
+  from {{schema}}.memberships m
+  where m.role = p_role and m.status = 'active' and {{schema}}.is_school_office()
+  order by m.display_name;
+$$;
+
+grant execute on function {{schema}}.members_with_role(text) to authenticated;
+
 -- Academic calendar ----------------------------------------------------------------
 
 create table {{schema}}.academic_years (
@@ -275,6 +292,22 @@ where i.party_type = 'student' and i.status in ('issued', 'partially_paid')
 group by i.party_id, i.currency;
 
 grant select on {{schema}}.student_balances to authenticated;
+
+-- Fees collected and outstanding per currency for the dashboard (SPEC.md 7.5).
+create view {{schema}}.fee_totals
+with (security_invoker = true)
+as
+select
+  i.currency,
+  coalesce(sum(b.paid_minor), 0)::bigint as collected_minor,
+  coalesce(sum(b.total_minor - b.paid_minor) filter (where i.status in ('issued', 'partially_paid')), 0)::bigint
+    as outstanding_minor
+from {{schema}}.invoices i
+join {{schema}}.invoice_balances b on b.invoice_id = i.id
+where i.party_type = 'student' and i.status not in ('draft', 'void')
+group by i.currency;
+
+grant select on {{schema}}.fee_totals to authenticated;
 
 -- Row-level security ----------------------------------------------------------------
 

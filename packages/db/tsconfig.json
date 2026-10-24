@@ -5,6 +5,6 @@
     "erasableSyntaxOnly": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["src", "test", "*.ts", "*.mjs"],
+  "include": ["src", "test", "types", "*.ts", "*.mjs"],
   "exclude": ["node_modules"]
 }

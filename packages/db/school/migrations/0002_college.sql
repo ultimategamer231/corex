@@ -555,6 +555,22 @@ begin
 end;
 $$;
 
+-- Seats per offering in a term, for members who cannot read other registrations.
+create function {{schema}}.offering_seats(p_term_id uuid)
+returns table (offering_id uuid, capacity integer, taken integer)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select o.id, o.capacity,
+         (select count(*)::integer from {{schema}}.course_registrations r
+          where r.offering_id = o.id and r.status = 'approved')
+  from {{schema}}.course_offerings o
+  where o.term_id = p_term_id and {{schema}}.is_member();
+$$;
+
+grant execute on function {{schema}}.offering_seats(uuid) to authenticated;
 grant execute on function {{schema}}.plan_course(uuid) to authenticated;
 grant execute on function {{schema}}.unplan_course(uuid) to authenticated;
 grant execute on function {{schema}}.submit_plan(uuid) to authenticated;
