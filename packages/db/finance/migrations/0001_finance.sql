@@ -814,7 +814,8 @@ begin
     perform {{schema}}.record_transaction(
       gen_random_uuid(), 'expense', p_date, v_account, v_total.net, p_category_id, null, null,
       case when v_total.currency = (select base_currency from {{schema}}.settings) then null else p_fx_rate end,
-      'Payroll ' || to_char(v_run.period_month, 'Mon YYYY') || ' (' || v_total.people || ' payslips)'
+      'Payroll ' || to_char(v_run.period_month, 'Mon YYYY') || ' (' || v_total.people
+        || case when v_total.people = 1 then ' payslip)' else ' payslips)' end
     );
     v_count := v_count + 1;
   end loop;

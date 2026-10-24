@@ -140,6 +140,11 @@ export async function seedFinanceFixture(
     [[korpo, boima]],
   );
 
+  // Receipt photos go to a private bucket named after the schema (provisioning does the same).
+  const bucket = await admin.storage.createBucket(s, { public: false });
+  if (bucket.error && !/already exists/i.test(bucket.error.message)) {
+    throw new Error(`Could not create bucket ${s}: ${bucket.error.message}`);
+  }
   await exposeSchemaLocally(sql, s);
   return { schema: s, users };
 }
