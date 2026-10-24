@@ -5,15 +5,33 @@ import { defineConfig, devices } from "@playwright/test";
  *   pnpm test:e2e                 all apps
  *   pnpm test:e2e --project=web   one app
  * School runs against the local Supabase stack: `pnpm db:local:start`, then
- * `node scripts/school-env.mjs --schema e2e_college` before building. Its setup
+ * `node scripts/school-env.mjs --schema e2e_school` before building. Its setup
  * project rebuilds that schema with fixture data before the tests.
  */
-const apps = [
-  { name: "web", port: 3000, testDir: "e2e/web" },
+type App = {
+  name: string;
+  port: number;
+  testDir: string;
+  /** Workspace package that serves it; defaults to @corex/<name>. */
+  app?: string;
+  env?: Record<string, string>;
+};
+
+const apps: App[] = [
+  // The website keeps quote requests in memory under test instead of Supabase.
+  { name: "web", port: 3000, testDir: "e2e/web", env: { LEAD_STORE: "memory" } },
   { name: "school", port: 3001, testDir: "e2e/school" },
+  // The same School build in the High School edition (EDITION is read at run time).
+  {
+    name: "school-hs",
+    port: 3004,
+    testDir: "e2e/school-hs",
+    app: "school",
+    env: { EDITION: "highschool" },
+  },
   { name: "clinic", port: 3002, testDir: "e2e/apps" },
   { name: "finance", port: 3003, testDir: "e2e/apps" },
-] as const;
+];
 
 const ci = Boolean(process.env.CI);
 
@@ -47,18 +65,17 @@ export default defineConfig({
       name: app.name,
       testDir: app.testDir,
       use: { baseURL: `http://localhost:${app.port}` },
-      ...(app.name === "school"
+      ...(app.name.startsWith("school")
         ? { dependencies: ["school-setup"], testIgnore: /setup\.ts$/ }
         : {}),
     })),
   ],
   // Start only the apps under test, so one app can be tested after building only that app.
   webServer: servedApps.map((app) => ({
-    command: `pnpm --filter @corex/${app.name} start`,
+    command: `pnpm --filter @corex/${app.app ?? app.name} exec next start --port ${app.port}`,
     url: `http://localhost:${app.port}`,
     reuseExistingServer: !ci,
     timeout: 120_000,
-    // The website keeps quote requests in memory under test instead of Supabase.
-    env: app.name === "web" ? { LEAD_STORE: "memory" } : ({} as Record<string, string>),
+    env: app.env ?? {},
   })),
 });

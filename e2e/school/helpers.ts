@@ -1,12 +1,13 @@
 import { expect, type Page } from "@playwright/test";
 
 /** Schema the School app is built against for end-to-end tests (scripts/school-env.mjs). */
-export const SCHEMA = "e2e_college";
+export const SCHEMA = "e2e_school";
 export const PASSWORD = "Test@2026pass";
 
-export type Role = "super_admin" | "registrar" | "instructor" | "bursar" | "student";
+export type Role =
+  "super_admin" | "registrar" | "instructor" | "teacher" | "bursar" | "student" | "parent";
 
-/** Fixture sign-in for a role (packages/db/src/fixtures/college.ts). */
+/** Fixture sign-in for a role (packages/db/src/fixtures/school.ts). */
 export function emailFor(role: Role): string {
   return `${role.replace("_", "-")}@${SCHEMA.replace(/_/g, "-")}.corex.test`;
 }
