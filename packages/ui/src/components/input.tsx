@@ -1,11 +1,15 @@
+"use client";
+
 import type * as React from "react";
 import { cn } from "../lib/utils";
+import { useFieldControlProps } from "./field";
 
 /**
  * Text input. 16px text avoids zoom on iOS; the strong border meets the 3:1
  * non-text contrast rule. Set `aria-invalid` to show the error state.
  */
-export function Input({ className, type = "text", ...props }: React.ComponentProps<"input">) {
+export function Input(all: React.ComponentProps<"input">) {
+  const { className, type = "text", ...props } = useFieldControlProps(all);
   return (
     <input
       type={type}
