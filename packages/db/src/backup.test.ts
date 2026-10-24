@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { backupKey, backupKeyDate, backupStorageFromEnv, dumpCommand } from "./backup.ts";
 
 describe("backup keys", () => {
@@ -52,5 +52,37 @@ describe("backupStorageFromEnv", () => {
       BACKUP_S3_SECRET_ACCESS_KEY: "secret",
     });
     expect(storage.region).toBe("auto");
+  });
+});
+
+describe("pruneBackups", () => {
+  it("fails loudly when storage reports objects it could not delete", async () => {
+    const { S3Client } = await import("@aws-sdk/client-s3");
+    const { pruneBackups, backupKey } = await import("./backup.ts");
+    const now = new Date("2026-10-24T01:30:00Z");
+    const old = backupKey("demo", "demo_college", new Date("2026-08-01T01:30:00Z"));
+    vi.spyOn(S3Client.prototype, "send").mockImplementation(((command: {
+      constructor: { name: string };
+    }) =>
+      Promise.resolve(
+        command.constructor.name === "ListObjectsV2Command"
+          ? { Contents: [{ Key: old }], IsTruncated: false }
+          : { Errors: [{ Key: old, Code: "AccessDenied" }] },
+      )) as never);
+    await expect(
+      pruneBackups({
+        storage: {
+          endpoint: "https://r2.example",
+          region: "auto",
+          bucket: "b",
+          accessKeyId: "a",
+          secretAccessKey: "s",
+        },
+        project: "demo",
+        schema: "demo_college",
+        keepDays: 30,
+        now,
+      }),
+    ).rejects.toThrow(/AccessDenied/);
   });
 });

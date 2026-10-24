@@ -1,8 +1,9 @@
 // pnpm db:provision --schema <name> --product <school|clinic|finance> --org "<name>" --admin-email <email>
-//   [--admin-name "<name>"] [--project <label>] [--redirect-to <url>]
+//   --project <label> [--admin-name "<name>"] [--redirect-to <url>]
+// --project local provisions on the local stack and records it in the git-ignored schemas.local.json.
 import { z } from "zod";
 import { connect } from "../db.ts";
-import { databaseUrl, isLocalDatabase } from "../env.ts";
+import { databaseUrl, LOCAL_PROJECT } from "../env.ts";
 import { PRODUCTS } from "../products.ts";
 import { provisionSchema } from "../provision.ts";
 import { registryPath } from "../registry.ts";
@@ -10,7 +11,7 @@ import { supabaseAdmin, supabaseAdminConfig } from "../supabase-admin.ts";
 import { parseOptions, run } from "./args.ts";
 
 const options = parseOptions(
-  'db:provision --schema <name> --product <school|clinic|finance> --org "<name>" --admin-email <email> [--admin-name "<name>"] [--project <label>] [--redirect-to <url>]',
+  'db:provision --schema <name> --product <school|clinic|finance> --org "<name>" --admin-email <email> --project <label|local> [--admin-name "<name>"] [--redirect-to <url>]',
   {
     schema: z.string(),
     product: z.enum(PRODUCTS),
@@ -26,13 +27,10 @@ const options = parseOptions(
 );
 
 run(async () => {
-  const url = databaseUrl(options.project === "local" ? undefined : options.project);
-  const local = isLocalDatabase(url);
-  const sql = connect(url);
+  const local = options.project === LOCAL_PROJECT;
+  const sql = connect(databaseUrl(options.project));
   try {
-    const supabase = supabaseAdmin(
-      supabaseAdminConfig(options.project === "local" ? undefined : options.project, local),
-    );
+    const supabase = supabaseAdmin(supabaseAdminConfig(options.project));
     const result = await provisionSchema(sql, supabase, {
       schema: options.schema,
       product: options.product,
@@ -43,7 +41,9 @@ run(async () => {
       redirectTo: options["redirect-to"],
       exposeLocally: local,
     });
-    console.log(`Provisioned ${options.schema} (${options.product}) for "${options.org}".`);
+    console.log(
+      `Provisioned ${options.schema} (${options.product}) for "${options.org}" in project "${options.project}".`,
+    );
     console.log(
       `  Migrations applied: ${result.migrations.applied.length}, already present: ${result.migrations.skipped.length}`,
     );
@@ -51,7 +51,9 @@ run(async () => {
     console.log(
       `  First ${result.adminRole}: ${options["admin-email"]} ${result.invited ? "(invitation email sent)" : "(existing user)"}`,
     );
-    console.log(`  Registered in ${registryPath()}; commit that change.`);
+    console.log(
+      `  Registered in ${registryPath(options.project)}${local ? "" : "; commit that change"}.`,
+    );
     if (result.exposed) {
       console.log("  Exposed to the local API.");
     } else {

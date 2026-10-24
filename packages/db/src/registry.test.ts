@@ -2,7 +2,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { addToRegistry, readRegistry, schemasFor } from "./registry.ts";
+import { addToRegistry, readRegistry, registryPath, schemasFor } from "./registry.ts";
 
 function tempRegistry() {
   return join(mkdtempSync(join(tmpdir(), "corex-registry-")), "schemas.json");
@@ -38,6 +38,18 @@ describe("schema registry", () => {
     ]);
     expect(schemasFor("school", undefined, path)).toHaveLength(2);
     expect(schemasFor("school", "demo", path).map((e) => e.schema)).toEqual(["demo_college"]);
+  });
+
+  it("keeps local schemas out of the committed registry", () => {
+    const previous = process.env.COREX_SCHEMA_REGISTRY;
+    delete process.env.COREX_SCHEMA_REGISTRY;
+    try {
+      expect(registryPath("local")).toMatch(/schemas\.local\.json$/);
+      expect(registryPath("demo")).toMatch(/schemas\.json$/);
+      expect(registryPath()).toMatch(/schemas\.json$/);
+    } finally {
+      if (previous !== undefined) process.env.COREX_SCHEMA_REGISTRY = previous;
+    }
   });
 
   it("rejects invalid entries", () => {

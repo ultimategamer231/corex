@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { Sql } from "postgres";
+import type { Sql, TransactionSql } from "postgres";
 import type { Product } from "./products.ts";
 import { assertSchemaName } from "./schema-name.ts";
 
@@ -115,6 +115,44 @@ export async function migrateSchema(
       ]);
       result.applied.push(migration.id);
     }
+    await enforceSchemaSafety(tx, schema);
     return result;
   });
+}
+
+/**
+ * Runs inside the migration transaction after every run, so a product migration
+ * that forgets a safeguard is rolled back instead of exposing data (SPEC.md 4.3):
+ * - Postgres grants EXECUTE on new functions to PUBLIC and that cannot be revoked
+ *   per schema, so it is revoked here; functions must be granted explicitly.
+ * - Every table must have row-level security (4.3.2).
+ * - Views must run with the caller's permissions (security_invoker), otherwise they
+ *   would read tables as their owner and bypass row-level security.
+ */
+async function enforceSchemaSafety(tx: TransactionSql, schema: string): Promise<void> {
+  await tx.unsafe(`revoke execute on all functions in schema ${schema} from public, anon`);
+
+  const unprotected = await tx<{ name: string }[]>`
+    select c.relname as name
+    from pg_class c join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = ${schema} and c.relkind in ('r', 'p') and not c.relrowsecurity`;
+  if (unprotected.length > 0) {
+    throw new MigrationError(
+      `Row-level security is not enabled on ${unprotected.map((t) => `${schema}.${t.name}`).join(", ")}. Add "alter table ... enable row level security" to the migration.`,
+    );
+  }
+
+  const definerViews = await tx<{ name: string }[]>`
+    select c.relname as name
+    from pg_class c join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = ${schema} and c.relkind in ('v', 'm')
+      and not coalesce(
+        (select option_value::boolean from pg_options_to_table(c.reloptions) where option_name = 'security_invoker'),
+        false
+      )`;
+  if (definerViews.length > 0) {
+    throw new MigrationError(
+      `Views must use "with (security_invoker = true)" so row-level security applies: ${definerViews.map((v) => `${schema}.${v.name}`).join(", ")}.`,
+    );
+  }
 }

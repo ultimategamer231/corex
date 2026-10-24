@@ -99,25 +99,38 @@ create trigger audit_events_append_only
 
 revoke insert, update, delete on {{schema}}.audit_events from authenticated;
 
--- Records that a user opened a record, for example a patient's clinical file
--- (CLN-02). Called from server code; only members can log views.
-create function {{schema}}.log_view(p_table_name text, p_record_id text)
+-- Records that the signed-in user opened a record, for example a patient's
+-- clinical file (CLN-02). Server code calls it with the user's own session after
+-- its permission check, so the audit row names the real viewer. The table must
+-- exist in this schema and the record must exist, so the log cannot be filled
+-- with views of nothing.
+create function {{schema}}.log_view(p_table_name text, p_record_id uuid)
 returns void
 language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  record_exists boolean;
 begin
-  if not {{schema}}.is_member() then
+  if (select auth.uid()) is null or not {{schema}}.is_member() then
     raise exception 'not a member of this organization' using errcode = '42501';
   end if;
+  if p_table_name is null or p_table_name like '\_%' or to_regclass(format('{{schema}}.%I', p_table_name)) is null then
+    raise exception 'unknown table %', p_table_name using errcode = '42P01';
+  end if;
+  execute format('select exists (select 1 from {{schema}}.%I where id = $1)', p_table_name)
+    into record_exists using p_record_id;
+  if not record_exists then
+    raise exception 'record not found' using errcode = 'P0002';
+  end if;
   insert into {{schema}}.audit_events (actor_id, action, table_name, record_id)
-  values ((select auth.uid()), 'view', p_table_name, p_record_id);
+  values ((select auth.uid()), 'view', p_table_name, p_record_id::text);
 end;
 $$;
 
-revoke execute on function {{schema}}.log_view(text, text) from public, anon;
-grant execute on function {{schema}}.log_view(text, text) to authenticated, service_role;
+revoke execute on function {{schema}}.log_view(text, uuid) from public, anon;
+grant execute on function {{schema}}.log_view(text, uuid) to authenticated;
 
 -- Which audit rows administrators may read. Products override this to hide rows
 -- that contain restricted data (for example clinical notes, CLN-01).

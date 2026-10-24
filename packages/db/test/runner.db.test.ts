@@ -88,3 +88,72 @@ describe("migrateSchema (SPEC.md 4.4)", () => {
     expect(row).toEqual({ rls: true, auth_select: false, anon_select: false });
   });
 });
+
+describe("schema safety checks (SPEC.md 4.3)", () => {
+  const base = () => loadMigrations("school", fixturesRoot);
+
+  it("rolls back a migration that creates a table without row-level security", async () => {
+    const schema = newSchema();
+    const migrations = [
+      ...base(),
+      {
+        id: "school/0002_open_table",
+        template: "create table {{schema}}.grades (id uuid primary key);",
+        checksum: "a",
+      },
+    ];
+    await expect(migrateSchema(sql, schema, "school", migrations)).rejects.toThrow(
+      /Row-level security is not enabled/,
+    );
+    const exists =
+      await sql`select 1 from information_schema.schemata where schema_name = ${schema}`;
+    expect(exists).toHaveLength(0);
+  });
+
+  it("rolls back a view that would bypass row-level security", async () => {
+    const schema = newSchema();
+    const migrations = [
+      ...base(),
+      {
+        id: "school/0002_view",
+        template: "create view {{schema}}.item_names as select name from {{schema}}.items;",
+        checksum: "b",
+      },
+    ];
+    await expect(migrateSchema(sql, schema, "school", migrations)).rejects.toThrow(
+      /security_invoker/,
+    );
+  });
+
+  it("accepts security_invoker views", async () => {
+    const schema = newSchema();
+    const migrations = [
+      ...base(),
+      {
+        id: "school/0002_view",
+        template:
+          "create view {{schema}}.item_names with (security_invoker = true) as select name from {{schema}}.items;",
+        checksum: "c",
+      },
+    ];
+    await expect(migrateSchema(sql, schema, "school", migrations)).resolves.toBeTruthy();
+  });
+
+  it("does not let app users call functions unless a migration grants them", async () => {
+    const schema = newSchema();
+    const migrations = [
+      ...base(),
+      {
+        id: "school/0002_function",
+        template:
+          "create function {{schema}}.secret_fn() returns int language sql security definer as $$ select 1 $$;",
+        checksum: "d",
+      },
+    ];
+    await migrateSchema(sql, schema, "school", migrations);
+    const [row] = await sql`
+      select has_function_privilege('authenticated', ${`${schema}.secret_fn()`}, 'execute') as auth,
+             has_function_privilege('anon', ${`${schema}.secret_fn()`}, 'execute') as anon`;
+    expect(row).toEqual({ auth: false, anon: false });
+  });
+});

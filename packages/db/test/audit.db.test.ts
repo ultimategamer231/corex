@@ -173,21 +173,49 @@ describe("audit log protection", () => {
 
   it("logs record views for members only (CLN-02 groundwork)", async () => {
     const record = crypto.randomUUID();
-    await asUser(sql, member, (tx) =>
-      tx.unsafe(`select ${schema}.log_view('patients', $1)`, [record]),
+    await sql.unsafe(
+      `insert into ${schema}.announcements (id, title, body) values ($1, 'Viewed', 'x')`,
+      [record],
     );
-    expect(await auditFor(record)).toEqual([
-      expect.objectContaining({ action: "view", actor_id: member, table_name: "patients" }),
+    await asUser(sql, member, (tx) =>
+      tx.unsafe(`select ${schema}.log_view('announcements', $1)`, [record]),
+    );
+    expect((await auditFor(record)).filter((r) => r.action === "view")).toEqual([
+      expect.objectContaining({ action: "view", actor_id: member, table_name: "announcements" }),
     ]);
     const outsider = await createTestUser(keys, testEmail("outsider"), "Test@2026pass");
     try {
       await expect(
         asUser(sql, outsider, (tx) =>
-          tx.unsafe(`select ${schema}.log_view('patients', $1)`, [record]),
+          tx.unsafe(`select ${schema}.log_view('announcements', $1)`, [record]),
         ),
       ).rejects.toThrow(/not a member/);
     } finally {
       await deleteTestUsers(keys, outsider);
     }
+  });
+
+  it("refuses views of tables or records that do not exist", async () => {
+    await expect(
+      asUser(sql, member, (tx) =>
+        tx.unsafe(`select ${schema}.log_view('no_such_table', $1)`, [crypto.randomUUID()]),
+      ),
+    ).rejects.toThrow(/unknown table/);
+    await expect(
+      asUser(sql, member, (tx) =>
+        tx.unsafe(`select ${schema}.log_view('_migrations', $1)`, [crypto.randomUUID()]),
+      ),
+    ).rejects.toThrow(/unknown table/);
+    await expect(
+      asUser(sql, member, (tx) =>
+        tx.unsafe(`select ${schema}.log_view('announcements', $1)`, [crypto.randomUUID()]),
+      ),
+    ).rejects.toThrow(/record not found/);
+  });
+
+  it("cannot be called without a user session", async () => {
+    await expect(
+      sql.unsafe(`select ${schema}.log_view('announcements', $1)`, [crypto.randomUUID()]),
+    ).rejects.toThrow(/not a member/);
   });
 });

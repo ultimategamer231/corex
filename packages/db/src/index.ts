@@ -8,7 +8,8 @@ export {
   type BackupStorage,
 } from "./backup.ts";
 export { connect } from "./db.ts";
-export { databaseUrl, isLocalDatabase, LOCAL_DATABASE_URL } from "./env.ts";
+export { databaseUrl, isLocalDatabase, LOCAL_DATABASE_URL, LOCAL_PROJECT } from "./env.ts";
+export { localSupabaseStatus, REPO_ROOT, type LocalSupabaseStatus } from "./local-supabase.ts";
 export {
   DEFAULT_MIGRATIONS_ROOT,
   loadMigrations,

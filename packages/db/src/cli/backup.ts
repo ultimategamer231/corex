@@ -2,8 +2,8 @@
 // pnpm db:backup --all [--project <label>] [--keep-days 30]   every registered schema
 import { z } from "zod";
 import { backupSchema, backupStorageFromEnv, pruneBackups } from "../backup.ts";
-import { databaseUrl } from "../env.ts";
-import { readRegistry } from "../registry.ts";
+import { databaseUrl, LOCAL_PROJECT } from "../env.ts";
+import { readRegistry, registryPath } from "../registry.ts";
 import { parseOptions, run } from "./args.ts";
 
 const options = parseOptions(
@@ -22,11 +22,11 @@ const options = parseOptions(
 run(async () => {
   const storage = backupStorageFromEnv();
   const targets = options.all
-    ? readRegistry()
+    ? readRegistry(registryPath(options.project))
         .filter((entry) => options.project === undefined || entry.project === options.project)
         .map((entry) => ({ schema: entry.schema, project: entry.project }))
     : options.schema
-      ? [{ schema: options.schema, project: options.project ?? "local" }]
+      ? [{ schema: options.schema, project: options.project ?? LOCAL_PROJECT }]
       : [];
   if (targets.length === 0) {
     console.error(
@@ -38,7 +38,7 @@ run(async () => {
   const failures: string[] = [];
   for (const target of targets) {
     try {
-      const url = databaseUrl(target.project === "local" ? undefined : target.project);
+      const url = databaseUrl(target.project);
       const result = await backupSchema({ databaseUrl: url, ...target, storage });
       const pruned = await pruneBackups({ storage, ...target, keepDays: options["keep-days"] });
       console.log(

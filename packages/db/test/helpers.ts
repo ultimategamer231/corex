@@ -1,10 +1,10 @@
-import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import type { Sql, TransactionSql } from "postgres";
-import { z } from "zod";
 import { connect } from "../src/db.ts";
 import { LOCAL_DATABASE_URL } from "../src/env.ts";
+import { localSupabaseStatus } from "../src/local-supabase.ts";
+export { unexposeSchemasLocally } from "../src/provision.ts";
 
 export const fixturesRoot = new URL("./fixtures", import.meta.url).pathname;
 
@@ -26,27 +26,9 @@ export async function dropSchemas(sql: Sql, ...schemas: string[]): Promise<void>
 
 export type LocalKeys = { apiUrl: string; anonKey: string; serviceRoleKey: string };
 
-/**
- * Local Supabase URL and keys. Uses SUPABASE_URL / SUPABASE_ANON_KEY /
- * SUPABASE_SERVICE_ROLE_KEY when set, otherwise asks the CLI.
- */
+/** Local Supabase URL and development keys. */
 export function localKeys(): LocalKeys {
-  const { SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY } = process.env;
-  if (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_SERVICE_ROLE_KEY) {
-    return {
-      apiUrl: SUPABASE_URL,
-      anonKey: SUPABASE_ANON_KEY,
-      serviceRoleKey: SUPABASE_SERVICE_ROLE_KEY,
-    };
-  }
-  const result = spawnSync("pnpm", ["exec", "supabase", "status", "--output", "json"], {
-    cwd: new URL("../../..", import.meta.url).pathname,
-    encoding: "utf8",
-  });
-  const json = result.stdout.slice(result.stdout.indexOf("{"));
-  const status = z
-    .object({ API_URL: z.string(), ANON_KEY: z.string(), SERVICE_ROLE_KEY: z.string() })
-    .parse(JSON.parse(json));
+  const status = localSupabaseStatus();
   return {
     apiUrl: status.API_URL,
     anonKey: status.ANON_KEY,
@@ -100,24 +82,6 @@ export function testEmail(label: string): string {
   return `${label}-${randomBytes(4).toString("hex")}@test.corex.local`;
 }
 
-/** Removes test schemas from PostgREST's exposed schemas again. */
-export async function unexposeSchemasLocally(sql: Sql, ...schemas: string[]): Promise<void> {
-  const [row] = await sql<{ current: string | null }[]>`
-    select (
-      select split_part(cfg, '=', 2)
-      from pg_db_role_setting s, unnest(s.setconfig) cfg
-      where s.setrole = 'authenticator'::regrole and cfg like 'pgrst.db_schemas=%'
-      limit 1
-    ) as current`;
-  if (!row?.current) return;
-  const remaining = row.current
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s) => !schemas.includes(s));
-  await sql.unsafe(`alter role authenticator set pgrst.db_schemas = '${remaining.join(", ")}'`);
-  await sql`notify pgrst, 'reload config'`;
-}
-
 /** Deletes storage buckets created by provisioning tests. */
 export async function deleteTestBuckets(keys: LocalKeys, ...buckets: string[]): Promise<void> {
   const admin = createClient(keys.apiUrl, keys.serviceRoleKey, {
@@ -137,18 +101,7 @@ export async function userIdsByEmail(sql: Sql, ...emails: string[]): Promise<str
 
 /** The local stack's S3-compatible Storage endpoint and keys (stand-in for Cloudflare R2). */
 export function localS3(bucket: string) {
-  const result = spawnSync("pnpm", ["exec", "supabase", "status", "--output", "json"], {
-    cwd: new URL("../../..", import.meta.url).pathname,
-    encoding: "utf8",
-  });
-  const status = z
-    .object({
-      STORAGE_S3_URL: z.string(),
-      S3_PROTOCOL_ACCESS_KEY_ID: z.string(),
-      S3_PROTOCOL_ACCESS_KEY_SECRET: z.string(),
-      S3_PROTOCOL_REGION: z.string(),
-    })
-    .parse(JSON.parse(result.stdout.slice(result.stdout.indexOf("{"))));
+  const status = localSupabaseStatus();
   return {
     endpoint: status.STORAGE_S3_URL,
     region: status.S3_PROTOCOL_REGION,

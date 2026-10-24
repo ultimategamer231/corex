@@ -50,6 +50,9 @@ export function s3Client(storage: BackupStorage): S3Client {
     endpoint: storage.endpoint,
     region: storage.region,
     forcePathStyle: true,
+    // Cloudflare R2 does not support the SDK's default streaming checksums; send them only when required.
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
     credentials: { accessKeyId: storage.accessKeyId, secretAccessKey: storage.secretAccessKey },
   });
 }
@@ -118,6 +121,11 @@ function runToFile(dump: DumpCommand, args: string[], file: string): Promise<voi
       stdio: ["ignore", "pipe", "pipe"],
     });
     const out = createWriteStream(file);
+    // A full or unwritable disk must fail this schema's backup, not crash the whole run.
+    out.on("error", (error) => {
+      child.kill();
+      reject(error);
+    });
     child.stdout.pipe(out);
     let stderr = "";
     child.stderr.on("data", (chunk: Buffer) => {
@@ -213,13 +221,18 @@ export async function pruneBackups(options: {
     token = page.IsTruncated ? page.NextContinuationToken : undefined;
   } while (token);
 
+  const failed: string[] = [];
   for (let i = 0; i < expired.length; i += 1000) {
-    await client.send(
+    const response = await client.send(
       new DeleteObjectsCommand({
         Bucket: options.storage.bucket,
         Delete: { Objects: expired.slice(i, i + 1000).map((Key) => ({ Key })) },
       }),
     );
+    // S3 and R2 report per-object failures with HTTP 200 in Errors.
+    for (const error of response.Errors ?? [])
+      failed.push(`${error.Key ?? "?"} (${error.Code ?? "error"})`);
   }
+  if (failed.length > 0) throw new Error(`Could not delete expired backups: ${failed.join(", ")}`);
   return expired;
 }

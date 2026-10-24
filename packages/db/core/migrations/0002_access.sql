@@ -18,7 +18,9 @@ alter default privileges in schema {{schema}} grant select, insert, update, dele
 alter default privileges in schema {{schema}} grant all on tables to service_role;
 alter default privileges in schema {{schema}} revoke all on sequences from public, anon;
 alter default privileges in schema {{schema}} grant usage, select on sequences to authenticated, service_role;
-alter default privileges in schema {{schema}} revoke execute on functions from public, anon;
+-- Postgres grants EXECUTE on new functions to PUBLIC and that default cannot be
+-- revoked per schema, so the migration runner revokes it from PUBLIC and anon on
+-- every function in the schema after each run. Grant functions explicitly.
 
 -- Membership helpers. SECURITY DEFINER so policies on memberships do not recurse;
 -- search_path is empty so every name below is schema-qualified.
@@ -137,3 +139,44 @@ create policy payments_admin_read on {{schema}}.payments
   for select to authenticated using ((select {{schema}}.is_admin()));
 create policy receipts_admin_read on {{schema}}.receipts
   for select to authenticated using ((select {{schema}}.is_admin()));
+
+-- One email address belongs to one client per Supabase project (SPEC.md 4.3.7):
+-- a user who is a member of another client schema cannot be added here, whether
+-- by provisioning, an administrator in the app, or the API.
+create function {{schema}}.enforce_single_client()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  other record;
+  found boolean;
+begin
+  -- Only administrators and server scripts can add members; anyone else is
+  -- rejected by row-level security, without learning about other organizations.
+  if (select auth.uid()) is not null and not {{schema}}.is_admin() then
+    return new;
+  end if;
+  for other in
+    select table_schema from information_schema.tables
+    where table_name = 'memberships'
+      and table_schema <> '{{schema}}'
+      and table_schema not in ('auth', 'storage', 'public')
+  loop
+    execute format('select exists (select 1 from %I.memberships where user_id = $1)', other.table_schema)
+      into found using new.user_id;
+    if found then
+      raise exception 'This user already belongs to another organization in this project'
+        using errcode = '23505', hint = 'Use a different email address for this organization.';
+    end if;
+  end loop;
+  return new;
+end;
+$$;
+
+revoke execute on function {{schema}}.enforce_single_client() from public, anon, authenticated;
+
+create trigger memberships_single_client
+  before insert or update of user_id on {{schema}}.memberships
+  for each row execute function {{schema}}.enforce_single_client();

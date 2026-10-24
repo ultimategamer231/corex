@@ -164,7 +164,7 @@ describe("a signed-in user of client A", () => {
     expect(isAdmin.data).toBe(false);
     const view = await clientA
       .schema(schemaB)
-      .rpc("log_view", { p_table_name: "invoices", p_record_id: "x" });
+      .rpc("log_view", { p_table_name: "invoices", p_record_id: crypto.randomUUID() });
     expect(view.error?.message).toMatch(/not a member/);
   });
 
@@ -178,6 +178,21 @@ describe("a signed-in user of client A", () => {
     expect(download.data).toBeNull();
     const upload = await clientA.storage.from(schemaB).upload("private/evil.txt", new Blob(["x"]));
     expect(upload.error).not.toBeNull();
+  });
+});
+
+describe("one client per email (SPEC.md 4.3.7)", () => {
+  it("stops client B's administrator from adding client A's user", async () => {
+    const adminB = await signedIn(emails.b);
+    const { error } = await adminB
+      .schema(schemaB)
+      .from("memberships")
+      .insert({ user_id: userA, role: "staff", display_name: "Borrowed" });
+    expect(error?.message).toMatch(/already belongs to another organization/);
+    const rows = await sql.unsafe(`select 1 from ${schemaB}.memberships where user_id = $1`, [
+      userA,
+    ]);
+    expect(rows).toHaveLength(0);
   });
 });
 

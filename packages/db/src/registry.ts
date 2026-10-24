@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
+import { LOCAL_PROJECT } from "./env.ts";
 import { PRODUCTS } from "./products.ts";
 import { assertSchemaName } from "./schema-name.ts";
 
@@ -23,9 +24,15 @@ const registrySchema = z.object({ schemas: z.array(entrySchema) });
 
 export type RegistryEntry = z.infer<typeof entrySchema>;
 
-/** `packages/db/schemas.json`, or `COREX_SCHEMA_REGISTRY` (tests use a temporary file). */
-export function registryPath(): string {
-  return process.env.COREX_SCHEMA_REGISTRY ?? join(import.meta.dirname, "..", "schemas.json");
+/**
+ * Registry file: `COREX_SCHEMA_REGISTRY` if set (tests), else `schemas.local.json`
+ * for the local stack (git-ignored, so local schemas never reach the committed
+ * registry or the nightly backup), else the committed `schemas.json`.
+ */
+export function registryPath(project?: string): string {
+  if (process.env.COREX_SCHEMA_REGISTRY) return process.env.COREX_SCHEMA_REGISTRY;
+  const file = project === LOCAL_PROJECT ? "schemas.local.json" : "schemas.json";
+  return join(import.meta.dirname, "..", file);
 }
 
 export function readRegistry(path = registryPath()): RegistryEntry[] {
@@ -34,7 +41,7 @@ export function readRegistry(path = registryPath()): RegistryEntry[] {
   return parsed.schemas;
 }
 
-export function addToRegistry(entry: RegistryEntry, path = registryPath()): void {
+export function addToRegistry(entry: RegistryEntry, path = registryPath(entry.project)): void {
   const entries = readRegistry(path);
   if (
     entries.some(
@@ -50,7 +57,7 @@ export function addToRegistry(entry: RegistryEntry, path = registryPath()): void
 }
 
 /** Schemas of one product, optionally limited to one project. */
-export function schemasFor(product: string, project?: string, path = registryPath()) {
+export function schemasFor(product: string, project?: string, path = registryPath(project)) {
   return readRegistry(path).filter(
     (entry) => entry.product === product && (project === undefined || entry.project === project),
   );

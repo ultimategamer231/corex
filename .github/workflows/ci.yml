@@ -55,9 +55,8 @@ jobs:
     name: Database tests (local Supabase)
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      # GitHub-hosted runners pull Supabase images fastest from the CLI's default registry.
-      SUPABASE_INTERNAL_IMAGE_REGISTRY: public.ecr.aws
+    # Supabase images come from Docker Hub (scripts/supabase-local.mjs default):
+    # public.ecr.aws rate-limits GitHub-hosted runners ("Data limit exceeded").
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
