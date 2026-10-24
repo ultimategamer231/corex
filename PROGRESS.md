@@ -4,8 +4,8 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 
 ## Current status
 
-- **Phase:** 2 (Database, SPEC.md Step 2): in progress. Phase 1 merged to `main` (owner renamed the branch) with CI and E2E green.
-- **Block:** 2.9 complete (Phase 2 closed and self-audited; PR #5 awaiting owner permission to merge)
+- **Phase:** 3 (Core, SPEC.md Step 3): in progress. Phases 1-2 merged to `main`.
+- **Block:** 3.0
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
 ## Block log
@@ -32,6 +32,8 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **2.9** (2026-10-24) Phase 2 self-audit: code review (10 findings, all fixed), security review (no exploitable findings), CI green on PR #5 including the database job.
 
 ## Owner answers (2026-10-23, 2026-10-24)
+
+- **Working rule (2026-10-24, overrides earlier per-phase rules):** save tokens. Full review and audit after every 5 phases (next after Phase 5), reported in an `.md` file under `docs/audits/` covering only critical or important items. If an audit finds nothing needing the owner, push, merge and continue automatically. Between audits: build, test, push, merge each phase without stopping for plan approval; keep chat updates short. Still ask before must-ask decisions (money/grading/payroll/clinical rule changes, schema beyond SPEC, auth approach changes, risky dependencies).
 
 - Phase 2 plan approved. Backups go to Cloudflare R2. Dependabot PRs merged.
 

@@ -47,6 +47,8 @@ pnpm workspaces + Turborepo. Workspace packages ship TypeScript source (no build
 
 ## Conventions
 
+- Working rule from the owner: build each phase, test, push and merge without waiting for approval; run a full review/audit only after every 5 phases, written to `docs/audits/` (critical/important items only). Stop only for must-ask decisions or audit findings that need the owner. Keep chat updates short.
+
 - Conventional Commits, one commit per block. Never force-push or rewrite pushed history.
 - Accessibility, security headers, contrast and touch-target checks are part of every "done"; extend the e2e suite for new pages.
 - No em-dash style decoration in UI copy; keep the mockup's copy and section order.
