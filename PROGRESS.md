@@ -4,9 +4,9 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 
 ## Current status
 
-- **Phase:** 3 (Core, SPEC.md Step 3): in progress. Phases 1-2 merged to `main`.
-- **Block:** Phase 3 complete
-- **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
+- **Phase:** 4 (Website, SPEC.md Step 4) complete. Phases 1-3 merged to `main`.
+- **Next:** Phase 5 (School, College edition), then the five-phase audit in `docs/audits/`.
+- **Branch:** `claude/questions-clarity-qmgcs5` (each phase merges to `main` once CI is green; owner rule 2026-10-24)
 
 ## Block log
 
@@ -32,6 +32,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **2.9** (2026-10-24) Phase 2 self-audit: code review (10 findings, all fixed), security review (no exploitable findings), CI green on PR #5 including the database job.
 
 - **Phase 3** (2026-10-24) `core/migrations/0004_billing.sql`: `billing_roles()`/`can_bill()` (products extend), gapless per-schema document numbers (CORE-08, concurrency-tested), line amounts computed in the database, `issue_invoice`, idempotent `record_payment` with receipt (CORE-06), `void_payment`/`void_invoice` with reasons (CORE-07), currency match enforced (CORE-05), `invoice_balances` view, never-delete triggers, `log_login()`. `packages/core`: money (bigint, CORE-04/05), `requireMember` with role and session-age checks (CORE-02, 5.3), settings (CORE-01), env, Supabase server/browser clients with schema, billing client, Dexie offline outbox with auto-sync and logout wipe (SPEC 10), Monrovia dates. `packages/pdf`: letterhead, invoice and receipt PDFs with number and generation time (CORE-10). Tests: 89 database, 43 core, 3 PDF (text-checked) plus visual check.
+- **Phase 4** (2026-10-24) Website (SPEC 6): all routes (home, software and three product pages, on-request, three services, work with draft MDX case studies, pricing, about, contact, three legal drafts, 404), copy in typed `content/` files, SEO metadata with canonical links, JSON-LD, sitemap and robots (drafts and legal excluded). Quote form (6.6): one zod schema in browser and server action, honeypot, 5 requests per IP per hour, leads in `corex_web` (`packages/db/web/migrations/0001_leads.sql`: `leads`, `rate_limits`, `hit_rate_limit()` for service_role only; 4 database tests), optional Resend email. Scroll reveal is CSS plus IntersectionObserver (motion removed, D20); Lenis loads after the page. 70 e2e tests (every page at 4 widths with axe, quote form errors/success/rate limit, demo links, drafts hidden, 404, headers). Lighthouse (mobile, local): Home 91-93 performance, 100 accessibility, 100 best practices, 100 SEO.
 
 ## Owner answers (2026-10-23, 2026-10-24)
 
@@ -70,6 +71,8 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 | D16 | Invoice line amount = quantity x unit price rounded half away from zero to the minor unit (database and TypeScript agree)                                         | Standard commercial rounding; SPEC gives no rule                                                                                 |
 | D17 | Payments above the balance due are refused; an invoice with posted payments must have them voided before the invoice can be voided                                | Conservative default; no credit or refund flow in SPEC                                                                           |
 | D18 | Login pages and wiring the apps to Supabase move to each app's own phase (School: Phase 5)                                                                        | Phase 3 delivers the shared helpers; apps keep placeholders until their phase                                                    |
+| D19 | Lead notification email uses Resend's HTTP API (no SDK) and is off unless `RESEND_API_KEY`, `LEAD_NOTIFY_TO` and `LEAD_NOTIFY_FROM` are set                       | Leads are always stored first; email is a convenience. No new dependency                                                         |
+| D20 | Website scroll reveal uses CSS and IntersectionObserver instead of the `motion` library                                                                           | `motion` cost about 4 Lighthouse points on Home (below the 90 target); content stays visible without JavaScript                  |
 
 ## Planned deviations from the mockup (Phase 4)
 
@@ -124,4 +127,4 @@ Security review notes below the exploit bar, for later phases: `log_view` lets a
 
 1. **`BUSINESS.md` not received.** Needed before Phase 4 to confirm pricing copy (mockup prices are used until then).
 1. **Placeholder email `info@cds.com`.** `cds.com` is a registered domain owned by someone else; mail sent to it would reach them. It stays a marked placeholder in content and must be replaced before the site goes public.
-1. **Later-phase gaps** (to be raised in those phases' plans): per-app session timeout when demos share one Supabase project (5.3); cross-currency transfers (FIN-04); whether demo visitors may approve seeded records (11.3); notification email provider (6.6); backup storage provider (4.5); Vercel Pro plan before going public.
+1. **Later-phase gaps** (to be raised in those phases' plans): per-app session timeout when demos share one Supabase project (5.3); cross-currency transfers (FIN-04); whether demo visitors may approve seeded records (11.3); backup storage provider (4.5); Vercel Pro plan before going public.
