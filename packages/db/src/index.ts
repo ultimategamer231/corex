@@ -18,3 +18,9 @@ export {
   type RegistryEntry,
 } from "./registry.ts";
 export { assertSchemaName, SchemaNameError } from "./schema-name.ts";
+export {
+  supabaseAdmin,
+  supabaseAdminConfig,
+  type AdminClient,
+  type SupabaseAdminConfig,
+} from "./supabase-admin.ts";

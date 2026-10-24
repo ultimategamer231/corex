@@ -99,3 +99,38 @@ export async function asUser<T>(
 export function testEmail(label: string): string {
   return `${label}-${randomBytes(4).toString("hex")}@test.corex.local`;
 }
+
+/** Removes test schemas from PostgREST's exposed schemas again. */
+export async function unexposeSchemasLocally(sql: Sql, ...schemas: string[]): Promise<void> {
+  const [row] = await sql<{ current: string | null }[]>`
+    select (
+      select split_part(cfg, '=', 2)
+      from pg_db_role_setting s, unnest(s.setconfig) cfg
+      where s.setrole = 'authenticator'::regrole and cfg like 'pgrst.db_schemas=%'
+      limit 1
+    ) as current`;
+  if (!row?.current) return;
+  const remaining = row.current
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => !schemas.includes(s));
+  await sql.unsafe(`alter role authenticator set pgrst.db_schemas = '${remaining.join(", ")}'`);
+  await sql`notify pgrst, 'reload config'`;
+}
+
+/** Deletes storage buckets created by provisioning tests. */
+export async function deleteTestBuckets(keys: LocalKeys, ...buckets: string[]): Promise<void> {
+  const admin = createClient(keys.apiUrl, keys.serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  for (const bucket of buckets) {
+    await admin.storage.emptyBucket(bucket);
+    await admin.storage.deleteBucket(bucket);
+  }
+}
+
+/** Auth user ids for the given emails (provisioning invites users by email). */
+export async function userIdsByEmail(sql: Sql, ...emails: string[]): Promise<string[]> {
+  const rows = await sql<{ id: string }[]>`select id from auth.users where email = any(${emails})`;
+  return rows.map((r) => r.id);
+}
