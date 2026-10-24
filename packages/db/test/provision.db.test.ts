@@ -58,16 +58,21 @@ afterAll(async () => {
 
 describe("db:provision (SPEC.md 4.4)", () => {
   it("creates and migrates both schemas", async () => {
-    for (const schema of [schoolSchema, clinicSchema]) {
+    const core = [
+      "core/0001_core_tables",
+      "core/0002_access",
+      "core/0003_audit",
+      "core/0004_billing",
+    ];
+    const expected = {
+      [schoolSchema]: [...core, "school/0001_school", "school/0002_college"],
+      [clinicSchema]: core,
+    };
+    for (const [schema, ids] of Object.entries(expected)) {
       const rows = await sql.unsafe<{ id: string }[]>(
         `select id from ${schema}._migrations order by id`,
       );
-      expect(rows.map((r) => r.id)).toEqual([
-        "core/0001_core_tables",
-        "core/0002_access",
-        "core/0003_audit",
-        "core/0004_billing",
-      ]);
+      expect(rows.map((r) => r.id)).toEqual(ids);
     }
   });
 
