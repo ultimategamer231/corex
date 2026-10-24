@@ -7,6 +7,7 @@ import {
   type TranscriptPdfData,
 } from "./academic";
 import { InvoiceDocument, type InvoicePdfData } from "./invoice";
+import { ReportCardDocument, type ReportCardPdfData } from "./report-card";
 import { ReceiptDocument, type ReceiptPdfData } from "./receipt";
 
 export {
@@ -22,6 +23,7 @@ export { documentNumber } from "./format";
 export { InvoiceDocument, type InvoicePdfData } from "./invoice";
 export { Letterhead, type LetterheadData } from "./letterhead";
 export { ReceiptDocument, type ReceiptPdfData } from "./receipt";
+export { ReportCardDocument, type ReportCardPdfData } from "./report-card";
 
 /** Renders an invoice PDF on the server (SPEC.md 2: generated server-side). */
 export function renderInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
@@ -41,4 +43,9 @@ export function renderGradeReportPdf(data: GradeReportPdfData): Promise<Buffer> 
 /** Renders a transcript PDF. */
 export function renderTranscriptPdf(data: TranscriptPdfData): Promise<Buffer> {
   return renderToBuffer(TranscriptDocument({ data }) as ReactElement<DocumentProps>);
+}
+
+/** Renders a High School report card PDF. */
+export function renderReportCardPdf(data: ReportCardPdfData): Promise<Buffer> {
+  return renderToBuffer(ReportCardDocument({ data }) as ReactElement<DocumentProps>);
 }
