@@ -4,7 +4,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 
 ## Current status
 
-- **Phase:** 1 (Foundation, SPEC.md Step 1): complete, awaiting owner approval to merge
+- **Phase:** 1 (Foundation, SPEC.md Step 1): complete and self-audited, awaiting owner permission to create `main` and merge
 - **Block:** 1.9 complete (phase closed)
 - **Branch:** `claude/questions-clarity-qmgcs5` (Phase 1 branch; merge to `main` after the owner approves the phase report)
 
@@ -20,9 +20,9 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **1.8** (2026-10-23) GitHub Actions: `ci.yml` (format, lint, typecheck, unit tests, build, `pnpm audit --audit-level high`) on every push and PR; `e2e.yml` (build, Playwright + axe, report artifact) on `main` and on demand. A clean-checkout dry run caught lint depending on generated Next types; section pages now declare their own prop types.
 - **1.9** (2026-10-23) Phase close: `pnpm check` green from a clean build, 40/40 e2e, `pnpm audit` clean, `CLAUDE.md` added, screenshots at 360/390/768/1440 reviewed.
 
-## Owner answers (2026-10-23)
+## Owner answers (2026-10-23, 2026-10-24)
 
-- Ask for confirmation before merging at the end of each phase; send screenshots when a phase includes UI.
+- No manual reviews by the owner: Claude reviews and audits its own work (code review, security review, tests, screenshots against the mockup), fixes findings, confirms CI is green, then asks permission to push/merge. Send screenshots when a phase includes UI.
 - Install essential dependencies without asking; ask when a dependency is risky or critical.
 - Leads storage: `corex_web` lives in its own Supabase project; the website server may use that project's service-role key (server-only). Rate limiting uses a Postgres table, not a new service.
 - The LCC records system is out of scope for the MVP and moves to version 2. The School app is built from SPEC.md alone.
@@ -68,9 +68,22 @@ Phase 1 self-checks (the formal audit of Phase 1 opens Phase 2):
 - Prettier's Tailwind plugin did not know the custom theme; now reads `apps/web/app/globals.css`.
 - Not yet measured: Lighthouse (website content arrives in Phase 4; the target applies there).
 
+Phase 1 self-audit (code review + security review, 2026-10-24), all fixed:
+
+- Top bar could overflow at 360px with pending changes: the count shows as a number on small phones (words kept for screen readers).
+- CSP blocked Supabase Storage images (future org logos): `withCorex` now takes `supabaseUrl` for connect-src (https + wss) and img-src.
+- Toasts covered the mobile bottom bar: offset above it.
+- `Button` defaulted to submit inside forms: now `type="button"` unless set.
+- Website skip link did not move focus: `main` is focusable; e2e asserts focus.
+- `--project=<app>` started all four servers: only selected apps start.
+- Turbo build cache ignored `.env*.local`: env files now part of the build hash.
+- Duplicated page header and empty state in three apps: moved to `@corex/ui` (`PageHeader`, `EmptyState`).
+- Session hook could rewrite the lockfile: now `--frozen-lockfile` like CI.
+- Supabase helper hid a missing CLI and failed on a half-running stack: clear error, PATH includes local bin, start stops first.
+- Security: no secrets tracked, no server env in client bundles, CI tokens read-only, `pnpm audit` clean; GitHub Actions pinned to commit SHAs with weekly Dependabot updates.
+
 ## Open questions for the owner
 
-1. **GitHub push blocked (403).** Claude has no GitHub access to `ultimategamer231/corex`; commits are local on `claude/questions-clarity-qmgcs5` until access is fixed.
 1. **`BUSINESS.md` not received.** Needed before Phase 4 to confirm pricing copy (mockup prices are used until then).
 1. **Placeholder email `info@cds.com`.** `cds.com` is a registered domain owned by someone else; mail sent to it would reach them. It stays a marked placeholder in content and must be replaced before the site goes public.
 1. **Later-phase gaps** (to be raised in those phases' plans): per-app session timeout when demos share one Supabase project (5.3); cross-currency transfers (FIN-04); whether demo visitors may approve seeded records (11.3); notification email provider (6.6); backup storage provider (4.5); Vercel Pro plan before going public.

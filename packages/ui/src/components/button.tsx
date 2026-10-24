@@ -44,11 +44,13 @@ export type ButtonProps = React.ComponentProps<"button"> &
     asChild?: boolean;
   };
 
-export function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
+export function Button({ className, variant, size, asChild = false, type, ...props }: ButtonProps) {
   const Comp = asChild ? Slot.Root : "button";
   return (
     <Comp
       data-slot="button"
+      // Native buttons default to "submit"; require forms to opt in explicitly.
+      type={asChild ? type : (type ?? "button")}
       className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />

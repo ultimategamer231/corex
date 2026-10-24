@@ -14,6 +14,18 @@ const apps = [
 
 const ci = Boolean(process.env.CI);
 
+/** Projects named with --project on the command line; empty means all. */
+function selectedProjects(argv: string[]): string[] {
+  return argv.flatMap((arg, i) => {
+    if (arg.startsWith("--project=")) return [arg.slice("--project=".length)];
+    if (arg === "--project") return argv[i + 1] ? [argv[i + 1] as string] : [];
+    return [];
+  });
+}
+
+const selected = selectedProjects(process.argv);
+const servedApps = apps.filter((app) => selected.length === 0 || selected.includes(app.name));
+
 export default defineConfig({
   fullyParallel: true,
   forbidOnly: ci,
@@ -31,7 +43,8 @@ export default defineConfig({
     testDir: app.testDir,
     use: { baseURL: `http://localhost:${app.port}` },
   })),
-  webServer: apps.map((app) => ({
+  // Start only the apps under test, so one app can be tested after building only that app.
+  webServer: servedApps.map((app) => ({
     command: `pnpm --filter @corex/${app.name} start`,
     url: `http://localhost:${app.port}`,
     reuseExistingServer: !ci,

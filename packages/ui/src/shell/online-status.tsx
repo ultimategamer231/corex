@@ -13,8 +13,7 @@ type OnlineStatusProps = {
 /** Online/offline badge with the pending-sync count. Changes are announced to screen readers. */
 export function OnlineStatus({ pendingCount = 0, className }: OnlineStatusProps) {
   const online = useOnlineStatus();
-  const waiting =
-    pendingCount > 0 ? `${pendingCount} ${pendingCount === 1 ? "change" : "changes"} waiting` : "";
+  const waitingLabel = `${pendingCount === 1 ? "change" : "changes"} waiting`;
 
   return (
     <div role="status" aria-live="polite" className={cn("flex items-center gap-2", className)}>
@@ -32,10 +31,12 @@ export function OnlineStatus({ pendingCount = 0, className }: OnlineStatusProps)
         )}
         {online ? "Online" : "Offline"}
       </span>
-      {waiting ? (
+      {pendingCount > 0 ? (
         <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold whitespace-nowrap text-ink-soft">
           <RefreshCw className="size-4" aria-hidden="true" />
-          {waiting}
+          {pendingCount}{" "}
+          {/* Number only on small phones so the top bar fits at 360px; the words stay for screen readers. */}
+          <span className="sr-only sm:not-sr-only">{waitingLabel}</span>
         </span>
       ) : null}
     </div>

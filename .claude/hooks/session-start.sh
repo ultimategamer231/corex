@@ -12,7 +12,7 @@ cd "${CLAUDE_PROJECT_DIR:-$(pwd)}"
 
 # Dependencies (non-interactive; reuses the cached store when present).
 corepack enable >/dev/null 2>&1 || true
-pnpm install --prefer-offline
+pnpm install --frozen-lockfile --prefer-offline
 
 # Docker daemon for the local Supabase stack (pnpm db:local:start).
 if command -v dockerd >/dev/null 2>&1 && ! docker info >/dev/null 2>&1; then

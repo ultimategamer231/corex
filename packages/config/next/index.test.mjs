@@ -30,6 +30,18 @@ describe("securityHeaders", () => {
   });
 });
 
+describe("supabaseUrl", () => {
+  const csp = contentSecurityPolicy({ supabaseUrl: "https://xyz.supabase.co/" });
+
+  it("allows API and realtime connections to the project", () => {
+    expect(csp).toContain("connect-src 'self' https://xyz.supabase.co wss://xyz.supabase.co");
+  });
+
+  it("allows Storage images such as the organization logo", () => {
+    expect(csp).toContain("img-src 'self' data: blob: https://xyz.supabase.co");
+  });
+});
+
 describe("withCorex", () => {
   it("applies security headers to every route and keeps app headers", async () => {
     const config = withCorex({

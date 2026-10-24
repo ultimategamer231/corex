@@ -6,6 +6,7 @@
  * @typedef {object} CspOptions
  * @property {string[]} [connectSrc] Extra origins for fetch/XHR/WebSocket (for example the Supabase URL).
  * @property {string[]} [imgSrc] Extra image origins.
+ * @property {string} [supabaseUrl] Supabase project URL: allowed for API calls, realtime (wss) and Storage images such as the org logo.
  * @property {boolean} [dev] Development mode: allows eval for React Fast Refresh and skips upgrade-insecure-requests.
  */
 
@@ -17,15 +18,23 @@
  * @param {CspOptions} [options]
  * @returns {string}
  */
-export function contentSecurityPolicy({ connectSrc = [], imgSrc = [], dev = false } = {}) {
+export function contentSecurityPolicy({
+  connectSrc = [],
+  imgSrc = [],
+  supabaseUrl,
+  dev = false,
+} = {}) {
+  const supabase = supabaseUrl ? new URL(supabaseUrl).origin : undefined;
+  const supabaseConnect = supabase ? [supabase, supabase.replace(/^http/, "ws")] : [];
+  const supabaseImg = supabase ? [supabase] : [];
   /** @type {Record<string, string[]>} */
   const directives = {
     "default-src": ["'self'"],
     "script-src": ["'self'", "'unsafe-inline'", ...(dev ? ["'unsafe-eval'"] : [])],
     "style-src": ["'self'", "'unsafe-inline'"],
-    "img-src": ["'self'", "data:", "blob:", ...imgSrc],
+    "img-src": ["'self'", "data:", "blob:", ...supabaseImg, ...imgSrc],
     "font-src": ["'self'"],
-    "connect-src": ["'self'", ...connectSrc, ...(dev ? ["ws:"] : [])],
+    "connect-src": ["'self'", ...supabaseConnect, ...connectSrc, ...(dev ? ["ws:"] : [])],
     "worker-src": ["'self'", "blob:"],
     "manifest-src": ["'self'"],
     "object-src": ["'none'"],

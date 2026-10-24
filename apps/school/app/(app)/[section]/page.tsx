@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@corex/ui/components/page-header";
 import { PendingSection } from "@/components/pending-section";
 import { nav, sections } from "@/lib/shell";
 

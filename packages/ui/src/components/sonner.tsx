@@ -10,6 +10,8 @@ export function Toaster(props: ToasterProps) {
     <Sonner
       position="bottom-right"
       duration={4000}
+      // Keep toasts above the 64px mobile bottom navigation so they never cover it.
+      mobileOffset={{ bottom: "calc(80px + env(safe-area-inset-bottom))" }}
       toastOptions={{
         classNames: {
           toast:

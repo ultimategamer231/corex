@@ -45,7 +45,7 @@ test.describe("website placeholder home", () => {
     await expect(skip).toBeFocused();
     await expect(skip).toBeInViewport();
     await page.keyboard.press("Enter");
-    await expect(page).toHaveURL(/#main$/);
+    await expect(page.getByRole("main")).toBeFocused();
   });
 
   test("sends the security headers", async ({ request }) => {

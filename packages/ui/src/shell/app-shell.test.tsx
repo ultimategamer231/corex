@@ -90,14 +90,14 @@ describe("AppShell", () => {
     if (!status) throw new Error("status region missing");
     setOnline(true);
     expect(within(status).getByText("Online")).toBeInTheDocument();
-    expect(within(status).getByText("3 changes waiting")).toBeInTheDocument();
+    expect(status).toHaveTextContent("3 changes waiting");
     setOnline(false);
     expect(within(status).getByText("Offline")).toBeInTheDocument();
   });
 
   it("uses singular wording for one pending change and hides the count at zero", () => {
     const { rerender } = renderShell({ pendingSyncCount: 1 });
-    expect(screen.getByText("1 change waiting")).toBeInTheDocument();
+    expect(screen.getAllByRole("status")[0]).toHaveTextContent("1 change waiting");
     rerender(
       <AppShell
         org={{ name: "Sample College" }}

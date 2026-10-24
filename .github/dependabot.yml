@@ -1,0 +1,8 @@
+# Weekly update PRs for the pinned GitHub Actions. npm dependencies are updated
+# deliberately each phase; pnpm audit runs in CI.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

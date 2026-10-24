@@ -23,7 +23,7 @@ export default function HomePage() {
           </Link>
         </div>
       </header>
-      <main id="main" className="flex flex-1 items-center">
+      <main id="main" tabIndex={-1} className="flex flex-1 items-center outline-none">
         <section className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-[clamp(16px,4vw,40px)] py-[clamp(40px,7vw,96px)]">
           <h1 className="max-w-[14ch] text-[clamp(38px,5.2vw,64px)] leading-[1.05] font-extrabold tracking-[-0.03em]">
             {site.tagline}

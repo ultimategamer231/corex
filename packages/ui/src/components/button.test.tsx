@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type * as React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Button } from "./button";
 
@@ -41,6 +42,20 @@ describe("Button", () => {
     const link = screen.getByRole("link", { name: "Request a quote" });
     expect(link).toHaveAttribute("href", "/contact");
     expect(link).toHaveClass("border-primary");
+  });
+
+  it("does not submit forms unless type is submit", async () => {
+    const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+    render(
+      <form onSubmit={onSubmit}>
+        <Button>Add row</Button>
+        <Button type="submit">Save</Button>
+      </form>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Add row" }));
+    expect(onSubmit).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(onSubmit).toHaveBeenCalledOnce();
   });
 
   it("does not fire clicks when disabled", async () => {
