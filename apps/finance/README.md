@@ -1,13 +1,17 @@
 # Financial Management (`apps/finance`)
 
-Next.js app for the Corex Financial Management system (SPEC.md 9). Phase 1 contains only the shared app shell and placeholder sections; features are built in Phase 8.
+Next.js app for the Corex Financial Management system (SPEC.md 9): accounts and balances, income, expenses and transfers with receipt photos, sales invoices with payments and receipts, payroll (employees, pay components, monthly runs, payslip PDFs), cash-basis reports with PDF and Excel export, settings and users. Roles: Owner/Admin, Accountant, Staff (Staff record entries and see only their own).
 
 ## Run
 
 ```bash
-cp apps/finance/.env.example apps/finance/.env.local   # then fill in values
+pnpm db:local:start
+pnpm db:fixture --schema dev_finance --product finance   # sample business, one sign-in per role
+node scripts/school-env.mjs --app finance --schema dev_finance
 pnpm --filter @corex/finance dev                         # http://localhost:3003
 ```
+
+Sign in as `owner@dev-finance.corex.test`, `accountant@…` or `staff@…` with `Test@2026pass`.
 
 ## Test
 
