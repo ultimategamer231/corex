@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Sql, TransactionSql } from "postgres";
-import type { Product } from "./products.ts";
+import type { MigrationTarget } from "./products.ts";
 import { assertSchemaName } from "./schema-name.ts";
 
 /** Root of the migration folders: `core/migrations` and `<product>/migrations`. */
@@ -49,8 +49,15 @@ function readFolder(root: string, folder: string): Migration[] {
     .sort((a, b) => a.id.localeCompare(b.id));
 }
 
-/** Core migrations first, then the product's, each folder in file-name order. */
-export function loadMigrations(product: Product, root = DEFAULT_MIGRATIONS_ROOT): Migration[] {
+/**
+ * Core migrations first, then the product's, each folder in file-name order. The
+ * `web` target (corex_web) is not a client schema and gets only its own folder.
+ */
+export function loadMigrations(
+  product: MigrationTarget,
+  root = DEFAULT_MIGRATIONS_ROOT,
+): Migration[] {
+  if (product === "web") return readFolder(root, "web");
   return [...readFolder(root, "core"), ...readFolder(root, product)];
 }
 
@@ -64,7 +71,7 @@ export type MigrateResult = { schema: string; applied: string[]; skipped: string
 export async function migrateSchema(
   sql: Sql,
   schema: string,
-  product: Product,
+  product: MigrationTarget,
   migrations: Migration[] = loadMigrations(product),
 ): Promise<MigrateResult> {
   assertSchemaName(schema);

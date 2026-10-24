@@ -73,3 +73,11 @@ The nightly workflow `.github/workflows/backup.yml` runs at 01:30 Monrovia time.
 4. Add the repository variable `BACKUPS_ENABLED` = `true`, then run the workflow once by hand (Actions > Nightly backup > Run workflow) and check the bucket.
 
 Restoring one schema into a scratch schema is documented and tested in Phase 12 (`docs/restore.md`), before the first real client goes live.
+
+## Website leads (`corex_web`)
+
+The website project holds one schema, `corex_web`, with `leads`, `rate_limits` and `hit_rate_limit()`. It is not a client schema: no memberships, no core tables, and only `service_role` has access.
+
+1. `pnpm db:migrate --schema corex_web --product web --project web` (needs `DATABASE_URL_WEB`).
+2. Supabase dashboard of the website project: add `corex_web` to API, Exposed schemas.
+3. Website environment (Vercel, server only): `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` of that project. Without them production refuses quote requests instead of losing them.

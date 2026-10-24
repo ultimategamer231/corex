@@ -19,7 +19,14 @@ export {
   type MigrateResult,
   type Migration,
 } from "./migrations.ts";
-export { ADMIN_ROLES, FIRST_ADMIN_ROLE, PRODUCTS, type Product } from "./products.ts";
+export {
+  ADMIN_ROLES,
+  FIRST_ADMIN_ROLE,
+  MIGRATION_TARGETS,
+  PRODUCTS,
+  type MigrationTarget,
+  type Product,
+} from "./products.ts";
 export {
   addToRegistry,
   readRegistry,
