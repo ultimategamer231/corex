@@ -16,7 +16,13 @@ pnpm install --frozen-lockfile --prefer-offline
 
 # Docker daemon for the local Supabase stack (pnpm db:local:start).
 if command -v dockerd >/dev/null 2>&1 && ! docker info >/dev/null 2>&1; then
-  nohup dockerd >/tmp/dockerd.log 2>&1 &
+  # A restored container can keep PID files from before the restart; dockerd then
+  # waits for a containerd that no longer exists.
+  pidfile=/var/run/docker/containerd/containerd.pid
+  if [ -f "$pidfile" ] && ! ps -p "$(cat "$pidfile")" -o comm= 2>/dev/null | grep -q containerd; then
+    rm -f "$pidfile" /var/run/docker.pid
+  fi
+  setsid nohup dockerd >/tmp/dockerd.log 2>&1 </dev/null &
   for _ in $(seq 1 30); do
     docker info >/dev/null 2>&1 && break
     sleep 1

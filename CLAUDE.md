@@ -23,6 +23,8 @@ pnpm test:e2e                      # Playwright + axe; needs `pnpm build` first
 pnpm test:e2e --project=clinic     # one app
 pnpm format                        # Prettier (with Tailwind class sorting)
 pnpm db:local:start | stop | status | check   # local Supabase (Docker)
+pnpm --filter @corex/db test:db    # database integration tests (needs the local stack)
+pnpm db:provision | db:migrate | db:migrate:all | db:backup   # see docs/database.md
 ```
 
 Lint runs with `--max-warnings=0`. App `typecheck` runs `next typegen` first.
@@ -40,7 +42,8 @@ pnpm workspaces + Turborepo. Workspace packages ship TypeScript source (no build
 - `apps/school|clinic|finance`: Next.js App Router. `app/(app)/layout.tsx` wraps pages in `AppShell`; `lib/shell.tsx` holds the nav plus `getOrg()`/`getCurrentUser()` placeholders that Phase 3 replaces with the schema's `settings` row and Supabase Auth memberships (CORE-01). `[section]` pages are static placeholders until each phase builds them. One codebase per product; each client and demo is a separate deployment configured by env vars (`.env.example`), and school picks `EDITION=college|highschool`.
 - `apps/web`: marketing site (Phase 4). Contact details live in `content/site.ts`; all copy goes in typed content files under `content/`. Motion and Lenis are allowed here only.
 - `e2e/`: Playwright projects per app (`playwright.config.ts` starts each built app). `e2e/helpers.ts` enforces zero serious/critical axe violations (WCAG 2.2 AA tags), no horizontal overflow and 44px touch targets at 360/390/768/1440px.
-- `supabase/`: local development stack only. Client schemas are migrated by `packages/db` (from Phase 2), never by the CLI's migration system. Tenancy is one Postgres schema per client with RLS through a per-schema `memberships` table (SPEC.md 4).
+- `packages/db`: per-client schemas (SPEC.md 4). Scripts are TypeScript run directly by Node 22 (relative imports use `.ts` extensions, erasable syntax only). `core/migrations` apply to every schema, then `<product>/migrations`; files use `{{schema}}` and are immutable once applied (checksummed). `0002_access.sql` defines `has_role`/`is_member`/`is_admin` and the grant model (no anon, RLS-only `authenticated`); products add their own role policies. `0003_audit.sql` provides `enable_audit(table)`, which every product business table must call (CORE-03), and `audit_row_visible()` that products may override. Unit tests are `*.test.ts`; `*.db.test.ts` run against the local stack and act as real `anon`/`authenticated` users (`test/helpers.ts`: `asUser`, `createTestUser`).
+- `supabase/`: local development stack only. Client schemas are migrated by `packages/db`, never by the CLI's migration system. Keep `[auth.email] enable_signup = true` (false disables email login); public sign-up is off through `[auth]`.
 
 ## Conventions
 

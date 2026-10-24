@@ -16,6 +16,7 @@ Monorepo for the Corex MVP: the marketing website and three business systems (Sc
 | `apps/finance`    | Financial Management System                                    |
 | `packages/config` | Shared TypeScript, ESLint, Prettier, Vitest and Next.js config |
 | `packages/ui`     | Corex theme tokens, shadcn/ui components, app shell            |
+| `packages/db`     | Client schemas: migrations, provisioning, backups, RLS, audit  |
 | `supabase/`       | Local Supabase stack config (development only)                 |
 | `e2e/`            | Playwright end-to-end and accessibility tests                  |
 | `docs/`           | Specification, mockup and operations notes                     |
@@ -41,5 +42,15 @@ pnpm check            # format, lint, typecheck, test, build
 ```
 
 App ports in development: web 3000, school 3001, clinic 3002, finance 3003.
+
+Database scripts (see [`docs/database.md`](docs/database.md)):
+
+```bash
+pnpm db:provision --schema <name> --product <school|clinic|finance> --org "<name>" --admin-email <email>
+pnpm db:migrate --schema <name> --product <product>
+pnpm db:migrate:all --product <product>
+pnpm db:backup --schema <name> --project <label>
+pnpm --filter @corex/db test:db      # database tests (needs pnpm db:local:start)
+```
 
 See each app's and package's `README.md` for details, and [`docs/local-dev.md`](docs/local-dev.md) for the local database.
