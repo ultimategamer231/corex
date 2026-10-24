@@ -4,10 +4,13 @@ import { defineConfig, devices } from "@playwright/test";
  * End-to-end and accessibility tests. Run after `pnpm build`:
  *   pnpm test:e2e                 all apps
  *   pnpm test:e2e --project=web   one app
+ * School runs against the local Supabase stack: `pnpm db:local:start`, then
+ * `node scripts/school-env.mjs --schema e2e_college` before building. Its setup
+ * project rebuilds that schema with fixture data before the tests.
  */
 const apps = [
   { name: "web", port: 3000, testDir: "e2e/web" },
-  { name: "school", port: 3001, testDir: "e2e/apps" },
+  { name: "school", port: 3001, testDir: "e2e/school" },
   { name: "clinic", port: 3002, testDir: "e2e/apps" },
   { name: "finance", port: 3003, testDir: "e2e/apps" },
 ] as const;
@@ -38,11 +41,17 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
-  projects: apps.map((app) => ({
-    name: app.name,
-    testDir: app.testDir,
-    use: { baseURL: `http://localhost:${app.port}` },
-  })),
+  projects: [
+    { name: "school-setup", testDir: "e2e/school", testMatch: /setup\.ts$/ },
+    ...apps.map((app) => ({
+      name: app.name,
+      testDir: app.testDir,
+      use: { baseURL: `http://localhost:${app.port}` },
+      ...(app.name === "school"
+        ? { dependencies: ["school-setup"], testIgnore: /setup\.ts$/ }
+        : {}),
+    })),
+  ],
   // Start only the apps under test, so one app can be tested after building only that app.
   webServer: servedApps.map((app) => ({
     command: `pnpm --filter @corex/${app.name} start`,
