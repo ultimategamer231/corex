@@ -168,3 +168,37 @@ test("a member suspended while offline cannot sync, and signing out clears the d
   await context.close();
   await adminContext.close();
 });
+
+test("pages with clinical notes are never kept on the device (SPEC.md 10.1)", async ({ page }) => {
+  await signInAs(page, "clinician");
+  // Wait until the service worker controls the page, so later pages go through it.
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+    if (!navigator.serviceWorker.controller) {
+      await new Promise((resolve) =>
+        navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }),
+      );
+    }
+  });
+  await open(page, "/patients?q=Kamara");
+  await page.getByRole("link", { name: "Kebeh Kamara" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Kebeh Kamara" })).toBeVisible();
+  const patientPath = new URL(page.url()).pathname;
+  await open(page, "/queue");
+  await open(page, patientPath);
+
+  const cached = await page.evaluate(async () => {
+    const urls: string[] = [];
+    for (const name of await caches.keys()) {
+      const cache = await caches.open(name);
+      for (const request of await cache.keys()) urls.push(new URL(request.url).pathname);
+    }
+    return urls;
+  });
+  expect(cached).toContain("/queue");
+  // The empty registration form may be kept; patient records and visits may not.
+  const clinical = cached.filter(
+    (u) => /^\/patients\/[0-9a-f-]{36}/.test(u) || u.startsWith("/encounters/"),
+  );
+  expect(clinical).toEqual([]);
+});
