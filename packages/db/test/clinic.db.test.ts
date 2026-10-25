@@ -159,6 +159,67 @@ describe("CLN-04 and CLN-05 appointments", () => {
   });
 });
 
+describe("workflow guards on direct API calls", () => {
+  it("lets the front desk cancel or mark no-show, but not check in or complete directly", async () => {
+    const appt = await asUser(sql, users.receptionist, (tx) =>
+      book(tx, users.clinician2, "2026-11-05T08:00:00Z"),
+    );
+    for (const status of ["checked_in", "completed"]) {
+      await expect(
+        asUser(sql, users.receptionist, (tx) =>
+          tx.unsafe(`update ${s}.appointments set status = $2 where id = $1`, [appt.id, status]),
+        ),
+      ).rejects.toThrow(/Check patients in from the appointment/);
+    }
+    const other = await sql.begin((tx) => register(tx, { first: "Other", last: "Patient" }));
+    await expect(
+      asUser(sql, users.receptionist, (tx) =>
+        tx.unsafe(`update ${s}.appointments set patient_id = $2 where id = $1`, [
+          appt.id,
+          other.id,
+        ]),
+      ),
+    ).rejects.toThrow(/cannot move to another patient/);
+    await asUser(sql, users.receptionist, (tx) =>
+      tx.unsafe(`update ${s}.appointments set status = 'no_show' where id = $1`, [appt.id]),
+    );
+    await expect(
+      asUser(sql, users.receptionist, (tx) =>
+        tx.unsafe(`update ${s}.appointments set status = 'booked' where id = $1`, [appt.id]),
+      ),
+    ).rejects.toThrow(/Only a booked appointment can be changed/);
+  });
+
+  it("keeps queue entries from being linked to a visit or sent to the clinician directly", async () => {
+    const walkIn = await sql.begin((tx) => register(tx, { first: "Walk", last: "In" }));
+    const entry = await asUser(sql, users.receptionist, (tx) =>
+      one<{ id: string }>(
+        tx,
+        `insert into ${s}.queue_entries (patient_id) values ($1) returning id`,
+        [walkIn.id],
+      ),
+    );
+    await expect(
+      asUser(sql, users.receptionist, (tx) =>
+        tx.unsafe(`update ${s}.queue_entries set status = 'with_clinician' where id = $1`, [
+          entry.id,
+        ]),
+      ),
+    ).rejects.toThrow(/clinician opens and closes the visit/);
+    await asUser(sql, users.receptionist, (tx) =>
+      tx.unsafe(`update ${s}.queue_entries set status = 'with_nurse' where id = $1`, [entry.id]),
+    );
+    await asUser(sql, users.receptionist, (tx) =>
+      tx.unsafe(`update ${s}.queue_entries set status = 'done' where id = $1`, [entry.id]),
+    );
+    await expect(
+      asUser(sql, users.receptionist, (tx) =>
+        tx.unsafe(`update ${s}.queue_entries set status = 'waiting' where id = $1`, [entry.id]),
+      ),
+    ).rejects.toThrow(/clinician opens and closes the visit/);
+  });
+});
+
 describe("visit workflow and CLN-03 notes", () => {
   it("checks in, records intake vitals and opens the visit", async () => {
     ids.queue = await asUser(

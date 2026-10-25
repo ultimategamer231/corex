@@ -6,7 +6,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 
 - **Phase:** 10 (Clinic, SPEC.md Step 10) built. Phases 1-9 merged to `main`.
 - **Not live yet:** the demo subdomains wait on the deferred hosting items (root domain, Vercel Pro, demo Supabase project); steps in `docs/demos.md`. The reset workflow passes with a notice until its secrets exist.
-- **Next:** the audit of Phases 6-10 (`docs/audits/`), then Phase 11 (Clinic demo).
+- **Next:** Phase 11 (Clinic demo). The Phase 6-10 audit is in `docs/audits/phases-6-10.md`.
 - **Branch:** `claude/questions-clarity-qmgcs5` (each phase merges to `main` once CI is green; owner rule 2026-10-24)
 
 ## Block log
@@ -44,6 +44,8 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **Phase 9** (2026-10-24) Finance demo (SPEC 11). `pnpm demo:seed --demo finance` rebuilds `demo_finance` in about two seconds: three accounts (cash and bank in USD, mobile money in LRD), 18 months of income, expenses and transfers with seasonal sales and a monthly reference rate, 25 customers and vendors, 30 invoices (paid, part paid, unpaid, void), 12 employees and 12 approved, paid payroll runs; balances stay positive. Shared seed helpers moved to `packages/db/src/demo/seed.ts`; demo migration `0002` lets the seed itself act as a demo user. Finance app demo mode: banner, demo login page with role buttons and `?role=`, organization settings and users read-only, exports over 200 rows refused, 1 MB uploads; the nightly reset includes Finance. Tests: 2 more demo database tests, a website link test, 9 Finance demo e2e (`finance-demo` project); e2e setups now run one after another.
 
 - **Phase 10** (2026-10-25) Clinic Management (SPEC 8). Database (`clinic/0001_clinic.sql`): patients with generated numbers and the duplicate flag (CLN-08), appointments with a per-clinician lock against double booking (CLN-04) and no deletes (CLN-05), walk-in queue, encounters, vitals and versioned clinical notes (signed notes never change; corrections supersede, CLN-03), service price list, bills on the shared billing tables with payer type and name; notes for Clinicians only and vitals for Clinicians and Nurses, with the audit log hiding both from others (CLN-01); patient files restricted to clinical staff (CLN-06). App: Today dashboard (patients seen, appointments, queue; money received today and this month and outstanding balances per currency for the Admin and Cashier), patient search and registration with the duplicate warning, profile with allergy banner, visits timeline, vitals, appointments, files and bills; appointments day view per clinician with book, reschedule, cancel with reason, no show and check in; queue with walk-ins and intake vitals; visit screen with vitals, draft, sign, correct and close; billing from price-list services, payments, receipts and PDFs; reports (daily cash, revenue by service, visits) with PDF and Excel; settings, price list and users. Clinical record views are audited on the server (CLN-02). Tests: 17 clinic database tests (CLN-01 to CLN-08), time helpers, 37 clinic e2e (SPEC 8.5 flow with duplicate, clash, correction, file upload, direct-URL privacy and exports; every screen at four widths; the shell, now signed in).
+
+- **Audit 6-10** (2026-10-25) No critical defects. Fixed: clinic workflow guards for direct API calls (`clinic/0002_workflow_guards.sql`, 2 tests) and one-line form alignment. Report: `docs/audits/phases-6-10.md`.
 
 ## Owner answers (2026-10-23, 2026-10-24)
 
