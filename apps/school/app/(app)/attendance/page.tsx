@@ -10,6 +10,7 @@ import { Table, TableScroll, Td, Th } from "@corex/ui/components/table";
 import { Textarea } from "@corex/ui/components/textarea";
 import { CalendarCheck } from "lucide-react";
 import type { Metadata } from "next";
+import { PendingSheets } from "@/components/pending";
 import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
 import { personName, todayIso } from "@/lib/format";
 import { edition } from "@/lib/edition";
@@ -144,7 +145,13 @@ export default async function AttendancePage({ searchParams }: Props) {
       ) : (
         <div className="flex flex-col gap-6">
           {/* Stays mounted after saving so the confirmation remains visible. */}
-          <ActionForm action={recordAttendance} aria-label="Class register" resetOnSuccess={false}>
+          <PendingSheets table="attendance" label="Registers waiting to sync" />
+          <ActionForm
+            action={recordAttendance}
+            aria-label="Class register"
+            resetOnSuccess={false}
+            offline="attendance"
+          >
             {unrecorded.length > 0 ? (
               <>
                 <input type="hidden" name="class_id" value={offering.id} />

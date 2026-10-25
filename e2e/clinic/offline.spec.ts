@@ -3,6 +3,7 @@
 // cannot sync (OFF-03); signing out warns about waiting records and clears the device
 // (OFF-04).
 import { expect, type Page, test } from "@playwright/test";
+import { outboxItems } from "../helpers";
 import { confirm, open, signInAs } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
@@ -17,27 +18,6 @@ async function registerOffline(page: Page, first: string, last: string) {
   await form.getByRole("combobox", { name: "Allergies" }).selectOption("no");
   await form.getByRole("button", { name: "Register patient" }).click();
   await expect(form.getByText(/is saved on this device/)).toBeVisible();
-}
-
-/** Records waiting in this app's outbox, read straight from IndexedDB. */
-function outboxItems(page: Page): Promise<{ id: string; table: string }[]> {
-  return page.evaluate(async () => {
-    const dbs = await indexedDB.databases();
-    const name = dbs.find((d) => d.name?.startsWith("corex-clinic-"))?.name;
-    if (!name) return [];
-    const db = await new Promise<IDBDatabase>((resolve, reject) => {
-      const req = indexedDB.open(name);
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(new Error("open failed"));
-    });
-    const items = await new Promise<{ id: string; table: string }[]>((resolve, reject) => {
-      const req = db.transaction("outbox").objectStore("outbox").getAll();
-      req.onsuccess = () => resolve(req.result as { id: string; table: string }[]);
-      req.onerror = () => reject(new Error("read failed"));
-    });
-    db.close();
-    return items;
-  });
 }
 
 async function patientRows(page: Page, last: string) {
@@ -59,11 +39,11 @@ test("a patient registered offline syncs once on reconnect (OFF-01, OFF-02)", as
   await expect(waiting).toContainText(`Musu ${last}`);
   await expect(waiting).toContainText("Pending sync");
   await expect(page.getByRole("status").first()).toContainText("1");
-  const [saved] = await outboxItems(page);
+  const [saved] = await outboxItems(page, "clinic");
   expect(saved?.table).toBe("patients");
 
   await context.setOffline(false);
-  await expect.poll(() => outboxItems(page), { timeout: 15_000 }).toHaveLength(0);
+  await expect.poll(() => outboxItems(page, "clinic"), { timeout: 15_000 }).toHaveLength(0);
   await expect(waiting).toBeHidden();
   // Header row plus the one patient.
   expect(await patientRows(page, last)).toBe(2);
@@ -84,7 +64,7 @@ test("a patient registered offline syncs once on reconnect (OFF-01, OFF-02)", as
     db.close();
   }, saved);
   await page.reload();
-  await expect.poll(() => outboxItems(page), { timeout: 15_000 }).toHaveLength(0);
+  await expect.poll(() => outboxItems(page, "clinic"), { timeout: 15_000 }).toHaveLength(0);
   expect(await patientRows(page, last)).toBe(2);
 });
 
@@ -115,7 +95,7 @@ test("vitals recorded offline at intake sync to the patient", async ({ page, con
   await expect(waiting).toContainText("37.9 °C");
 
   await context.setOffline(false);
-  await expect.poll(() => outboxItems(page), { timeout: 15_000 }).toHaveLength(0);
+  await expect.poll(() => outboxItems(page, "clinic"), { timeout: 15_000 }).toHaveLength(0);
   await expect(waiting).toBeHidden();
   await expect(page.getByRole("cell", { name: "37.9" })).toBeVisible();
 });
@@ -166,7 +146,7 @@ test("a member suspended while offline cannot sync, and signing out clears the d
   await expect(waiting.getByRole("alert")).toContainText(
     "You do not have access to this organization",
   );
-  expect(await outboxItems(page)).toHaveLength(1);
+  expect(await outboxItems(page, "clinic")).toHaveLength(1);
 
   // Signing out warns about the waiting record; cancelling keeps it.
   const menu = page.getByRole("button", { name: /^Account menu for / });
@@ -177,13 +157,13 @@ test("a member suspended while offline cannot sync, and signing out clears the d
   await menu.click();
   await page.getByRole("menuitem", { name: "Sign out" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  expect(await outboxItems(page)).toHaveLength(1);
+  expect(await outboxItems(page, "clinic")).toHaveLength(1);
 
   page.once("dialog", (dialog) => void dialog.accept());
   await menu.click();
   await page.getByRole("menuitem", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/login/);
-  expect(await outboxItems(page)).toHaveLength(0);
+  expect(await outboxItems(page, "clinic")).toHaveLength(0);
 
   await context.close();
   await adminContext.close();

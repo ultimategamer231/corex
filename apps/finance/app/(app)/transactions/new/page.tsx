@@ -5,6 +5,7 @@ import { Textarea } from "@corex/ui/components/textarea";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
+import { PendingEntries } from "@/components/pending";
 import { loadAccounts, loadCategories, loadCounterparties } from "@/lib/finance";
 import { todayIso } from "@/lib/format";
 import { maxReceiptBytes } from "@/lib/files";
@@ -43,8 +44,14 @@ export default async function NewEntryPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader title={TITLES[kind]} />
+      {kind === "transfer" ? null : (
+        <div className="mb-6 max-w-2xl">
+          <PendingEntries label="Waiting to sync" />
+        </div>
+      )}
       <ActionForm
         action={recordEntry}
+        offline={kind === "transfer" ? undefined : "entries"}
         resetOnSuccess={false}
         aria-label={TITLES[kind]}
         className="max-w-2xl rounded-xl border border-border bg-background p-5"

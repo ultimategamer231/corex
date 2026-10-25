@@ -17,7 +17,7 @@ import {
 import { useOptionalOffline } from "@corex/core/offline/react";
 import { formObject } from "@/lib/fields";
 import { type FormState, idleState } from "@/lib/form-state";
-import { OFFLINE_FORMS, type OfflineFormName } from "@/lib/offline-forms";
+import { OFFLINE_FORMS, type OfflineForm, type OfflineFormName } from "@/lib/offline-forms";
 
 type Ctx = { state: FormState; pending: boolean };
 const FormContext = createContext<Ctx>({ state: idleState, pending: false });
@@ -64,25 +64,40 @@ export function ActionForm({
   }, [serverState]);
 
   async function saveOnDevice(form: HTMLFormElement, data: FormData, name: OfflineFormName) {
-    const config = OFFLINE_FORMS[name];
-    const raw = formObject(data);
+    const config: OfflineForm = OFFLINE_FORMS[name];
+    const raw: Record<string, unknown> = formObject(data);
     const parsed = config.schema.safeParse(raw);
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
       for (const issue of parsed.error.issues)
         fieldErrors[String(issue.path[0] ?? "form")] ??= issue.message;
+      // A rule about the whole form (an incomplete register) is the message itself.
       setLocalState({
         status: "error",
-        message: "Please check the highlighted fields.",
+        message: fieldErrors.form ?? "Please check the highlighted fields.",
         fieldErrors,
       });
       return;
+    }
+    // Files (a receipt photo) are kept on the device with the record.
+    for (const [key, value] of data.entries()) {
+      if (!(value instanceof File) || value.size === 0) continue;
+      if (value.size > (config.maxFileBytes ?? 0)) {
+        const mb = (config.maxFileBytes ?? 0) / 1_000_000;
+        setLocalState({
+          status: "error",
+          message: "Please check the highlighted fields.",
+          fieldErrors: { [key]: `Offline, files can be up to ${mb} MB.` },
+        });
+        return;
+      }
+      raw[key] = value;
     }
     const id = typeof raw.id === "string" ? raw.id : crypto.randomUUID();
     if (!device) return;
     await device.save(config.table, raw, id);
     setLocalState({ status: "success", message: config.saved(raw) });
-    form.reset();
+    if (!config.keepValues) form.reset();
     // The next record gets its own id.
     const idInput = form.elements.namedItem("id");
     if (idInput instanceof HTMLInputElement) idInput.value = crypto.randomUUID();

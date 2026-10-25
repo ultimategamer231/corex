@@ -2,35 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { ActionError, isoDate, must, optionalText, runAction, uuid } from "@/lib/action";
-import { amountText, rateText, toMinor } from "@/lib/finance";
+import { ActionError, must, runAction, uuid } from "@/lib/action";
+import { toMinor } from "@/lib/finance";
 import { uploadReceipt } from "@/lib/files";
 import type { FormState } from "@/lib/form-state";
+import { entrySchema } from "@/lib/schemas";
 import { MANAGER, RECORDERS } from "@/lib/roles";
-
-const entrySchema = z
-  .object({
-    id: z.uuid(),
-    type: z.enum(["income", "expense", "transfer"]),
-    date: isoDate("the date"),
-    account_id: uuid("an account"),
-    to_account_id: z.string().optional(),
-    category_id: z.string().optional(),
-    counterparty_id: z.string().optional(),
-    amount: amountText,
-    fx_rate: rateText,
-    memo: optionalText,
-  })
-  .superRefine((v, ctx) => {
-    if (v.type === "transfer" && !z.uuid().safeParse(v.to_account_id).success)
-      ctx.addIssue({
-        code: "custom",
-        path: ["to_account_id"],
-        message: "Choose the account to transfer to",
-      });
-    if (v.type !== "transfer" && !z.uuid().safeParse(v.category_id).success)
-      ctx.addIssue({ code: "custom", path: ["category_id"], message: "Choose a category" });
-  });
 
 /**
  * Records an income, expense or transfer (FIN-01). The form carries an id made when it

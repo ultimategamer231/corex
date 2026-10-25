@@ -10,6 +10,10 @@ export type OfflineForm = {
   schema: z.ZodType;
   /** Message after saving on the device. */
   saved: (raw: Record<string, unknown>) => string;
+  /** Largest file kept on the device with the record; no files when unset. */
+  maxFileBytes?: number;
+  /** Keep the values after saving (a register or score sheet), instead of clearing the form. */
+  keepValues?: boolean;
 };
 
 const text = (v: unknown) => (typeof v === "string" ? v : "");

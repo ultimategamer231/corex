@@ -76,3 +76,30 @@ export async function saveScreenshot(page: Page, testInfo: TestInfo, name: strin
   await page.screenshot({ path, fullPage: true });
   await testInfo.attach(name, { path, contentType: "image/png" });
 }
+
+/** Records waiting in this app's outbox, read straight from IndexedDB. */
+export function outboxItems(
+  page: Page,
+  app: string,
+): Promise<{ id: string; table: string; payload: Record<string, unknown> }[]> {
+  return page.evaluate(async (prefix) => {
+    const dbs = await indexedDB.databases();
+    const name = dbs.find((d) => d.name?.startsWith(prefix))?.name;
+    if (!name) return [];
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const req = indexedDB.open(name);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(new Error("open failed"));
+    });
+    const items = await new Promise<
+      { id: string; table: string; payload: Record<string, unknown> }[]
+    >((resolve, reject) => {
+      const req = db.transaction("outbox").objectStore("outbox").getAll();
+      req.onsuccess = () =>
+        resolve(req.result as { id: string; table: string; payload: Record<string, unknown> }[]);
+      req.onerror = () => reject(new Error("read failed"));
+    });
+    db.close();
+    return items;
+  }, `corex-${app}-`);
+}
