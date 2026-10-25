@@ -1,0 +1,14 @@
+# Keep the build context small and free of secrets: local env files, builds and tests.
+**/node_modules
+**/.next
+**/.turbo
+**/*.tsbuildinfo
+**/.env
+**/.env.*
+!**/.env.example
+.git
+test-results
+playwright-report
+blob-report
+supabase/.branches
+supabase/.temp

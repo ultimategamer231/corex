@@ -1,6 +1,7 @@
 // @ts-check
 // Shared Next.js configuration for every Corex app: security headers and
 // workspace package transpilation.
+import { fileURLToPath } from "node:url";
 
 /**
  * @typedef {object} CspOptions
@@ -77,9 +78,18 @@ export function securityHeaders(options = {}) {
  */
 export function withCorex(config = {}, csp = {}) {
   const dev = csp.dev ?? process.env.NODE_ENV !== "production";
+  // Docker images (Dockerfile) build a self-contained server; Vercel ignores this.
+  const standalone =
+    process.env.NEXT_OUTPUT === "standalone"
+      ? {
+          output: /** @type {const} */ ("standalone"),
+          outputFileTracingRoot: fileURLToPath(new URL("../../../", import.meta.url)),
+        }
+      : {};
   return {
     reactStrictMode: true,
     poweredByHeader: false,
+    ...standalone,
     ...config,
     transpilePackages: ["@corex/ui", ...(config.transpilePackages ?? [])],
     async headers() {
