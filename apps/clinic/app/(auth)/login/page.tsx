@@ -20,7 +20,7 @@ type Props = { searchParams: Promise<{ next?: string; reason?: string; role?: st
 export default async function LoginPage({ searchParams }: Props) {
   const { next, reason, role } = await searchParams;
   const notice = reason ? REASONS[reason] : undefined;
-  // On a public demo the website can preselect a role with ?role=receptionist.
+  // On a public demo the website can preselect a role with ?role=reception.
   const demo = demoInstance();
   const preselected = demo?.accounts.find((a) => a.slug === role);
   return (

@@ -1,4 +1,4 @@
-// pnpm demo:seed --demo <college|highschool|finance> [--project <label>]
+// pnpm demo:seed --demo <college|highschool|clinic|finance> [--project <label>]
 // Rebuilds a public demo with its sample data and sign-ins (SPEC.md 11.4, 11.5).
 // Without --project it uses the local stack; the nightly reset passes --project demo
 // (DATABASE_URL_DEMO, SUPABASE_URL_DEMO, SUPABASE_SERVICE_ROLE_KEY_DEMO).
@@ -10,10 +10,13 @@ import { resetDemo } from "../demo/reset.ts";
 import { supabaseAdmin, supabaseAdminConfig } from "../supabase-admin.ts";
 import { parseOptions, run } from "./args.ts";
 
-const options = parseOptions("demo:seed --demo <college|highschool|finance> [--project <label>]", {
-  demo: z.enum(["college", "highschool", "finance"]),
-  project: z.string().default(LOCAL_PROJECT),
-});
+const options = parseOptions(
+  "demo:seed --demo <college|highschool|clinic|finance> [--project <label>]",
+  {
+    demo: z.enum(["college", "highschool", "clinic", "finance"]),
+    project: z.string().default(LOCAL_PROJECT),
+  },
+);
 
 run(async () => {
   const started = Date.now();

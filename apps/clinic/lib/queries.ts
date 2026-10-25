@@ -25,3 +25,20 @@ export async function selectAll<T>(
     if (chunk.length < CHUNK) return out;
   }
 }
+
+/**
+ * Rows for many ids, read in groups: ids travel in the URL, so a long list would make
+ * the request too long. `read` runs the query for one group.
+ */
+export async function selectIn<T>(
+  ids: string[],
+  read: (group: string[]) => PromiseLike<Result<T[]>>,
+  size = 150,
+): Promise<T[]> {
+  const out: T[] = [];
+  const unique = [...new Set(ids)];
+  for (let i = 0; i < unique.length; i += size) {
+    out.push(...rows(await read(unique.slice(i, i + size))));
+  }
+  return out;
+}

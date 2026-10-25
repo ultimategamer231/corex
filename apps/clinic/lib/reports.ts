@@ -4,7 +4,7 @@ import { formatDateTime } from "@corex/core/dates";
 import { CURRENCIES } from "@corex/core/money";
 import { dateOf, dayBounds, METHODS, receiptNo, shiftDay } from "./clinic";
 import { personName } from "./format";
-import { rows, selectAll } from "./queries";
+import { selectAll, selectIn } from "./queries";
 import type { ClinicDb } from "./supabase";
 
 export type Period = { from: string; to: string };
@@ -69,29 +69,19 @@ export async function cashReport(
         .order("received_at")
         .range(from, to) as unknown as PromiseLike<{ data: PaymentRow[]; error: null }>,
   );
-  const invoiceIds = [...new Set(payments.map((p) => p.invoice_id))];
-  const invoices = invoiceIds.length
-    ? await selectAll<{ id: string; number: number | null; party_id: string }>(
-        (from, to) =>
-          db
-            .from("invoices")
-            .select("id, number, party_id")
-            .in("id", invoiceIds)
-            .range(from, to) as unknown as PromiseLike<{
-            data: { id: string; number: number | null; party_id: string }[];
-            error: null;
-          }>,
-      )
-    : [];
-  const patientIds = [...new Set(invoices.map((i) => i.party_id))];
-  const patients = patientIds.length
-    ? rows(
-        await db
-          .from("patients")
-          .select("id, first_name, middle_name, last_name")
-          .in("id", patientIds),
-      )
-    : [];
+  type Bill = { id: string; number: number | null; party_id: string };
+  const invoices = await selectIn<Bill>(
+    payments.map((p) => p.invoice_id),
+    (group) =>
+      db.from("invoices").select("id, number, party_id").in("id", group) as unknown as PromiseLike<{
+        data: Bill[];
+        error: null;
+      }>,
+  );
+  const patients = await selectIn(
+    invoices.map((i) => i.party_id),
+    (group) => db.from("patients").select("id, first_name, middle_name, last_name").in("id", group),
+  );
   const bill = new Map(invoices.map((i) => [i.id, i]));
   const name = new Map(patients.map((p) => [p.id, personName(p)]));
   const totals: Record<string, number> = { USD: 0, LRD: 0 };

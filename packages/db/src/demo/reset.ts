@@ -10,6 +10,7 @@ import { exposeSchemaLocally } from "../provision.ts";
 import { assertSchemaName } from "../schema-name.ts";
 import type { AdminClient } from "../supabase-admin.ts";
 import { seededRandom } from "./random.ts";
+import { seedClinic } from "./clinic.ts";
 import { seedFinance } from "./finance.ts";
 import { seedCollege, seedHighSchool, type SeedContext } from "./school.ts";
 
@@ -27,6 +28,7 @@ export const DEMO_SEED = 20_261_024;
 const SEEDERS: Record<DemoName, (ctx: SeedContext) => Promise<void>> = {
   college: seedCollege,
   highschool: seedHighSchool,
+  clinic: seedClinic,
   finance: seedFinance,
 };
 
@@ -34,6 +36,7 @@ const SEEDERS: Record<DemoName, (ctx: SeedContext) => Promise<void>> = {
 const MAIN_TABLE: Record<DemoName, string> = {
   college: "students",
   highschool: "students",
+  clinic: "patients",
   finance: "transactions",
 };
 

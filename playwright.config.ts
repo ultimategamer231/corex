@@ -40,6 +40,14 @@ const apps: App[] = [
     env: { DEMO_MODE: "true", DB_SCHEMA: "demo_college" },
   },
   { name: "clinic", port: 3002, testDir: "e2e/clinic" },
+  // The Clinic build as its public demo on the seeded demo_clinic schema.
+  {
+    name: "clinic-demo",
+    port: 3007,
+    testDir: "e2e/clinic-demo",
+    app: "clinic",
+    env: { DEMO_MODE: "true", DB_SCHEMA: "demo_clinic" },
+  },
   { name: "finance", port: 3003, testDir: "e2e/finance" },
   // The Finance build as its public demo on the seeded demo_finance schema.
   {
@@ -105,6 +113,12 @@ export default defineConfig({
       testDir: "e2e/clinic",
       testMatch: /setup\.ts$/,
       dependencies: ["finance-demo-setup"],
+    },
+    {
+      name: "clinic-demo-setup",
+      testDir: "e2e/clinic-demo",
+      testMatch: /setup\.ts$/,
+      dependencies: ["clinic-setup"],
     },
     ...apps.map((app) => ({
       name: app.name,

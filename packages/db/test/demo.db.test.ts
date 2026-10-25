@@ -278,3 +278,84 @@ describe("finance demo seed", () => {
     ).rejects.toThrow(/sample records/);
   });
 });
+
+describe("clinic demo seed", () => {
+  const k = DEMOS.clinic.schema;
+  const as = async (slug: string) =>
+    (
+      await one<{ id: string }>(`select id from auth.users where email = $1`, [
+        DEMOS.clinic.accounts.find((a) => a.slug === slug)?.email,
+      ])
+    ).id;
+
+  it("has the data SPEC.md 11.4 asks for", async () => {
+    await resetDemo(sql, admin, "clinic", { exposeLocally: true });
+    // 400 patients plus one registered twice, flagged as a possible duplicate (CLN-08).
+    expect(await count(`${k}.patients`)).toBe(401);
+    expect(await count(`${k}.patients where possible_duplicate_of is not null`)).toBeGreaterThan(0);
+    expect(
+      await count(`(select distinct date_trunc('month', opened_at) from ${k}.encounters) m`),
+    ).toBeGreaterThanOrEqual(18);
+    expect(await count(`${k}.encounters`)).toBeGreaterThan(3000);
+    expect(await count(`${k}.vitals`)).toBeGreaterThan(3000);
+    expect(await count(`${k}.clinical_notes where signed_at is not null`)).toBeGreaterThan(3000);
+    expect(await count(`${k}.clinical_notes where supersedes_id is not null`)).toBeGreaterThan(0);
+    expect(
+      await count(
+        `${k}.appointments where status = 'booked' and starts_at > now() + interval '7 days'`,
+      ),
+    ).toBeGreaterThan(0);
+    expect(await count(`${k}.queue_entries where status <> 'done'`)).toBeGreaterThan(3);
+    expect(await count(`${k}.services`)).toBeGreaterThan(8);
+    const states = await sql.unsafe<{ status: string }[]>(
+      `select distinct status from ${k}.invoices`,
+    );
+    for (const status of ["issued", "partially_paid", "paid", "void"]) {
+      expect(states).toContainEqual({ status });
+    }
+    // Every payment has its receipt (CLN-07).
+    expect(
+      await count(
+        `${k}.payments p left join ${k}.receipts r on r.payment_id = p.id where r.id is null`,
+      ),
+    ).toBe(0);
+    expect(await count(`${k}.audit_events`)).toBe(0);
+    expect(await count(`${k}.memberships`)).toBe(
+      DEMOS.clinic.accounts.length + DEMOS.clinic.staff.length,
+    );
+  }, 120_000);
+
+  it("lets visitors register patients and take payments, but not change sample records", async () => {
+    const reception = await as("reception");
+    const cashier = await as("cashier");
+    // Registering bumps the seeded patient number counter.
+    await asUser(sql, reception, (tx) =>
+      tx.unsafe(
+        `insert into ${k}.patients (id, patient_number, first_name, last_name) values (gen_random_uuid(), '', 'Visitor', 'Patient')`,
+      ),
+    );
+    const sample = await one<{ id: string }>(`select id from ${k}.patients where is_seed limit 1`);
+    await expect(
+      asUser(sql, reception, (tx) =>
+        tx.unsafe(`update ${k}.patients set phone = '0770000000' where id = $1`, [sample.id]),
+      ),
+    ).rejects.toThrow(/sample records/);
+    const unpaid = await one<{ id: string; currency: string }>(
+      `select id, currency from ${k}.invoices where status = 'issued' and payer_type = 'self' limit 1`,
+    );
+    await asUser(sql, cashier, (tx) =>
+      tx.unsafe(`select * from ${k}.record_payment(gen_random_uuid(), $1, 100, $2, 'cash')`, [
+        unpaid.id,
+        unpaid.currency,
+      ]),
+    );
+    const posted = await one<{ id: string }>(
+      `select id from ${k}.payments where is_seed and status = 'posted' limit 1`,
+    );
+    await expect(
+      asUser(sql, cashier, (tx) =>
+        tx.unsafe(`select ${k}.void_payment($1, 'Mistake')`, [posted.id]),
+      ),
+    ).rejects.toThrow(/sample records/);
+  });
+});
