@@ -18,7 +18,7 @@ The School, Clinic and Finance apps keep working for a few tasks without a conne
 
 ## How it works
 
-- The apps are installable (Serwist service worker): the app shell and the pages last opened online are kept on the device; other pages show an offline page.
+- The apps are installable (Serwist service worker): the app shell and the pages last opened online are kept on the device; other pages show an offline page. Some pages are never kept: Clinic visits and patient records (they hold clinical notes, SPEC.md 10.1), PDFs, report exports and stored files.
 - Records wait in an outbox in the browser's IndexedDB, one per signed-in user (`packages/core/src/offline`). Each record has an id made on the device.
 - Each record is sent to the app's sync action, which checks the member's current access and role first (OFF-03), validates the record with the same rules as the online form, and inserts it without overwriting anything already stored. Sending the same record twice stores it once (OFF-02). A Finance receipt photo travels with its record.
 - Tests: `e2e/clinic/offline.spec.ts` (patient and vitals; suspended member; sign-out), `e2e/finance/offline.spec.ts` (expense with photo), `e2e/school-hs/offline.spec.ts` (register), and the outbox unit tests in `packages/core`.
