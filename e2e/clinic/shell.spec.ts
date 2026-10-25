@@ -7,6 +7,7 @@ import {
   setWidth,
   widths,
 } from "../helpers";
+import { signInAs } from "./helpers";
 
 /** A section that exists in every app's navigation. */
 const section = { path: "/reports", label: "Reports" };
@@ -16,6 +17,10 @@ function mainNav(page: Page) {
 }
 
 test.describe("app shell", () => {
+  test.beforeEach(async ({ page }) => {
+    await signInAs(page, "admin");
+  });
+
   for (const width of widths) {
     test(`is accessible and fits at ${width}px`, async ({ page }, testInfo) => {
       await setWidth(page, width);
@@ -101,13 +106,13 @@ test.describe("app shell", () => {
     await expect(trigger).toBeFocused();
   });
 
-  test("unknown sections return 404", async ({ request }) => {
-    const response = await request.get("/does-not-exist");
-    expect(response.status()).toBe(404);
+  test("unknown sections return 404", async ({ page }) => {
+    const response = await page.goto("/does-not-exist");
+    expect(response?.status()).toBe(404);
   });
 
   test("sends the security headers", async ({ request }) => {
-    const headers = (await request.get("/")).headers();
+    const headers = (await request.get("/login")).headers();
     expect(headers["content-security-policy"]).toContain("frame-ancestors 'none'");
     expect(headers["strict-transport-security"]).toContain("max-age=");
     expect(headers["x-content-type-options"]).toBe("nosniff");
