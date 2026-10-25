@@ -156,7 +156,7 @@ export default async function SettingsPage() {
           <ActionForm
             action={addCategory}
             aria-label="Add a category"
-            className="flex max-w-3xl flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-5"
+            className="flex max-w-3xl flex-row flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-5"
           >
             <FormField name="name" label="Name" required className="w-64 max-w-full">
               <Input />
@@ -204,7 +204,7 @@ export default async function SettingsPage() {
           <ActionForm
             action={addRate}
             aria-label="Add an exchange rate"
-            className="flex max-w-3xl flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-5"
+            className="flex max-w-3xl flex-row flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-5"
           >
             <FormField name="date" label="Date" required className="w-44">
               <Input type="date" defaultValue={todayIso(settings.timezone)} />

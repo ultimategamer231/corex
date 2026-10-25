@@ -71,7 +71,7 @@ describe("db:provision (SPEC.md 4.4)", () => {
         "school/0002_college",
         "school/0003_highschool",
       ],
-      [clinicSchema]: core,
+      [clinicSchema]: ["clinic/0001_clinic", "clinic/0002_workflow_guards", ...core],
     };
     for (const [schema, ids] of Object.entries(expected)) {
       const rows = await sql.unsafe<{ id: string }[]>(

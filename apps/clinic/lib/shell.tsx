@@ -1,4 +1,4 @@
-import type { ShellNavItem, ShellOrg, ShellUser } from "@corex/ui/shell";
+import type { ShellNavItem } from "@corex/ui/shell";
 import {
   CalendarDays,
   FileBarChart,
@@ -8,30 +8,28 @@ import {
   Settings,
   Users,
 } from "lucide-react";
+import { ADMIN, BILLING, FRONT_DESK, hasAnyRole, REPORTS, type Role } from "./roles";
 
-/** Main navigation. Each section's pages are built in Phase 10. */
-export const nav: ShellNavItem[] = [
+type Item = ShellNavItem & { roles?: readonly Role[] };
+
+const ITEMS: Item[] = [
   { href: "/", label: "Today", icon: <LayoutDashboard />, primary: true, exact: true },
   { href: "/patients", label: "Patients", icon: <Users />, primary: true },
   { href: "/appointments", label: "Appointments", icon: <CalendarDays />, primary: true },
-  { href: "/queue", label: "Queue", icon: <ListOrdered />, primary: true },
-  { href: "/billing", label: "Billing", icon: <Receipt /> },
-  { href: "/reports", label: "Reports", icon: <FileBarChart /> },
-  { href: "/settings", label: "Settings", icon: <Settings /> },
+  { href: "/queue", label: "Queue", icon: <ListOrdered />, primary: true, roles: FRONT_DESK },
+  { href: "/billing", label: "Billing", icon: <Receipt />, primary: true, roles: BILLING },
+  { href: "/reports", label: "Reports", icon: <FileBarChart />, roles: REPORTS },
+  { href: "/settings", label: "Settings", icon: <Settings />, roles: ADMIN },
 ];
 
-/** Sections other than the dashboard; each has a placeholder page until it is built. */
-export const sections = nav.filter((item) => item.href !== "/").map((item) => item.href.slice(1));
-
-/**
- * Organization shown in the top bar. Placeholder until Phase 3 reads it from
- * the schema's `settings` row (CORE-01).
- */
-export async function getOrg(): Promise<ShellOrg> {
-  return { name: "Sample Medical Center", logoUrl: null };
-}
-
-/** Signed-in user. Placeholder until Phase 3 adds Supabase Auth and memberships. */
-export async function getCurrentUser(): Promise<ShellUser> {
-  return { displayName: "Emmanuel Toe", roleLabel: "Doctor" };
+/** Navigation for the member's roles (SPEC.md 8.1, 8.4); at most four in the bottom bar. */
+export function navFor(roles: readonly string[]): ShellNavItem[] {
+  let primary = 0;
+  return ITEMS.filter((i) => !i.roles || hasAnyRole(roles, i.roles)).map(
+    ({ roles: _r, ...item }) => {
+      if (!item.primary) return item;
+      primary += 1;
+      return primary <= 4 ? item : { ...item, primary: false };
+    },
+  );
 }

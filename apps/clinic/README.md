@@ -1,11 +1,13 @@
 # Clinic Management (`apps/clinic`)
 
-Next.js app for the Corex Clinic Management system (SPEC.md 8). Phase 1 contains only the shared app shell and placeholder sections; features are built in Phase 10.
+Next.js app for the Corex Clinic Management system (SPEC.md 8): patients, appointments, walk-in queue, visits with vitals and signed clinical notes, bills, payments and receipts, reports with PDF and Excel export. Roles: Admin, Clinician, Nurse, Receptionist, Cashier. Sessions end after 4 hours.
 
 ## Run
 
 ```bash
-cp apps/clinic/.env.example apps/clinic/.env.local   # then fill in values
+pnpm db:local:start
+pnpm db:fixture --schema dev_clinic --product clinic      # sample clinic, password Test@2026pass
+node scripts/school-env.mjs --app clinic --schema dev_clinic   # writes .env.local
 pnpm --filter @corex/clinic dev                         # http://localhost:3002
 ```
 
