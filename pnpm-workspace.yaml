@@ -25,3 +25,7 @@ onlyBuiltDependencies:
   - sharp
   - supabase
   - unrs-resolver
+
+# Patched versions of transitive dependencies flagged by `pnpm audit`.
+overrides:
+  zod: 4.6.7
