@@ -334,7 +334,7 @@ export default async function PatientPage({ params, searchParams }: Props) {
             <ActionForm
               action={attachFile}
               aria-label="Attach a file"
-              className="flex max-w-3xl flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-5"
+              className="flex max-w-3xl flex-row flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-5"
             >
               <input type="hidden" name="patient_id" value={id} />
               <FormField

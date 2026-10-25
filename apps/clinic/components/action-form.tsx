@@ -66,10 +66,14 @@ export function ActionForm({
         }}
       >
         {state.status === "error" && state.message ? (
-          <Alert tone="danger">{state.message}</Alert>
+          <Alert tone="danger" className="w-full">
+            {state.message}
+          </Alert>
         ) : null}
         {state.status === "success" && state.message ? (
-          <Alert tone="success">{state.message}</Alert>
+          <Alert tone="success" className="w-full">
+            {state.message}
+          </Alert>
         ) : null}
         {children}
       </form>

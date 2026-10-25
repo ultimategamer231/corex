@@ -134,7 +134,7 @@ export default async function EmployeePage({ params }: Props) {
             <ActionForm
               action={assignComponent}
               aria-label="Add a pay component"
-              className="flex max-w-3xl flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-5"
+              className="flex max-w-3xl flex-row flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-5"
             >
               <input type="hidden" name="employee_id" value={id} />
               <FormField

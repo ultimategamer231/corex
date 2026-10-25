@@ -209,7 +209,7 @@ export default async function BillPage({ params }: { params: Promise<{ id: strin
                 <ActionForm
                   action={addService}
                   aria-label="Add a service"
-                  className="flex max-w-3xl flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-5"
+                  className="flex max-w-3xl flex-row flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-5"
                 >
                   <input type="hidden" name="invoice_id" value={id} />
                   <FormField name="service_id" label="Service" required className="w-80 max-w-full">
