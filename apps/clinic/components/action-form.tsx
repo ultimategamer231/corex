@@ -11,9 +11,13 @@ import {
   useEffect,
   useEffectEvent,
   useRef,
+  useState,
   useTransition,
 } from "react";
+import { useOptionalOffline } from "@corex/core/offline/react";
+import { formObject } from "@/lib/fields";
 import { type FormState, idleState } from "@/lib/form-state";
+import { OFFLINE_FORMS, type OfflineFormName } from "@/lib/offline-forms";
 
 type Ctx = { state: FormState; pending: boolean };
 const FormContext = createContext<Ctx>({ state: idleState, pending: false });
@@ -25,6 +29,8 @@ export type ActionFormProps = {
   /** Clear the inputs after a successful save (default true). */
   resetOnSuccess?: boolean;
   onSuccess?: (state: FormState) => void;
+  /** Without a connection, keep the record on this device for later sync (SPEC.md 10). */
+  offline?: OfflineFormName;
   "aria-label"?: string;
 };
 
@@ -38,19 +44,49 @@ export function ActionForm({
   className,
   resetOnSuccess = true,
   onSuccess,
+  offline,
   ...rest
 }: ActionFormProps) {
-  const [state, formAction] = useActionState(action, idleState);
+  const [serverState, formAction] = useActionState(action, idleState);
   const [pending, startTransition] = useTransition();
+  // The result of the last offline save, until the next submit.
+  const [localState, setLocalState] = useState<FormState | null>(null);
+  const state = localState ?? serverState;
   const formRef = useRef<HTMLFormElement>(null);
+  const device = useOptionalOffline();
   const succeeded = useEffectEvent((result: FormState) => {
     if (resetOnSuccess) formRef.current?.reset();
     onSuccess?.(result);
   });
 
   useEffect(() => {
-    if (state.status === "success") succeeded(state);
-  }, [state]);
+    if (serverState.status === "success") succeeded(serverState);
+  }, [serverState]);
+
+  async function saveOnDevice(form: HTMLFormElement, data: FormData, name: OfflineFormName) {
+    const config = OFFLINE_FORMS[name];
+    const raw = formObject(data);
+    const parsed = config.schema.safeParse(raw);
+    if (!parsed.success) {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of parsed.error.issues)
+        fieldErrors[String(issue.path[0] ?? "form")] ??= issue.message;
+      setLocalState({
+        status: "error",
+        message: "Please check the highlighted fields.",
+        fieldErrors,
+      });
+      return;
+    }
+    const id = typeof raw.id === "string" ? raw.id : crypto.randomUUID();
+    if (!device) return;
+    await device.save(config.table, raw, id);
+    setLocalState({ status: "success", message: config.saved(raw) });
+    form.reset();
+    // The next record gets its own id.
+    const idInput = form.elements.namedItem("id");
+    if (idInput instanceof HTMLInputElement) idInput.value = crypto.randomUUID();
+  }
 
   return (
     <FormContext value={{ state, pending }}>
@@ -61,7 +97,13 @@ export function ActionForm({
         aria-label={rest["aria-label"]}
         onSubmit={(event) => {
           event.preventDefault();
-          const data = new FormData(event.currentTarget);
+          const form = event.currentTarget;
+          const data = new FormData(form);
+          if (offline && device && !navigator.onLine) {
+            void saveOnDevice(form, data, offline);
+            return;
+          }
+          setLocalState(null);
           startTransition(() => formAction(data));
         }}
       >

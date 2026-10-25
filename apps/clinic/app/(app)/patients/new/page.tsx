@@ -2,6 +2,7 @@ import { PageHeader } from "@corex/ui/components/page-header";
 import type { Metadata } from "next";
 import { ActionForm, SubmitButton } from "@/components/action-form";
 import { PatientFields } from "@/components/patient-fields";
+import { PendingRecords } from "@/components/pending";
 import { todayIso } from "@/lib/format";
 import { getSettings } from "@/lib/org";
 import { FRONT_DESK } from "@/lib/roles";
@@ -17,10 +18,14 @@ export default async function NewPatientPage() {
     <>
       <PageHeader
         title="Register patient"
-        description="The patient number is given when you save. Possible duplicates are flagged for review."
+        description="The patient number is given when you save. Possible duplicates are flagged for review. Without a connection, the patient is kept on this device and registered when you are back online."
       />
+      <div className="mb-6 max-w-3xl">
+        <PendingRecords table="patients" label="Waiting to sync" />
+      </div>
       <ActionForm
         action={registerPatient}
+        offline="patients"
         resetOnSuccess={false}
         aria-label="Register patient"
         className="max-w-3xl rounded-xl border border-border bg-background p-5"
