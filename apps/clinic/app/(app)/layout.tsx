@@ -1,11 +1,24 @@
-import { AppShell } from "@corex/ui/shell";
+import { AppShell, DemoBanner } from "@corex/ui/shell";
 import type * as React from "react";
-import { getCurrentUser, getOrg, nav } from "@/lib/shell";
+import { signOut } from "../(auth)/actions";
+import { demoInstance, quoteUrl } from "@/lib/demo";
+import { getSettings } from "@/lib/org";
+import { roleLabel } from "@/lib/roles";
+import { getSession } from "@/lib/session";
+import { navFor } from "@/lib/shell";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const [org, user] = await Promise.all([getOrg(), getCurrentUser()]);
+  const { member } = await getSession();
+  const settings = await getSettings();
+  const demo = demoInstance();
   return (
-    <AppShell org={org} nav={nav} user={user}>
+    <AppShell
+      banner={demo ? <DemoBanner quoteUrl={quoteUrl(demo)} /> : undefined}
+      org={{ name: settings.orgName, logoUrl: null }}
+      nav={navFor(member.roles)}
+      user={{ displayName: member.displayName, roleLabel: roleLabel(member.roles) }}
+      onSignOut={signOut}
+    >
       {children}
     </AppShell>
   );
