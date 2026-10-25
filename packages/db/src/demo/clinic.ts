@@ -545,7 +545,8 @@ export async function seedClinic(ctx: SeedContext): Promise<void> {
   const booked = new Set<string>();
   for (let offset = 0; offset <= 14; offset++) {
     const d = addDays(today, offset);
-    if (new Date(`${d}T00:00:00Z`).getUTCDay() === 0) continue;
+    // The clinic is closed on Sundays, but today always has bookings so the demo looks alive.
+    if (offset > 0 && new Date(`${d}T00:00:00Z`).getUTCDay() === 0) continue;
     const count = offset === 0 ? 6 : r.int(5, 10);
     for (let i = 0; i < count; i++) {
       const clinician = r.pick(clinicians);
