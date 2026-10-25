@@ -15,12 +15,15 @@
     "@corex/core": "workspace:*",
     "@corex/pdf": "workspace:*",
     "@corex/ui": "workspace:*",
+    "@serwist/turbopack": "9.5.13",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.118.0",
+    "esbuild": "0.28.2",
     "lucide-react": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "serwist": "9.5.13",
     "zod": "4.6.7"
   },
   "devDependencies": {

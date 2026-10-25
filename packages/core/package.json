@@ -14,7 +14,10 @@
     "./offline": "./src/offline/outbox.ts",
     "./dates": "./src/dates.ts",
     "./demo": "./src/demo.ts",
-    "./xlsx": "./src/xlsx.ts"
+    "./xlsx": "./src/xlsx.ts",
+    "./offline/react": "./src/offline/react.tsx",
+    "./offline/transport": "./src/offline/transport.ts",
+    "./offline/server": "./src/offline/server.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
@@ -39,5 +42,8 @@
     "react": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "react": ">=19"
   }
 }

@@ -10,6 +10,7 @@ import { Table, TableScroll, Td, Th } from "@corex/ui/components/table";
 import { ArrowLeftRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PendingEntries } from "@/components/pending";
 import { date, money, todayIso } from "@/lib/format";
 import { loadAccounts, loadCategories } from "@/lib/finance";
 import { isUuid } from "@/lib/ids";
@@ -106,6 +107,9 @@ export default async function TransactionsPage({ searchParams }: Props) {
           </div>
         }
       />
+      <div className="mb-5">
+        <PendingEntries label="Recorded on this device, waiting to sync" />
+      </div>
       <form className="mb-5 flex flex-wrap items-end gap-3" aria-label="Filter transactions">
         <div className="flex w-40 flex-col gap-1.5">
           <Label htmlFor="type">Type</Label>

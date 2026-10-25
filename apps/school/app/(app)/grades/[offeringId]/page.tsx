@@ -5,6 +5,7 @@ import { PageHeader } from "@corex/ui/components/page-header";
 import { Table, TableScroll, Td, Th } from "@corex/ui/components/table";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { PendingSheets } from "@/components/pending";
 import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
 import { ConfirmAction } from "@/components/confirm-action";
 import { Section } from "@/components/section";
@@ -214,95 +215,103 @@ export default async function OfferingGradesPage({ params }: Props) {
           ) : assessments.length === 0 ? (
             <p className="text-muted">Add an assessment to enter scores.</p>
           ) : (
-            <ActionForm action={saveScores} aria-label="Score sheet" resetOnSuccess={false}>
-              <input type="hidden" name="offering_id" value={offeringId} />
-              <TableScroll label="Score sheet">
-                <Table>
-                  <thead>
-                    <tr>
-                      <Th>Student</Th>
-                      {assessments.map((a) => (
-                        <Th key={a.id}>
-                          {a.name}
-                          <span className="block text-xs font-normal text-muted">
-                            out of {Number(a.max_score)}
-                          </span>
-                        </Th>
-                      ))}
-                      <Th>Score (%)</Th>
-                      <Th>Grade</Th>
-                      <Th>Status</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {classList.map((c) => {
-                      const name = c.students ? personName(c.students) : "";
-                      const final = finalMap.get(c.student_id);
-                      return (
-                        <tr key={c.student_id}>
-                          <Td>
-                            <span className="font-semibold whitespace-nowrap">{name}</span>
-                            <p className="text-sm text-muted">{c.students?.student_number}</p>
-                          </Td>
-                          {assessments.map((a) => {
-                            const existing = scoreMap.get(`${a.id}_${c.student_id}`);
-                            return (
-                              <Td key={a.id}>
-                                <input
-                                  type="hidden"
-                                  name={`sid_${a.id}_${c.student_id}`}
-                                  value={existing?.id ?? crypto.randomUUID()}
-                                />
-                                <Input
-                                  name={`score_${a.id}_${c.student_id}`}
-                                  type="number"
-                                  inputMode="decimal"
-                                  min={0}
-                                  max={Number(a.max_score)}
-                                  step="0.01"
-                                  defaultValue={existing ? Number(existing.score) : ""}
-                                  disabled={!editable || !teaches}
-                                  aria-label={`${a.name} for ${name}`}
-                                  className="w-24"
-                                />
-                              </Td>
-                            );
-                          })}
-                          <Td>
-                            {final?.numeric_score === undefined || final.numeric_score === null
-                              ? "-"
-                              : Number(final.numeric_score).toFixed(2)}
-                          </Td>
-                          <Td className="font-bold">{final?.letter ?? "-"}</Td>
-                          <Td>
-                            {final ? (
-                              <Badge
-                                variant={
-                                  final.status === "locked"
-                                    ? "brand"
-                                    : final.status === "draft"
-                                      ? "neutral"
-                                      : "warning"
-                                }
-                              >
-                                {final.status}
-                              </Badge>
-                            ) : (
-                              "-"
-                            )}
-                          </Td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </Table>
-              </TableScroll>
-              {editable && teaches ? (
-                <div>
-                  <SubmitButton pendingLabel="Saving scores...">Save scores</SubmitButton>
-                </div>
-              ) : null}
-            </ActionForm>
+            <>
+              <PendingSheets table="assessment_scores" label="Scores waiting to sync" />
+              <ActionForm
+                action={saveScores}
+                aria-label="Score sheet"
+                resetOnSuccess={false}
+                offline="scores"
+              >
+                <input type="hidden" name="offering_id" value={offeringId} />
+                <TableScroll label="Score sheet">
+                  <Table>
+                    <thead>
+                      <tr>
+                        <Th>Student</Th>
+                        {assessments.map((a) => (
+                          <Th key={a.id}>
+                            {a.name}
+                            <span className="block text-xs font-normal text-muted">
+                              out of {Number(a.max_score)}
+                            </span>
+                          </Th>
+                        ))}
+                        <Th>Score (%)</Th>
+                        <Th>Grade</Th>
+                        <Th>Status</Th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {classList.map((c) => {
+                        const name = c.students ? personName(c.students) : "";
+                        const final = finalMap.get(c.student_id);
+                        return (
+                          <tr key={c.student_id}>
+                            <Td>
+                              <span className="font-semibold whitespace-nowrap">{name}</span>
+                              <p className="text-sm text-muted">{c.students?.student_number}</p>
+                            </Td>
+                            {assessments.map((a) => {
+                              const existing = scoreMap.get(`${a.id}_${c.student_id}`);
+                              return (
+                                <Td key={a.id}>
+                                  <input
+                                    type="hidden"
+                                    name={`sid_${a.id}_${c.student_id}`}
+                                    value={existing?.id ?? crypto.randomUUID()}
+                                  />
+                                  <Input
+                                    name={`score_${a.id}_${c.student_id}`}
+                                    type="number"
+                                    inputMode="decimal"
+                                    min={0}
+                                    max={Number(a.max_score)}
+                                    step="0.01"
+                                    defaultValue={existing ? Number(existing.score) : ""}
+                                    disabled={!editable || !teaches}
+                                    aria-label={`${a.name} for ${name}`}
+                                    className="w-24"
+                                  />
+                                </Td>
+                              );
+                            })}
+                            <Td>
+                              {final?.numeric_score === undefined || final.numeric_score === null
+                                ? "-"
+                                : Number(final.numeric_score).toFixed(2)}
+                            </Td>
+                            <Td className="font-bold">{final?.letter ?? "-"}</Td>
+                            <Td>
+                              {final ? (
+                                <Badge
+                                  variant={
+                                    final.status === "locked"
+                                      ? "brand"
+                                      : final.status === "draft"
+                                        ? "neutral"
+                                        : "warning"
+                                  }
+                                >
+                                  {final.status}
+                                </Badge>
+                              ) : (
+                                "-"
+                              )}
+                            </Td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </Table>
+                </TableScroll>
+                {editable && teaches ? (
+                  <div>
+                    <SubmitButton pendingLabel="Saving scores...">Save scores</SubmitButton>
+                  </div>
+                ) : null}
+              </ActionForm>
+            </>
           )}
         </Section>
       </div>

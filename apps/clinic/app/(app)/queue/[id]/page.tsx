@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { ActionForm, SubmitButton } from "@/components/action-form";
 import { AllergyBanner } from "@/components/patient-picker";
 import { Section } from "@/components/section";
+import { PendingRecords } from "@/components/pending";
 import { VitalsForm } from "@/components/vitals-form";
 import { VitalsTable } from "@/components/vitals-table";
 import { ageText, queueStatus, SEX, timeOf } from "@/lib/clinic";
@@ -99,6 +100,7 @@ export default async function QueueEntryPage({ params }: { params: Promise<{ id:
             description="Vitals taken now are added to the visit when it opens."
           >
             <VitalsTable vitals={vitals} timezone={tz} />
+            <PendingRecords table="vitals" label="Vitals waiting to sync" patientId={p.id} />
             {entry.status !== "done" ? (
               <VitalsForm patientId={p.id} encounterId={entry.encounter_id ?? undefined} />
             ) : null}

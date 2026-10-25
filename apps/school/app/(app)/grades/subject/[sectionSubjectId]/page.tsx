@@ -8,6 +8,7 @@ import { Table, TableScroll, Td, Th } from "@corex/ui/components/table";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PendingSheets } from "@/components/pending";
 import { ActionForm, SubmitButton } from "@/components/action-form";
 import { ConfirmAction } from "@/components/confirm-action";
 import { Section } from "@/components/section";
@@ -204,71 +205,79 @@ export default async function SubjectScoresPage({ params, searchParams }: Props)
         {students.length === 0 ? (
           <p className="text-muted">No students are placed in this section yet.</p>
         ) : (
-          <ActionForm action={saveHsScores} aria-label="Score sheet" resetOnSuccess={false}>
-            <input type="hidden" name="section_subject_id" value={sectionSubjectId} />
-            <input type="hidden" name="marking_period_id" value={period.id} />
-            <TableScroll label="Score sheet">
-              <Table>
-                <thead>
-                  <tr>
-                    <Th>Student</Th>
-                    <Th>{period.name}</Th>
-                    <Th>Semester average so far</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {students.map((st) => {
-                    const name = st.students ? personName(st.students) : "";
-                    const existing = byStudent.get(st.student_id);
-                    const average = semesterAverage(
-                      periodsForAverage,
-                      scores
-                        .filter((s) => s.student_id === st.student_id)
-                        .map((s) => ({ markingPeriodId: s.marking_period_id, score: s.score })),
-                    );
-                    return (
-                      <tr key={st.student_id}>
-                        <Td>
-                          <span className="font-semibold whitespace-nowrap">{name}</span>
-                          <p className="text-sm text-muted">{st.students?.student_number}</p>
-                        </Td>
-                        <Td>
-                          <input
-                            type="hidden"
-                            name={`sid_${st.student_id}`}
-                            value={existing?.id ?? crypto.randomUUID()}
-                          />
-                          <input
-                            type="hidden"
-                            name={`old_${st.student_id}`}
-                            value={existing ? String(Number(existing.score)) : ""}
-                          />
-                          <Input
-                            name={`score_${st.student_id}`}
-                            type="number"
-                            inputMode="decimal"
-                            min={0}
-                            max={100}
-                            step="0.01"
-                            defaultValue={existing ? Number(existing.score) : ""}
-                            disabled={!editable || !teaches}
-                            aria-label={`${period.name} score for ${name}`}
-                            className="w-28"
-                          />
-                        </Td>
-                        <Td>{formatScore(average)}</Td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
-            </TableScroll>
-            {editable && teaches ? (
-              <div>
-                <SubmitButton pendingLabel="Saving scores...">Save scores</SubmitButton>
-              </div>
-            ) : null}
-          </ActionForm>
+          <>
+            <PendingSheets table="period_scores" label="Scores waiting to sync" />
+            <ActionForm
+              action={saveHsScores}
+              aria-label="Score sheet"
+              resetOnSuccess={false}
+              offline="hs_scores"
+            >
+              <input type="hidden" name="section_subject_id" value={sectionSubjectId} />
+              <input type="hidden" name="marking_period_id" value={period.id} />
+              <TableScroll label="Score sheet">
+                <Table>
+                  <thead>
+                    <tr>
+                      <Th>Student</Th>
+                      <Th>{period.name}</Th>
+                      <Th>Semester average so far</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {students.map((st) => {
+                      const name = st.students ? personName(st.students) : "";
+                      const existing = byStudent.get(st.student_id);
+                      const average = semesterAverage(
+                        periodsForAverage,
+                        scores
+                          .filter((s) => s.student_id === st.student_id)
+                          .map((s) => ({ markingPeriodId: s.marking_period_id, score: s.score })),
+                      );
+                      return (
+                        <tr key={st.student_id}>
+                          <Td>
+                            <span className="font-semibold whitespace-nowrap">{name}</span>
+                            <p className="text-sm text-muted">{st.students?.student_number}</p>
+                          </Td>
+                          <Td>
+                            <input
+                              type="hidden"
+                              name={`sid_${st.student_id}`}
+                              value={existing?.id ?? crypto.randomUUID()}
+                            />
+                            <input
+                              type="hidden"
+                              name={`old_${st.student_id}`}
+                              value={existing ? String(Number(existing.score)) : ""}
+                            />
+                            <Input
+                              name={`score_${st.student_id}`}
+                              type="number"
+                              inputMode="decimal"
+                              min={0}
+                              max={100}
+                              step="0.01"
+                              defaultValue={existing ? Number(existing.score) : ""}
+                              disabled={!editable || !teaches}
+                              aria-label={`${period.name} score for ${name}`}
+                              className="w-28"
+                            />
+                          </Td>
+                          <Td>{formatScore(average)}</Td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </Table>
+              </TableScroll>
+              {editable && teaches ? (
+                <div>
+                  <SubmitButton pendingLabel="Saving scores...">Save scores</SubmitButton>
+                </div>
+              ) : null}
+            </ActionForm>
+          </>
         )}
       </Section>
     </>

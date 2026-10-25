@@ -23,7 +23,10 @@ export async function signIn(page: Page, email: string, password = PASSWORD) {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Dashboard" })).toBeVisible();
+  // Signing in can take a few seconds while other tests load the server.
+  await expect(page.getByRole("heading", { level: 1, name: "Dashboard" })).toBeVisible({
+    timeout: 15_000,
+  });
 }
 
 export async function signInAs(page: Page, role: Role) {

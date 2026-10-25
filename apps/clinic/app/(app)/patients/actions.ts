@@ -2,51 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { ActionError, must, optionalText, requiredText, runAction, uuid } from "@/lib/action";
+import { ActionError, must, runAction, uuid } from "@/lib/action";
+import { patientDetails as details, patientRow } from "@/lib/schemas";
 import { uploadPatientFile } from "@/lib/files";
 import type { FormState } from "@/lib/form-state";
 import { CLINICAL, FRONT_DESK } from "@/lib/roles";
-
-const details = z
-  .object({
-    first_name: requiredText("the first name", 80),
-    middle_name: optionalText,
-    last_name: requiredText("the last name", 80),
-    sex: z.enum(["female", "male"], { error: "Choose the sex" }),
-    date_of_birth: z
-      .string()
-      .optional()
-      .transform((v) => v || null)
-      .refine((v) => v === null || /^\d{4}-\d{2}-\d{2}$/.test(v), "Enter the date of birth"),
-    phone: optionalText,
-    address: optionalText,
-    next_of_kin_name: optionalText,
-    next_of_kin_phone: optionalText,
-    has_allergies: z.enum(["no", "yes"], { error: "Say whether the patient has allergies" }),
-    allergy_notes: optionalText,
-  })
-  .refine((d) => d.has_allergies === "no" || d.allergy_notes, {
-    path: ["allergy_notes"],
-    message: "List the allergies",
-  });
-
-type Details = z.infer<typeof details>;
-
-function patientRow(d: Details) {
-  return {
-    first_name: d.first_name,
-    middle_name: d.middle_name,
-    last_name: d.last_name,
-    sex: d.sex,
-    date_of_birth: d.date_of_birth,
-    phone: d.phone,
-    address: d.address,
-    next_of_kin_name: d.next_of_kin_name,
-    next_of_kin_phone: d.next_of_kin_phone,
-    has_allergies: d.has_allergies === "yes",
-    allergy_notes: d.has_allergies === "yes" ? d.allergy_notes : null,
-  };
-}
 
 /**
  * Registers a patient. The id comes from the form so a retry never registers the

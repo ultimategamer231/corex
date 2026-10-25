@@ -4,7 +4,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { backupKey, backupSchema, pruneBackups, s3Client } from "../src/backup.ts";
+import {
+  backupKey,
+  backupSchema,
+  latestBackupKey,
+  pruneBackups,
+  restoreSchema,
+  s3Client,
+} from "../src/backup.ts";
 import { LOCAL_DATABASE_URL } from "../src/env.ts";
 import { migrateSchema } from "../src/migrations.ts";
 import { supabaseAdmin } from "../src/supabase-admin.ts";
@@ -119,5 +126,79 @@ describe("db:backup (SPEC.md 4.5)", () => {
     expect((left.Contents ?? []).map((o) => o.Key).sort()).toEqual(
       [keysToCreate[0], keysToCreate[1], `prune/${schema}/README.txt`].sort(),
     );
+  });
+
+  it("restores one schema from its newest backup and keeps the replaced data", async () => {
+    const url = process.env.DATABASE_URL ?? LOCAL_DATABASE_URL;
+    const target = uniqueSchema("restore");
+    await migrateSchema(sql, target, "finance");
+    await sql.unsafe(`insert into ${target}.settings (org_name) values ('Before Ltd')`);
+    await sql.unsafe(
+      `insert into ${target}.categories (name, type) values ('Rent', 'expense'), ('Sales', 'income')`,
+    );
+    await sql.unsafe(
+      `insert into ${neighbour}.categories (name, type) values ('Neighbour', 'income')`,
+    );
+    try {
+      const backup = await backupSchema({
+        databaseUrl: url,
+        schema: target,
+        project: "restore",
+        storage,
+        now: new Date("2026-10-24T01:30:00Z"),
+      });
+      // Changes after the backup: a wrong edit and a new record.
+      await sql.unsafe(`update ${target}.categories set name = 'Renamed' where name = 'Rent'`);
+      await sql.unsafe(`insert into ${target}.categories (name, type) values ('Later', 'income')`);
+      await sql.unsafe(`update ${target}.settings set org_name = 'Wrong Ltd'`);
+
+      const result = await restoreSchema({
+        databaseUrl: url,
+        schema: target,
+        project: "restore",
+        storage,
+      });
+      expect(result.key).toBe(backup.key);
+      expect(result.safetyKey).not.toBeNull();
+      const [org] = await sql.unsafe<{ org_name: string }[]>(
+        `select org_name from ${target}.settings`,
+      );
+      expect(org?.org_name).toBe("Before Ltd");
+      const names = await sql.unsafe<{ name: string }[]>(
+        `select name from ${target}.categories order by name`,
+      );
+      expect(names.map((n) => n.name)).toEqual(["Rent", "Sales"]);
+      // Migrations, row-level security and the other schema are as they were.
+      const [migrations] = await sql.unsafe<{ n: string }[]>(
+        `select count(*)::text as n from ${target}._migrations`,
+      );
+      expect(Number(migrations?.n)).toBeGreaterThan(3);
+      const [rls] = await sql.unsafe<{ on: boolean }[]>(
+        `select relrowsecurity as on from pg_class where oid = '${target}.categories'::regclass`,
+      );
+      expect(rls?.on).toBe(true);
+      const [kept] = await sql.unsafe<{ n: string }[]>(
+        `select count(*)::text as n from ${neighbour}.categories where name = 'Neighbour'`,
+      );
+      expect(kept?.n).toBe("1");
+      // The replaced state was backed up first and is now the newest backup.
+      expect(await latestBackupKey({ storage, project: "restore", schema: target })).toBe(
+        result.safetyKey,
+      );
+    } finally {
+      await dropSchemas(sql, target);
+    }
+  });
+
+  it("refuses a backup of another schema", async () => {
+    await expect(
+      restoreSchema({
+        databaseUrl: process.env.DATABASE_URL ?? LOCAL_DATABASE_URL,
+        schema,
+        project: "local",
+        storage,
+        key: `local/${neighbour}/${neighbour}-2026-10-24T01-30-00Z.dump`,
+      }),
+    ).rejects.toThrow(/is not a backup of/);
   });
 });

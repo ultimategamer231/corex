@@ -1,9 +1,17 @@
 import { spawn, spawnSync } from "node:child_process";
-import { createReadStream, createWriteStream, mkdtempSync, rmSync, statSync } from "node:fs";
+import {
+  createReadStream,
+  createWriteStream,
+  mkdtempSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   DeleteObjectsCommand,
+  GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
@@ -235,4 +243,181 @@ export async function pruneBackups(options: {
   }
   if (failed.length > 0) throw new Error(`Could not delete expired backups: ${failed.join(", ")}`);
   return expired;
+}
+
+/** The newest backup of a schema, or null when there is none. */
+export async function latestBackupKey(options: {
+  storage: BackupStorage;
+  project: string;
+  schema: string;
+}): Promise<string | null> {
+  const client = s3Client(options.storage);
+  const prefix = `${options.project}/${assertSchemaName(options.schema)}/`;
+  let latest: { key: string; at: number } | null = null;
+  let token: string | undefined;
+  do {
+    const page = await client.send(
+      new ListObjectsV2Command({
+        Bucket: options.storage.bucket,
+        Prefix: prefix,
+        ContinuationToken: token,
+      }),
+    );
+    for (const object of page.Contents ?? []) {
+      const date = object.Key ? backupKeyDate(object.Key) : null;
+      if (object.Key && date && (!latest || date.getTime() > latest.at)) {
+        latest = { key: object.Key, at: date.getTime() };
+      }
+    }
+    token = page.IsTruncated ? page.NextContinuationToken : undefined;
+  } while (token);
+  return latest?.key ?? null;
+}
+
+/**
+ * pg_restore matching the server's major version: PG_RESTORE if set, else a local
+ * pg_restore of the same major version, else the official postgres Docker image with
+ * the dump's folder mounted read-only.
+ */
+export function restoreCommand(
+  serverMajor: number,
+  url: string,
+  file: string,
+  env = process.env,
+): DumpCommand {
+  const configured = env.PG_RESTORE;
+  if (configured) return { command: configured, args: [`--dbname=${url}`, file], env: {} };
+  if (localPgDumpMajor("pg_restore") === serverMajor) {
+    return { command: "pg_restore", args: [`--dbname=${url}`, file], env: {} };
+  }
+  const dir = file.slice(0, file.lastIndexOf("/"));
+  const name = file.slice(file.lastIndexOf("/") + 1);
+  return {
+    command: "docker",
+    args: [
+      "run",
+      "--rm",
+      "--network",
+      "host",
+      "-v",
+      `${dir}:/backup:ro`,
+      "-e",
+      "COREX_PG_URL",
+      `postgres:${serverMajor}-alpine`,
+      "sh",
+      "-c",
+      `exec pg_restore --dbname="$COREX_PG_URL" "$@" /backup/${name}`,
+      "pg_restore",
+    ],
+    env: { COREX_PG_URL: url },
+  };
+}
+
+function runRestore(restore: DumpCommand, args: string[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    // Options go before the file for a local binary; the Docker form adds the file itself.
+    const local = restore.command !== "docker";
+    const argv = local
+      ? [...args, ...restore.args.slice(0, -1), restore.args.at(-1) ?? ""]
+      : [...restore.args, ...args];
+    const child = spawn(restore.command, argv, {
+      env: { ...process.env, ...restore.env },
+      stdio: ["ignore", "ignore", "pipe"],
+    });
+    let stderr = "";
+    child.stderr.on("data", (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`pg_restore failed (exit ${code}): ${stderr.trim()}`));
+    });
+  });
+}
+
+export type RestoreResult = { key: string; safetyKey: string | null };
+
+/**
+ * Restores one schema from a backup (SPEC.md 4.5, docs/database.md). When the schema
+ * exists it is first backed up again (the "safety" backup) and then replaced; nothing
+ * else in the database changes. Sign-ins live in Supabase Auth, not in the schema, so
+ * restore into the same Supabase project the backup came from.
+ */
+export async function restoreSchema(options: {
+  databaseUrl: string;
+  schema: string;
+  project: string;
+  storage: BackupStorage;
+  /** A backup key, or the newest backup when omitted. */
+  key?: string;
+  now?: Date;
+}): Promise<RestoreResult> {
+  const schema = assertSchemaName(options.schema);
+  const key = options.key ?? (await latestBackupKey(options));
+  if (!key) throw new Error(`No backups of "${schema}" in ${options.project}.`);
+  if (!key.startsWith(`${options.project}/${schema}/`)) {
+    throw new Error(`Backup ${key} is not a backup of ${options.project}/${schema}.`);
+  }
+
+  const sql = connect(options.databaseUrl);
+  let serverMajor: number;
+  let exists: boolean;
+  try {
+    const [row] = await sql<{ major: number }[]>`
+      select current_setting('server_version_num')::int / 10000 as major`;
+    serverMajor = row?.major ?? 17;
+    exists =
+      (await sql`select 1 from information_schema.schemata where schema_name = ${schema}`).length >
+      0;
+  } finally {
+    await sql.end();
+  }
+
+  const dir = mkdtempSync(join(tmpdir(), "corex-restore-"));
+  const file = join(dir, "restore.dump");
+  try {
+    const object = await s3Client(options.storage).send(
+      new GetObjectCommand({ Bucket: options.storage.bucket, Key: key }),
+    );
+    const bytes = await object.Body?.transformToByteArray();
+    if (!bytes || Buffer.from(bytes).subarray(0, 5).toString() !== "PGDMP") {
+      throw new Error(`Backup ${key} is not a pg_dump archive.`);
+    }
+    writeFileSync(file, bytes);
+
+    let safetyKey: string | null = null;
+    if (exists) {
+      safetyKey = (
+        await backupSchema({
+          databaseUrl: options.databaseUrl,
+          schema,
+          project: options.project,
+          storage: options.storage,
+          now: options.now,
+        })
+      ).key;
+      const drop = connect(options.databaseUrl);
+      try {
+        await drop.unsafe(`drop schema ${schema} cascade`);
+      } finally {
+        await drop.end();
+      }
+    }
+    await runRestore(restoreCommand(serverMajor, options.databaseUrl, file), [
+      "--no-owner",
+      "--exit-on-error",
+      "--single-transaction",
+    ]);
+    // The API caches table definitions; the schema was recreated.
+    const notify = connect(options.databaseUrl);
+    try {
+      await notify.unsafe(`notify pgrst, 'reload schema'`);
+    } finally {
+      await notify.end();
+    }
+    return { key, safetyKey };
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }

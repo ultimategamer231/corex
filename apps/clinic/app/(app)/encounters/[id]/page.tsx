@@ -11,6 +11,7 @@ import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
 import { ConfirmAction } from "@/components/confirm-action";
 import { AllergyBanner } from "@/components/patient-picker";
 import { Section } from "@/components/section";
+import { PendingRecords } from "@/components/pending";
 import { VitalsForm } from "@/components/vitals-form";
 import { VitalsTable } from "@/components/vitals-table";
 import { ageText, loadClinicians, SEX } from "@/lib/clinic";
@@ -122,6 +123,7 @@ export default async function EncounterPage({ params }: { params: Promise<{ id: 
 
         <Section title="Vitals" id="vitals">
           <VitalsTable vitals={vitals} timezone={tz} />
+          <PendingRecords table="vitals" label="Vitals waiting to sync" patientId={p.id} />
           {open ? <VitalsForm patientId={p.id} encounterId={id} /> : null}
         </Section>
 

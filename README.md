@@ -50,7 +50,10 @@ pnpm db:provision --schema <name> --product <school|clinic|finance> --org "<name
 pnpm db:migrate --schema <name> --product <product>
 pnpm db:migrate:all --product <product>
 pnpm db:backup --schema <name> --project <label>
+pnpm db:restore --schema <name> --project <label> --confirm <name>
 pnpm --filter @corex/db test:db      # database tests (needs pnpm db:local:start)
 ```
 
 See each app's and package's `README.md` for details, and [`docs/local-dev.md`](docs/local-dev.md) for the local database.
+
+Guides: [deploying](docs/deploy.md) (Vercel and Docker), [offline use](docs/offline.md), [restoring a backup](docs/restore.md), [handing a system over to a client](docs/handover.md), [demos](docs/demos.md).

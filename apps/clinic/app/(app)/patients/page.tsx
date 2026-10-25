@@ -13,6 +13,7 @@ import { ageText, SEX } from "@/lib/clinic";
 import { personName, todayIso } from "@/lib/format";
 import { getSettings } from "@/lib/org";
 import { searchPatients } from "@/lib/patients";
+import { PendingRecords } from "@/components/pending";
 import { rows } from "@/lib/queries";
 import { FRONT_DESK } from "@/lib/roles";
 import { getSession, memberHas } from "@/lib/session";
@@ -45,6 +46,9 @@ export default async function PatientsPage({ searchParams }: Props) {
           ) : null
         }
       />
+      <div className="mb-5">
+        <PendingRecords table="patients" label="Registered on this device, waiting to sync" />
+      </div>
       <form className="mb-5 flex flex-wrap items-end gap-3" aria-label="Search patients">
         <div className="flex w-80 max-w-full flex-col gap-1.5">
           <Label htmlFor="q">Search</Label>

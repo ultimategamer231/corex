@@ -24,6 +24,7 @@ export function VitalsForm({
   return (
     <ActionForm
       action={recordVitals}
+      offline="vitals"
       aria-label="Record vitals"
       className="max-w-3xl rounded-xl border border-border bg-background p-5"
     >

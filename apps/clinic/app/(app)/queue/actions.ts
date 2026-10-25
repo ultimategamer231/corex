@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { ActionError, must, runAction, uuid } from "@/lib/action";
 import type { FormState } from "@/lib/form-state";
+import { vitalsSchema } from "@/lib/schemas";
 import { CLINICAL, CLINICIAN, FRONT_DESK } from "@/lib/roles";
 
 /** Adds a walk-in patient to today's queue. */
@@ -55,69 +56,6 @@ export async function setQueueStatus(_p: FormState, formData: FormData): Promise
     },
   );
 }
-
-const vitalsSchema = z
-  .object({
-    id: z.uuid(),
-    patient_id: uuid(),
-    encounter_id: z
-      .string()
-      .optional()
-      .transform((v) => v || null),
-    temperature_c: z.string().optional(),
-    pulse_bpm: z.string().optional(),
-    bp_systolic: z.string().optional(),
-    bp_diastolic: z.string().optional(),
-    resp_rate: z.string().optional(),
-    spo2: z.string().optional(),
-    weight_kg: z.string().optional(),
-    height_cm: z.string().optional(),
-  })
-  .transform((d, ctx) => {
-    const ranges = {
-      temperature_c: [30, 45, 1, "Temperature"],
-      pulse_bpm: [20, 250, 0, "Pulse"],
-      bp_systolic: [50, 260, 0, "Systolic pressure"],
-      bp_diastolic: [30, 160, 0, "Diastolic pressure"],
-      resp_rate: [4, 80, 0, "Breathing rate"],
-      spo2: [50, 100, 0, "Oxygen saturation"],
-      weight_kg: [0.5, 400, 1, "Weight"],
-      height_cm: [20, 250, 1, "Height"],
-    } as const;
-    const out: Record<string, number | null> = {};
-    for (const [key, [min, max, decimals, label]] of Object.entries(ranges)) {
-      const raw = (d[key as keyof typeof ranges] ?? "").trim();
-      if (!raw) {
-        out[key] = null;
-        continue;
-      }
-      const n = Number(raw);
-      const pattern = decimals ? /^\d+(\.\d)?$/ : /^\d+$/;
-      if (!pattern.test(raw) || n < min || n > max) {
-        ctx.addIssue({
-          code: "custom",
-          path: [key],
-          message: `${label} must be between ${min} and ${max}`,
-        });
-      }
-      out[key] = n;
-    }
-    if ((out.bp_systolic === null) !== (out.bp_diastolic === null)) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["bp_diastolic"],
-        message: "Enter both blood pressure numbers",
-      });
-    }
-    if (Object.values(out).every((v) => v === null)) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["temperature_c"],
-        message: "Enter at least one measurement",
-      });
-    }
-    return { id: d.id, patient_id: d.patient_id, encounter_id: d.encounter_id, ...out };
-  });
 
 /**
  * Records vitals at intake or during a visit (Clinician and Nurse, CLN-01). The id

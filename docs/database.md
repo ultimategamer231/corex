@@ -1,4 +1,4 @@
-# Database: tenancy, provisioning and backups
+# Database: tenancy, provisioning, backups and restore
 
 How client data is separated and how a new client is set up (SPEC.md 4). Code: `packages/db`.
 
@@ -74,7 +74,7 @@ The nightly workflow `.github/workflows/backup.yml` runs at 01:30 Monrovia time.
 3. In GitHub: Settings > Secrets and variables > Actions, add the secrets `BACKUP_S3_ENDPOINT` (`https://<account-id>.r2.cloudflarestorage.com`), `BACKUP_S3_BUCKET`, `BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY`, and one `DATABASE_URL_<PROJECT>` per project label. Use each project's direct or session-pooler connection string.
 4. Add the repository variable `BACKUPS_ENABLED` = `true`, then run the workflow once by hand (Actions > Nightly backup > Run workflow) and check the bucket.
 
-Restoring one schema into a scratch schema is documented and tested in Phase 12 (`docs/restore.md`), before the first real client goes live.
+Restoring a schema from a backup: see `docs/restore.md` (tested by `packages/db/test/backup.db.test.ts`).
 
 ## Website leads (`corex_web`)
 

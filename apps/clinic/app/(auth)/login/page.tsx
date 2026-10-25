@@ -3,6 +3,7 @@ import { Input } from "@corex/ui/components/input";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
+import { ClearDevice } from "@/components/clear-device";
 import { DemoLogins } from "@/components/demo-logins";
 import { OrgHeading } from "@/components/org-heading";
 import { demoInstance } from "@/lib/demo";
@@ -25,6 +26,8 @@ export default async function LoginPage({ searchParams }: Props) {
   const preselected = demo?.accounts.find((a) => a.slug === role);
   return (
     <div className="flex flex-col gap-6">
+      {/* The session ended: records and pages kept on this device are removed (SPEC.md 10.2). */}
+      {reason === "signed-out" ? <ClearDevice /> : null}
       <OrgHeading />
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold">Sign in</h1>

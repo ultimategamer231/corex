@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 /** Pages reachable without signing in. */
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth/"];
+const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth/", "/~offline", "/serwist/"];
 
 /**
  * Refreshes the Supabase session cookie on every request and sends signed-out
@@ -40,6 +40,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|icon.svg|favicon.ico|robots.txt|manifest.webmanifest).*)",
+    "/((?!_next/static|_next/image|icon.svg|icon-192.png|icon-512.png|favicon.ico|robots.txt|manifest.webmanifest).*)",
   ],
 };
