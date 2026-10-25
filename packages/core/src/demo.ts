@@ -5,7 +5,7 @@
 /** Published password of every demo account. */
 export const DEMO_PASSWORD = "Demo@2026";
 
-export type DemoName = "college" | "highschool" | "finance";
+export type DemoName = "college" | "highschool" | "clinic" | "finance";
 
 export type DemoAccount = {
   /** The `?role=` value on the login page and the email's local part. */
@@ -22,7 +22,7 @@ export type DemoAccount = {
 export type DemoInstance = {
   name: DemoName;
   schema: string;
-  product: "school" | "finance";
+  product: "school" | "clinic" | "finance";
   /** Quote form product on the website (`/contact?product=`). */
   quoteProduct: string;
   /** Sign-ins published on the login page and the website. */
@@ -87,6 +87,29 @@ export const DEMOS: Record<DemoName, DemoInstance> = {
     ].map(([slug = "", name = ""]) =>
       account("school.demo.corex.test", slug, "Teacher", "teacher", name),
     ),
+  },
+  clinic: {
+    name: "clinic",
+    schema: "demo_clinic",
+    product: "clinic",
+    quoteProduct: "clinic",
+    accounts: [
+      account("clinic.demo.corex.test", "admin", "Admin", "admin", "Siah Gray"),
+      account("clinic.demo.corex.test", "doctor", "Doctor", "clinician", "Dr. Martha Tamba"),
+      account("clinic.demo.corex.test", "nurse", "Nurse", "nurse", "Precious Kpoto"),
+      account(
+        "clinic.demo.corex.test",
+        "reception",
+        "Receptionist",
+        "receptionist",
+        "Mamie Cooper",
+      ),
+      account("clinic.demo.corex.test", "cashier", "Cashier", "cashier", "Joseph Harris"),
+    ],
+    staff: [
+      account("clinic.demo.corex.test", "doctor2", "Doctor", "clinician", "Dr. Francis Zayzay"),
+      account("clinic.demo.corex.test", "doctor3", "Doctor", "clinician", "Dr. Weade Barclay"),
+    ],
   },
   finance: {
     name: "finance",

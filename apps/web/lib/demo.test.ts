@@ -13,6 +13,12 @@ describe("demo links", () => {
     );
   });
 
+  it("include the Clinic demo roles", () => {
+    expect(products.clinic.demos[0]?.roles.map((r) => r.slug)).toEqual(
+      DEMOS.clinic.accounts.map((a) => a.slug),
+    );
+  });
+
   it("include the Finance demo roles", () => {
     expect(products.finance.demos[0]?.roles.map((r) => r.slug)).toEqual(
       DEMOS.finance.accounts.map((a) => a.slug),

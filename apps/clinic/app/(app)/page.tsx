@@ -156,28 +156,18 @@ async function Money({
         </Link>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Stat
           label="Received today"
-          value={CURRENCIES.map((c) =>
-            money(
-              sum((p) => p.received_at >= todayStart, c),
-              c,
-            ),
-          ).join(" · ")}
+          value={<PerCurrency amount={(c) => sum((p) => p.received_at >= todayStart, c)} />}
         />
         <Stat
           label="Received this month"
-          value={CURRENCIES.map((c) =>
-            money(
-              sum(() => true, c),
-              c,
-            ),
-          ).join(" · ")}
+          value={<PerCurrency amount={(c) => sum(() => true, c)} />}
         />
         <Stat
           label="Outstanding balances"
-          value={CURRENCIES.map((c) => money(owed(c), c)).join(" · ")}
+          value={<PerCurrency amount={owed} />}
           detail="Issued bills not yet paid"
         />
       </div>
@@ -247,5 +237,16 @@ async function TodayAppointments({
         </ul>
       )}
     </Section>
+  );
+}
+
+/** One line per currency: amounts in USD and LRD are never added together. */
+function PerCurrency({ amount }: { amount: (currency: string) => number }) {
+  return (
+    <span className="flex flex-col">
+      {CURRENCIES.map((c) => (
+        <span key={c}>{money(amount(c), c)}</span>
+      ))}
+    </span>
   );
 }
