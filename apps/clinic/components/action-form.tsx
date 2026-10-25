@@ -97,6 +97,8 @@ export function ActionForm({
     if (!device) return;
     await device.save(config.table, raw, id);
     setLocalState({ status: "success", message: config.saved(raw) });
+    // The confirmation and the "Waiting to sync" list are above a long form.
+    form.parentElement?.scrollIntoView({ block: "start" });
     if (!config.keepValues) form.reset();
     // The next record gets its own id.
     const idInput = form.elements.namedItem("id");
