@@ -31,4 +31,15 @@ describe("demo links", () => {
       "https://demo-college.corex.lr/login?role=registrar",
     );
   });
+
+  it("follow the host pattern while demos run without the domain", () => {
+    if (!college?.roles[0]) throw new Error("missing demo");
+    const env = {
+      NEXT_PUBLIC_ROOT_DOMAIN: "corex.lr",
+      NEXT_PUBLIC_DEMO_HOST_PATTERN: "corex-{subdomain}.vercel.app",
+    };
+    expect(demoLoginUrl(college, college.roles[0], env)).toBe(
+      `https://corex-demo-college.vercel.app/login?role=${college.roles[0].slug}`,
+    );
+  });
 });
