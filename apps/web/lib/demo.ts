@@ -5,10 +5,17 @@ export function rootDomain(env: Record<string, string | undefined> = process.env
   return env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || "corex.example";
 }
 
+/**
+ * Host of one demo: `<subdomain>.<root domain>`, or NEXT_PUBLIC_DEMO_HOST_PATTERN with
+ * `{subdomain}` replaced, for demos hosted before the domain exists
+ * (for example `corex-{subdomain}.vercel.app`).
+ */
 export function demoHost(
   demo: Pick<Demo, "subdomain">,
-  env?: Record<string, string | undefined>,
+  env: Record<string, string | undefined> = process.env,
 ): string {
+  const pattern = env.NEXT_PUBLIC_DEMO_HOST_PATTERN?.trim();
+  if (pattern) return pattern.replaceAll("{subdomain}", demo.subdomain);
   return `${demo.subdomain}.${rootDomain(env)}`;
 }
 

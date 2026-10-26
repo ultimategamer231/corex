@@ -4,20 +4,21 @@ Each client, and each public demo, is its own deployment of one app with its own
 
 ## Settings per app
 
-| Setting                                                | web      | school                    | clinic     | finance    | Notes                                                                  |
-| ------------------------------------------------------ | -------- | ------------------------- | ---------- | ---------- | ---------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`                             | yes      | yes                       | yes        | yes        | The Supabase project. Fixed at build time.                             |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`                        |          | yes                       | yes        | yes        | Public key; row-level security protects the data. Fixed at build time. |
-| `SUPABASE_SERVICE_ROLE_KEY`                            | yes      | yes                       | yes        | yes        | Server only, never in the browser. Creating sign-ins, files, leads.    |
-| `NEXT_PUBLIC_DB_SCHEMA`                                |          | yes                       | yes        | yes        | The client's schema, for example `client_bethel_school`.               |
-| `NEXT_PUBLIC_STORAGE_BUCKET`                           |          | yes                       | yes        | yes        | Same as the schema.                                                    |
-| `DB_SCHEMA`                                            |          | optional                  | optional   | optional   | Server only; overrides the schema at run time (D31).                   |
-| `EDITION`                                              |          | `college` or `highschool` |            |            | Read at run time.                                                      |
-| `DEMO_MODE`                                            |          | demos only                | demos only | demos only | `true` on the public demos (`docs/demos.md`).                          |
-| `APP_URL`                                              |          | yes                       |            |            | Links in emails (password reset).                                      |
-| `NEXT_PUBLIC_SITE_URL`                                 | yes      |                           |            |            | The website's address (canonical links, sitemap).                      |
-| `NEXT_PUBLIC_ROOT_DOMAIN`                              | yes      | demos                     | demos      | demos      | Builds demo links and "Get this system".                               |
-| `RESEND_API_KEY`, `LEAD_NOTIFY_TO`, `LEAD_NOTIFY_FROM` | optional |                           |            |            | Email the team about new quote requests.                               |
+| Setting                                                | web      | school                    | clinic     | finance    | Notes                                                                         |
+| ------------------------------------------------------ | -------- | ------------------------- | ---------- | ---------- | ----------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`                             | yes      | yes                       | yes        | yes        | The Supabase project. Fixed at build time.                                    |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`                        |          | yes                       | yes        | yes        | Public key; row-level security protects the data. Fixed at build time.        |
+| `SUPABASE_SERVICE_ROLE_KEY`                            | yes      | yes                       | yes        | yes        | Server only, never in the browser. Creating sign-ins, files, leads.           |
+| `NEXT_PUBLIC_DB_SCHEMA`                                |          | yes                       | yes        | yes        | The client's schema, for example `client_bethel_school`.                      |
+| `NEXT_PUBLIC_STORAGE_BUCKET`                           |          | yes                       | yes        | yes        | Same as the schema.                                                           |
+| `DB_SCHEMA`                                            |          | optional                  | optional   | optional   | Server only; overrides the schema at run time (D31).                          |
+| `EDITION`                                              |          | `college` or `highschool` |            |            | Read at run time.                                                             |
+| `DEMO_MODE`                                            |          | demos only                | demos only | demos only | `true` on the public demos (`docs/demos.md`).                                 |
+| `APP_URL`                                              |          | yes                       |            |            | Links in emails (password reset).                                             |
+| `NEXT_PUBLIC_SITE_URL`                                 | yes      |                           |            |            | The website's address (canonical links, sitemap).                             |
+| `NEXT_PUBLIC_ROOT_DOMAIN`                              | yes      | demos                     | demos      | demos      | Builds demo links and "Get this system".                                      |
+| `NEXT_PUBLIC_DEMO_HOST_PATTERN`                        | optional |                           |            |            | Demo addresses before the domain exists, e.g. `corex-{subdomain}.vercel.app`. |
+| `RESEND_API_KEY`, `LEAD_NOTIFY_TO`, `LEAD_NOTIFY_FROM` | optional |                           |            |            | Email the team about new quote requests.                                      |
 
 Each app's `.env.example` lists its settings with comments. Never commit real values.
 

@@ -40,6 +40,8 @@ The demo layer is `packages/db/demo/migrations`, applied only by `pnpm demo:seed
 3. **Vercel.** Two projects from `apps/school` (College, High School), one from `apps/clinic` and one from `apps/finance`, with the env above plus `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server only; used for the sign-in rate limit), `NEXT_PUBLIC_STORAGE_BUCKET` (the schema name), `NEXT_PUBLIC_ROOT_DOMAIN` and `APP_URL`. Add the subdomains.
 4. **Website.** Set `NEXT_PUBLIC_ROOT_DOMAIN` on the website deployment; its demo buttons and "Log in as" links then point at the subdomains.
 
+**Before the domain exists**, name the Vercel projects `corex-demo-college`, `corex-demo-school`, `corex-demo-clinic` and `corex-demo-finance` (check each gets `<name>.vercel.app` under Settings > Domains), set `NEXT_PUBLIC_DEMO_HOST_PATTERN=corex-{subdomain}.vercel.app` on the website, and set `NEXT_PUBLIC_ROOT_DOMAIN` on the demo apps to the website's host (for example `corex-rust.vercel.app`) so "Get this system" reaches the quote page. Remove the pattern and set the real domain everywhere once it is bought.
+
 ## Nightly reset
 
 `.github/workflows/demo-reset.yml` runs at 02:00 Africa/Monrovia (UTC) and on demand. For each demo it creates any missing sign-ins, sets the published password, applies pending migrations and the demo layer, then empties and reseeds every table in one transaction, so visitors keep the old data until the new data is complete. The nightly connection also keeps the Supabase project active. Until the secrets exist the job passes with a notice.
