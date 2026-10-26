@@ -36,7 +36,7 @@ The demo layer is `packages/db/demo/migrations`, applied only by `pnpm demo:seed
 ## Going live (waiting on the owner)
 
 1. **Supabase project for demos.** Create it (it never holds client data). In Authentication settings: turn off public sign-ups and leave email sending off (no SMTP). Expose `demo_college`, `demo_highschool`, `demo_clinic` and `demo_finance` under API settings after the first seed. Storage needs private buckets named `demo_finance` (receipt photos) and `demo_clinic` (patient files).
-2. **Secrets.** In the GitHub repository secrets add `DATABASE_URL_DEMO` (direct connection string), `SUPABASE_URL_DEMO` and `SUPABASE_SERVICE_ROLE_KEY_DEMO`. Run the **Demo reset** workflow once by hand to seed both demos.
+2. **Secrets.** In the GitHub repository secrets add `DATABASE_URL_DEMO` (the Session pooler connection string: GitHub runners cannot reach the IPv6-only direct connection), `SUPABASE_URL_DEMO` and `SUPABASE_SERVICE_ROLE_KEY_DEMO`. Run the **Demo reset** workflow once by hand to seed both demos.
 3. **Vercel.** Two projects from `apps/school` (College, High School), one from `apps/clinic` and one from `apps/finance`, with the env above plus `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server only; used for the sign-in rate limit), `NEXT_PUBLIC_STORAGE_BUCKET` (the schema name), `NEXT_PUBLIC_ROOT_DOMAIN` and `APP_URL`. Add the subdomains.
 4. **Website.** Set `NEXT_PUBLIC_ROOT_DOMAIN` on the website deployment; its demo buttons and "Log in as" links then point at the subdomains.
 
