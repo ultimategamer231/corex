@@ -14,8 +14,8 @@ export const site = {
   },
   /** Numbers for calls or WhatsApp, primary first. */
   phones: ["231770021026", "231775178905", "231777352002"],
-  /** Placeholder until the real address is confirmed. Must be replaced before launch (PROGRESS.md). */
-  email: { address: "info@cds.com", isPlaceholder: true },
+  /** Owner's address until the company domain is bought (PROGRESS.md); switch then. */
+  email: { address: "agamer0297@gmail.com", isPlaceholder: false },
   address: {
     street: "Carey & Johnson Street",
     city: "Monrovia",
