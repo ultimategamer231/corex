@@ -31,7 +31,7 @@ Each app's `.env.example` lists its settings with comments. Never commit real va
 
 Each app has a `vercel.json` that skips a build when nothing in that app or its packages changed.
 
-The apps run on Node 22. Vercel picks it from `engines.node` (`22.x`) in the root `package.json`; if a build fails with `ERR_PNPM_UNSUPPORTED_ENGINE`, set Settings > Build and Deployment > Node.js Version to 22.x and redeploy.
+The apps run on Node 22. Vercel picks it from `engines.node` (`22.x`) in the app's own `package.json` (the project's Root Directory); if a build fails with `ERR_PNPM_UNSUPPORTED_ENGINE`, set Settings > Build and Deployment > Node.js Version to 22.x and redeploy.
 
 Vercel's free Hobby plan is for personal, non-commercial use. Client systems and the public demos need the Pro plan.
 
