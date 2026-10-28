@@ -80,6 +80,6 @@ Restoring a schema from a backup: see `docs/restore.md` (tested by `packages/db/
 
 The website project holds one schema, `corex_web`, with `leads`, `rate_limits` and `hit_rate_limit()`. It is not a client schema: no memberships, no core tables, and only `service_role` has access.
 
-1. Add the GitHub secret `DATABASE_URL_WEB` (the project's Session pooler connection string), then run Actions > **Website database** > Run workflow. Locally: `pnpm db:migrate --schema corex_web --product web --project web`.
+1. Add the GitHub secret `DATABASE_URL_WEB` (the project's Session pooler connection string), then run Actions > **Website database** > Run workflow. It also runs every Monday and Thursday, which keeps a free project from pausing. Locally: `pnpm db:migrate --schema corex_web --product web --project web`.
 2. Supabase dashboard of the website project: add `corex_web` to API, Exposed schemas.
 3. Website environment (Vercel, server only): `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` of that project. Without them production refuses quote requests instead of losing them.

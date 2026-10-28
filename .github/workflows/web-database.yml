@@ -2,8 +2,12 @@ name: Website database
 
 # Creates or updates the website's corex_web schema (leads and rate limits) in the
 # website's Supabase project (docs/database.md, "Website leads"). Run by hand after
-# adding DATABASE_URL_WEB, and again after a new web migration is merged.
+# adding DATABASE_URL_WEB, and again after a new web migration is merged. It also runs
+# twice a week, which applies any pending migration and keeps a free Supabase project
+# from pausing after a week without activity.
 on:
+  schedule:
+    - cron: "0 3 * * 1,4"
   workflow_dispatch:
 
 permissions:
