@@ -55,6 +55,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **Go-live 1** (2026-10-26) Website live on Vercel (Hobby, `corex-rust.vercel.app`). Root `engines.node` is `22.x` so Vercel builds on Node 22. Added the manual **Website database** workflow (migrates `corex_web` with `DATABASE_URL_WEB`); Supabase connection strings for GitHub Actions use the Session pooler.
 - **Go-live 2** (2026-10-26) Website stores quote requests in `corex_web` (verified by the owner). Contact email set to the owner's Gmail until the domain exists.
 - **Go-live 3** (2026-10-28) Four public demos live on Vercel Hobby (`corex-demo-college|school|clinic|finance.vercel.app`) against the `corex-demo` Supabase project, seeded by the Demo reset workflow; the website links to them through `NEXT_PUBLIC_DEMO_HOST_PATTERN`. App `package.json` files pin Node 22.x (Vercel reads the Root Directory).
+- **Go-live 4** (2026-10-28) Quote requests are emailed to the owner through Resend (`onboarding@resend.dev` until the domain is verified); verified by the owner. The Website database workflow also runs Mondays and Thursdays so the free website project does not pause.
 
 ## Owner answers (2026-10-23, 2026-10-24)
 
