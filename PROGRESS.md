@@ -54,6 +54,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **Audit 11-12** (2026-10-25) No critical defects. Fixed: Clinic visits and patient records, PDFs, exports and storage files are never kept by the service worker (SPEC 10.1, e2e reads the device cache). Report: `docs/audits/phases-11-12.md`.
 - **Go-live 1** (2026-10-26) Website live on Vercel (Hobby, `corex-rust.vercel.app`). Root `engines.node` is `22.x` so Vercel builds on Node 22. Added the manual **Website database** workflow (migrates `corex_web` with `DATABASE_URL_WEB`); Supabase connection strings for GitHub Actions use the Session pooler.
 - **Go-live 2** (2026-10-26) Website stores quote requests in `corex_web` (verified by the owner). Contact email set to the owner's Gmail until the domain exists.
+- **Go-live 3** (2026-10-28) Four public demos live on Vercel Hobby (`corex-demo-college|school|clinic|finance.vercel.app`) against the `corex-demo` Supabase project, seeded by the Demo reset workflow; the website links to them through `NEXT_PUBLIC_DEMO_HOST_PATTERN`. App `package.json` files pin Node 22.x (Vercel reads the Root Directory).
 
 ## Owner answers (2026-10-23, 2026-10-24)
 
@@ -184,5 +185,5 @@ Security review notes below the exploit bar, for later phases: `log_view` lets a
 
 1. **`BUSINESS.md` not received.** Needed before Phase 4 to confirm pricing copy (mockup prices are used until then).
 1. **Contact email.** The site uses the owner's `agamer0297@gmail.com` (2026-10-26) until the company domain is bought; switch to an address on that domain then (`apps/web/content/site.ts`).
-1. **Deferred by the owner (2026-10-24):** email provider for password resets (custom SMTP in Supabase, for example Resend); demo hosting for Phase 7 (root domain, Vercel Pro, demo Supabase project); R2 secrets and `BACKUPS_ENABLED`.
+1. **Deferred by the owner (2026-10-24):** email provider for password resets (custom SMTP in Supabase, for example Resend); root domain and Vercel Pro (demos run on Vercel Hobby and `*.vercel.app` addresses since 2026-10-28); R2 secrets and `BACKUPS_ENABLED`.
 1. **Later-phase gaps** (to be raised in those phases' plans): per-app session timeout when demos share one Supabase project (5.3); cross-currency transfers (FIN-04, D36: same currency only for now); the "one entry offline" step of the Finance flow (SPEC 9.5) is tested with the offline work in Step 12 (D24); backup storage provider (4.5); Vercel Pro plan before going public.
