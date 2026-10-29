@@ -4,6 +4,7 @@
 // these files for `dev`, `build` and `start`; both are git-ignored.
 //   node scripts/school-env.mjs --schema dev_school [--edition college]
 //   node scripts/school-env.mjs --app finance --schema dev_finance
+//   node scripts/school-env.mjs --app admin --schema dev_admin
 import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -13,14 +14,14 @@ const { values } = parseArgs({
   options: { schema: { type: "string" }, edition: { type: "string" }, app: { type: "string" } },
 });
 const app = values.app ?? "school";
-const PORTS = { school: 3001, finance: 3003, clinic: 3002 };
+const PORTS = { school: 3001, finance: 3003, clinic: 3002, admin: 3008 };
 if (!(app in PORTS)) {
-  console.error("--app must be school, finance or clinic");
+  console.error("--app must be school, finance, clinic or admin");
   process.exit(2);
 }
 if (!values.schema || !/^[a-z][a-z0-9_]{2,62}$/.test(values.schema)) {
   console.error(
-    "Usage: node scripts/school-env.mjs --schema <name> [--app school|finance|clinic] [--edition college|highschool]",
+    "Usage: node scripts/school-env.mjs --schema <name> [--app school|finance|clinic|admin] [--edition college|highschool]",
   );
   process.exit(2);
 }
@@ -33,10 +34,18 @@ const env = [
   `NEXT_PUBLIC_SUPABASE_ANON_KEY=${local.ANON_KEY}`,
   `SUPABASE_SERVICE_ROLE_KEY=${local.SERVICE_ROLE_KEY}`,
   `NEXT_PUBLIC_DB_SCHEMA=${values.schema}`,
-  `NEXT_PUBLIC_STORAGE_BUCKET=${values.schema}`,
-  ...(app === "school" ? [`EDITION=${values.edition ?? "college"}`] : []),
-  "DEMO_MODE=false",
-  `APP_URL=http://localhost:${PORTS[app]}`,
+  ...(app === "admin"
+    ? [
+        `NEXT_PUBLIC_ADMIN_URL=http://localhost:${PORTS[app]}`,
+        "CLIENT_EMAIL_ENABLED=false",
+        "TRUSTED_DEVICE_SECRET=local-development-trusted-device-secret-0123456789",
+      ]
+    : [
+        `NEXT_PUBLIC_STORAGE_BUCKET=${values.schema}`,
+        ...(app === "school" ? [`EDITION=${values.edition ?? "college"}`] : []),
+        "DEMO_MODE=false",
+        `APP_URL=http://localhost:${PORTS[app]}`,
+      ]),
   "",
 ].join("\n");
 for (const file of [".env.local", ".env.production.local"])
