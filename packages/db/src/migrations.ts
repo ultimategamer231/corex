@@ -49,22 +49,27 @@ function readFolder(root: string, folder: string): Migration[] {
     .sort((a, b) => a.id.localeCompare(b.id));
 }
 
+/** Migration folders of a target, in the order they apply. */
+export function migrationFolders(product: MigrationTarget, options: { demo?: boolean } = {}) {
+  // corex_web started as website leads only; the admin adds the core tables after them,
+  // so a new schema and the live one apply the folders in the same order.
+  if (product === "web") return ["web"];
+  if (product === "admin") return ["web", "core", "admin"];
+  return ["core", product, ...(options.demo ? ["demo"] : [])];
+}
+
 /**
  * Core migrations first, then the product's, each folder in file-name order. The
- * `web` target (corex_web) is not a client schema and gets only its own folder.
- * Public demo schemas also get the `demo` folder last (SPEC.md 11.3).
+ * `web` target (corex_web) is not a client schema and gets only its own folder; the
+ * `admin` target extends it. Public demo schemas also get the `demo` folder last
+ * (SPEC.md 11.3).
  */
 export function loadMigrations(
   product: MigrationTarget,
   root = DEFAULT_MIGRATIONS_ROOT,
   options: { demo?: boolean } = {},
 ): Migration[] {
-  if (product === "web") return readFolder(root, "web");
-  return [
-    ...readFolder(root, "core"),
-    ...readFolder(root, product),
-    ...(options.demo ? readFolder(root, "demo") : []),
-  ];
+  return migrationFolders(product, options).flatMap((folder) => readFolder(root, folder));
 }
 
 export type MigrateResult = { schema: string; applied: string[]; skipped: string[] };
@@ -100,8 +105,9 @@ export async function migrateSchema(
     );
     const applied = new Map(rows.map((row) => [row.id, row.checksum]));
 
+    const allowed = [...migrationFolders(product, { demo: true }), "core"].map((f) => `${f}/`);
     const otherProduct = [...applied.keys()].find(
-      (id) => !id.startsWith("core/") && !id.startsWith("demo/") && !id.startsWith(`${product}/`),
+      (id) => !allowed.some((prefix) => id.startsWith(prefix)),
     );
     if (otherProduct) {
       throw new MigrationError(

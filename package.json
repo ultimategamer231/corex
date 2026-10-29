@@ -28,7 +28,10 @@
     "db:restore": "node packages/db/src/cli/restore.ts",
     "db:types": "node scripts/gen-types.mjs",
     "db:fixture": "node packages/db/src/cli/fixture.ts",
-    "demo:seed": "node packages/db/src/cli/demo-seed.ts"
+    "demo:seed": "node packages/db/src/cli/demo-seed.ts",
+    "admin:invite": "node packages/db/src/cli/admin-invite.ts",
+    "admin:reset-authenticator": "node packages/db/src/cli/admin-reset-authenticator.ts",
+    "admin:verify-log": "node packages/db/src/cli/admin-verify-log.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
