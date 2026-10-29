@@ -1,4 +1,5 @@
 import { activityCsv, fetchActivity, filtersSchema } from "@/lib/activity";
+import { csvResponse } from "@/lib/csv";
 import { logEvent } from "@/lib/log";
 import { AdminAuthError, requireAdmin } from "@/lib/session";
 
@@ -30,11 +31,5 @@ export async function GET(request: Request) {
     context: session.context,
   });
   const day = new Date().toISOString().slice(0, 10);
-  return new Response(activityCsv(rows, names), {
-    headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="corex-activity-log-${day}.csv"`,
-      "Cache-Control": "no-store",
-    },
-  });
+  return csvResponse(activityCsv(rows, names), `corex-activity-log-${day}.csv`);
 }

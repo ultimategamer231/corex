@@ -200,7 +200,7 @@ describe("LEAD-02: leads added by hand", () => {
     );
     const [log] = await sql.unsafe<{ actor_id: string; actor_type: string; summary: string }[]>(
       `select actor_id, actor_type, summary from ${schema}.audit_events where table_name = 'leads' and record_id = $1`,
-      [row?.id],
+      [row?.id ?? null],
     );
     expect(log).toEqual({
       actor_id: admin.userId,
@@ -314,6 +314,7 @@ describe("LEAD-05: notes and activities are append-only", () => {
       ),
     );
     expect(entry?.admin_id).toBe(admin.adminId);
+    const entryId = entry?.id ?? null;
     await expect(
       asAdmin(admin, (tx) =>
         tx.unsafe(
@@ -324,16 +325,14 @@ describe("LEAD-05: notes and activities are append-only", () => {
     ).rejects.toThrow(/row-level security/);
     await expect(
       asAdmin(admin, (tx) =>
-        tx.unsafe(`update ${schema}.lead_activities set body = 'Edited' where id = $1`, [
-          entry?.id,
-        ]),
+        tx.unsafe(`update ${schema}.lead_activities set body = 'Edited' where id = $1`, [entryId]),
       ),
     ).rejects.toThrow(/permission denied/);
     for (const statement of [
       `update ${schema}.lead_activities set body = 'Edited' where id = $1`,
       `delete from ${schema}.lead_activities where id = $1`,
     ]) {
-      await expect(asWebsite((tx) => tx.unsafe(statement, [entry?.id]))).rejects.toThrow(
+      await expect(asWebsite((tx) => tx.unsafe(statement, [entryId]))).rejects.toThrow(
         /cannot be changed or removed/,
       );
     }
