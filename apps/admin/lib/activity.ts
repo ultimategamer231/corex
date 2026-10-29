@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { toCsv } from "./csv";
 import type { AdminDb } from "./supabase";
 
 export const AREAS = [
@@ -142,13 +143,6 @@ export function changeLines(row: Pick<ActivityRow, "before" | "after" | "action"
     .map(([k, v]) => `${k}: ${show(v)}`);
 }
 
-function csvCell(value: unknown): string {
-  const text = value === null || value === undefined ? "" : String(value);
-  // Leading = + - @ would run as formulas in spreadsheets.
-  const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
-  return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
-}
-
 export function activityCsv(rows: ActivityRow[], names: Map<string, string>): string {
   const header = [
     "Entry",
@@ -163,8 +157,9 @@ export function activityCsv(rows: ActivityRow[], names: Map<string, string>): st
     "IP address",
     "Browser",
   ];
-  const lines = rows.map((r) =>
-    [
+  return toCsv(
+    header,
+    rows.map((r) => [
       r.seq,
       r.created_at,
       r.actor_id ? (names.get(r.actor_id) ?? r.actor_id) : actorLabel(r.actor_type),
@@ -176,11 +171,8 @@ export function activityCsv(rows: ActivityRow[], names: Map<string, string>): st
       changeLines(r).join("; "),
       r.ip,
       r.user_agent,
-    ]
-      .map(csvCell)
-      .join(","),
+    ]),
   );
-  return [header.join(","), ...lines].join("\r\n") + "\r\n";
 }
 
 export function actorLabel(actorType: string): string {

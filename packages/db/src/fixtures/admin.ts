@@ -92,5 +92,106 @@ export async function seedAdminFixture(
       secret: enrolled.data.totp.secret,
     };
   }
+  await seedLeads(sql, s);
   return { schema: s, users };
+}
+
+function adminId(ids: Record<string, string>, username: string): string {
+  const id = ids[username];
+  if (!id) throw new Error(`fixture admin ${username} is missing`);
+  return id;
+}
+
+/**
+ * Leads from the mockup (Leads.dc.html): website requests at several stages and one
+ * added by hand. Stage changes go through the database rules, so each has its timeline.
+ */
+async function seedLeads(sql: Sql, s: string): Promise<void> {
+  const ids = Object.fromEntries(
+    (
+      await sql.unsafe<{ id: string; username: string }[]>(`select id, username from ${s}.admins`)
+    ).map((a) => [a.username, a.id]),
+  );
+  const website = `insert into ${s}.leads
+      (name, organization, country, product, plan_interest, phone, email, message, consent, source_page, created_at)
+    values ($1, $2, $3, $4, $5, $6, $7, $8, true, $9, now() - make_interval(days => $10))
+    returning id`;
+  const add = async (values: (string | number | null)[]) => {
+    const [row] = await sql.unsafe<{ id: string }[]>(website, values);
+    if (!row) throw new Error("lead not inserted");
+    return row.id;
+  };
+  await add([
+    "Musu Kollie",
+    "Greenfield Academy",
+    "Liberia",
+    "school-highschool",
+    "managed",
+    "+231 77 555 0101",
+    "musu@greenfield.example",
+    "We have 450 students and want report cards on the computer.",
+    "/software/school",
+    0,
+  ]);
+  await add([
+    "Ibrahim Konneh",
+    "Mano River Logistics",
+    "Sierra Leone",
+    "finance",
+    "unsure",
+    "+232 76 555 020",
+    null,
+    "We need to track trips, fuel and payments.",
+    "/contact",
+    1,
+  ]);
+  const clinic = await add([
+    "Comfort Pewee",
+    "Saint Luke's Clinic",
+    "Liberia",
+    "clinic",
+    "unsure",
+    "0886 555 030",
+    "comfort@stlukes.example",
+    "Two doctors, about 40 patients a day.",
+    "/software/clinic",
+    5,
+  ]);
+  await sql.unsafe(
+    `update ${s}.leads set stage = 'contacted', assigned_admin_id = $2,
+       follow_up_on = current_date + 1, next_step = 'Book a demo' where id = $1`,
+    [clinic, adminId(ids, "maima")],
+  );
+  const college = await add([
+    "Joseph Wleh",
+    "St. Peter's College",
+    "Liberia",
+    "school-college",
+    "handover",
+    "+231 77 555 0404",
+    "registrar@stpeters.example",
+    "We have about 900 students across 4 programs and keep grades in Excel.",
+    "/software/school",
+    17,
+  ]);
+  await sql.unsafe(
+    `insert into ${s}.lead_activities (lead_id, type, body, admin_id) values ($1, 'call', $2, $3)`,
+    [college, "First call. 900 students, 4 programs, grades in Excel.", adminId(ids, "maima")],
+  );
+  await sql.unsafe(
+    `update ${s}.leads set stage = 'quoted', assigned_admin_id = $2, follow_up_on = current_date + 6,
+       quote_amount_minor = 400000, quote_currency = 'USD', quote_sent_on = current_date - 2,
+       quote_note = 'College edition, Handover plan, data migration from Excel' where id = $1`,
+    [college, adminId(ids, "owner")],
+  );
+  const [pharmacy] = await sql.unsafe<{ id: string }[]>(
+    `insert into ${s}.leads (source, name, organization, country, product, phone, message, created_at)
+     values ('manual', 'Grace Flomo', 'Unity Pharmacy', 'Liberia', 'on-request', '0777 555 050',
+             'Met at the business fair; asked about stock control.', now() - interval '119 days')
+     returning id`,
+  );
+  await sql.unsafe(
+    `update ${s}.leads set stage = 'lost', lost_reason = 'Chose a cheaper supplier' where id = $1`,
+    [pharmacy?.id ?? null],
+  );
 }

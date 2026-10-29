@@ -450,54 +450,153 @@ export type Database = {
         };
         Relationships: [];
       };
-      leads: {
+      lead_activities: {
         Row: {
-          consent: boolean;
-          country: string;
+          admin_id: string | null;
+          body: string;
           created_at: string;
-          email: string | null;
+          created_by: string | null;
           id: string;
-          message: string;
-          name: string;
-          organization: string;
-          phone: string;
-          plan_interest: string;
-          product: string;
-          source_page: string | null;
-          status: string;
+          lead_id: string;
+          type: string;
+          updated_at: string;
         };
         ComputedFields: never;
         Insert: {
-          consent: boolean;
-          country: string;
+          admin_id?: string | null;
+          body: string;
           created_at?: string;
-          email?: string | null;
+          created_by?: string | null;
           id?: string;
-          message: string;
-          name: string;
-          organization: string;
-          phone: string;
-          plan_interest?: string;
-          product: string;
-          source_page?: string | null;
-          status?: string;
+          lead_id: string;
+          type: string;
+          updated_at?: string;
         };
         Update: {
-          consent?: boolean;
-          country?: string;
+          admin_id?: string | null;
+          body?: string;
           created_at?: string;
-          email?: string | null;
+          created_by?: string | null;
           id?: string;
-          message?: string;
-          name?: string;
-          organization?: string;
-          phone?: string;
-          plan_interest?: string;
-          product?: string;
-          source_page?: string | null;
-          status?: string;
+          lead_id?: string;
+          type?: string;
+          updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_admin_id_fkey";
+            columns: ["admin_id"];
+            isOneToOne: false;
+            referencedRelation: "admins";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey";
+            columns: ["lead_id"];
+            isOneToOne: false;
+            referencedRelation: "leads";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      leads: {
+        Row: {
+          assigned_admin_id: string | null;
+          consent: boolean | null;
+          converted_client_id: string | null;
+          country: string | null;
+          created_at: string;
+          created_by: string | null;
+          email: string | null;
+          follow_up_on: string | null;
+          id: string;
+          lost_reason: string | null;
+          message: string | null;
+          name: string;
+          next_step: string | null;
+          organization: string;
+          phone: string | null;
+          phone_key: string | null;
+          plan_interest: string;
+          product: string | null;
+          quote_amount_minor: number | null;
+          quote_currency: string | null;
+          quote_note: string | null;
+          quote_sent_on: string | null;
+          source: string;
+          source_page: string | null;
+          stage: string;
+          stage_changed_at: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assigned_admin_id?: string | null;
+          consent?: boolean | null;
+          converted_client_id?: string | null;
+          country?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          follow_up_on?: string | null;
+          id?: string;
+          lost_reason?: string | null;
+          message?: string | null;
+          name: string;
+          next_step?: string | null;
+          organization: string;
+          phone?: string | null;
+          phone_key?: never;
+          plan_interest?: string;
+          product?: string | null;
+          quote_amount_minor?: number | null;
+          quote_currency?: string | null;
+          quote_note?: string | null;
+          quote_sent_on?: string | null;
+          source?: string;
+          source_page?: string | null;
+          stage?: string;
+          stage_changed_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          assigned_admin_id?: string | null;
+          consent?: boolean | null;
+          converted_client_id?: string | null;
+          country?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          follow_up_on?: string | null;
+          id?: string;
+          lost_reason?: string | null;
+          message?: string | null;
+          name?: string;
+          next_step?: string | null;
+          organization?: string;
+          phone?: string | null;
+          phone_key?: never;
+          plan_interest?: string;
+          product?: string | null;
+          quote_amount_minor?: number | null;
+          quote_currency?: string | null;
+          quote_note?: string | null;
+          quote_sent_on?: string | null;
+          source?: string;
+          source_page?: string | null;
+          stage?: string;
+          stage_changed_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "leads_assigned_admin_id_fkey";
+            columns: ["assigned_admin_id"];
+            isOneToOne: false;
+            referencedRelation: "admins";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       memberships: {
         Row: {
@@ -754,6 +853,7 @@ export type Database = {
       audit_row_visible: { Args: { p_table_name: string }; Returns: boolean };
       billing_roles: { Args: Record<PropertyKey, never>; Returns: string[] };
       can_bill: { Args: Record<PropertyKey, never>; Returns: boolean };
+      current_admin_id: { Args: Record<PropertyKey, never>; Returns: string };
       current_admin_ok: { Args: Record<PropertyKey, never>; Returns: boolean };
       current_roles: { Args: Record<PropertyKey, never>; Returns: string[] };
       enable_audit: { Args: { target: unknown }; Returns: undefined };
@@ -765,6 +865,18 @@ export type Database = {
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_member: { Args: Record<PropertyKey, never>; Returns: boolean };
       issue_invoice: { Args: { p_invoice_id: string }; Returns: number };
+      lead_duplicates: {
+        Args: { p_email: string; p_exclude?: string; p_phone: string };
+        Returns: {
+          id: string;
+          matched_on: string;
+          name: string;
+          organization: string;
+          stage: string;
+        }[];
+      };
+      lead_phone_key: { Args: { p_phone: string }; Returns: string };
+      lead_stage_label: { Args: { p_stage: string }; Returns: string };
       log_event: {
         Args: {
           p_action: string;
@@ -782,6 +894,7 @@ export type Database = {
       };
       log_login: { Args: Record<PropertyKey, never>; Returns: undefined };
       log_view: { Args: { p_record_id: string; p_table_name: string }; Returns: undefined };
+      money_text: { Args: { p_currency: string; p_minor: number }; Returns: string };
       next_document_number: { Args: { p_kind: string }; Returns: number };
       rate_limit_hits: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
       record_payment: {
