@@ -18,8 +18,9 @@ export type AdminDb = SupabaseClient<Database, "admin">;
  * and browser travel with each call for the activity log.
  */
 export async function getSupabase(): Promise<AdminDb> {
-  const env = adminEnv();
+  // Cookies first: it marks the page as per-request, so builds never read env here.
   const store = await cookies();
+  const env = adminEnv();
   const context = await requestContext();
   return createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
     db: { schema: env.schema },
