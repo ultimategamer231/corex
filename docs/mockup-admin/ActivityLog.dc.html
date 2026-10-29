@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex Admin — Activity log</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #F6FAF9; min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased">
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div style="width: 248px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #D9E3E2"><dc-import name="Sidebar" active="log" hint-size="248px,900px"></dc-import></div>
+</sc-if>
+
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Topbar" hint-size="100%,64px"></dc-import>
+
+<main style="width: 100%; max-width: 1280px; box-sizing: border-box; padding: clamp(16px, 3vw, 32px); display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">Activity log</h1>
+<p style="margin: 0; font-size: 14.5px; color: #5B6B6A">Every change made in the admin, by whom and when.</p>
+</div>
+<button type="button" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #0F1F1E; font-family: inherit; font-weight: 600; font-size: 14.5px; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Export CSV</button>
+</div>
+
+<div role="note" style="display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; background: #E6F2F1; font-size: 14px; line-height: 1.55; color: #064644">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B6A67" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+<span><strong>This log is permanent.</strong> No admin can edit or delete an entry, and the database rejects any attempt to change one. Corrections appear as new entries.</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px">
+<div style="flex: 1 1 220px; max-width: 320px; display: flex; flex-direction: column; gap: 6px">
+<label for="lg-q" style="font-size: 13px; font-weight: 600; color: #3C4A49">Search</label>
+<input id="lg-q" type="search" placeholder="Client, invoice number, lead" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="lg-who" style="font-size: 13px; font-weight: 600; color: #3C4A49">Admin</label>
+<select id="lg-who" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E"><option>Everyone</option><option>[Admin name]</option><option>Maima G.</option><option>System</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="lg-type" style="font-size: 13px; font-weight: 600; color: #3C4A49">Area</label>
+<select id="lg-type" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E"><option>All areas</option><option>Leads</option><option>Clients</option><option>Invoices</option><option>Payments</option><option>Settings</option><option>Sign-ins</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="lg-from" style="font-size: 13px; font-weight: 600; color: #3C4A49">From</label>
+<input id="lg-from" type="date" value="2026-10-01" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="lg-to" style="font-size: 13px; font-weight: 600; color: #3C4A49">To</label>
+<input id="lg-to" type="date" value="2026-10-29" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E">
+</div>
+</div>
+
+<div style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; overflow-x: auto">
+<table style="width: 100%; min-width: 920px; border-collapse: collapse; font-size: 14px">
+<thead>
+<tr style="background: #F6FAF9; text-align: left">
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49; width: 150px">When (GMT)</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49; width: 140px">Admin</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49; width: 110px">Area</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49">What happened</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49; width: 60px"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Details</span></th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="12">
+<tr style="border-top: 1px solid #EEF3F2; vertical-align: top">
+<td style="padding: 12px 16px; white-space: nowrap; color: #3C4A49; font-variant-numeric: tabular-nums">{{r.when}}</td>
+<td style="padding: 12px 16px; font-weight: 600">{{r.who}}</td>
+<td style="padding: 12px 16px"><span style="display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; color: {{r.fg}}; background: {{r.bg}}">{{r.area}}</span></td>
+<td style="padding: 12px 16px; line-height: 1.5">
+<div>{{r.text}}</div>
+<sc-if value="{{r.open}}" hint-placeholder-val="{{ false }}">
+<div style="margin-top: 8px; padding: 10px 12px; border-radius: 8px; background: #F6FAF9; border: 1px solid #E3ECEB; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; line-height: 1.6; color: #23302F; white-space: pre-line">{{r.detail}}</div>
+</sc-if>
+</td>
+<td style="padding: 6px 12px; text-align: right"><button type="button" onClick="{{r.toggle}}" aria-expanded="{{r.exp}}" aria-label="{{r.aria}}" style="width: 40px; height: 40px; border-radius: 8px; border: 0; background: transparent; color: #3C4A49; cursor: pointer; display: inline-flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform: {{r.rot}}"><path d="m6 9 6 6 6-6"></path></svg></button></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; font-size: 14px; color: #5B6B6A">
+<span>Showing 12 of 214 entries</span>
+<div style="display: flex; gap: 8px">
+<button type="button" disabled="" style="min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #8A9998; font-family: inherit; font-size: 14px">Previous</button>
+<button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #0B6A67; font-family: inherit; font-weight: 600; font-size: 14px; cursor: pointer">Next</button>
+</div>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 900; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const openId = s.open === undefined ? 1 : s.open;
+    const A = {
+      'Sign-in': { fg: '#3C4A49', bg: '#EEF3F2' },
+      'Leads': { fg: '#1F3A8A', bg: '#E8EEFB' },
+      'Clients': { fg: '#064644', bg: '#E6F2F1' },
+      'Invoices': { fg: '#8A2E00', bg: '#FFF1E9' },
+      'Payments': { fg: '#1E6B3F', bg: '#E7F5EC' },
+      'Settings': { fg: '#3B2F8F', bg: '#EEF0FB' },
+      'System': { fg: '#7A4E00', bg: '#FFF4DB' }
+    };
+    const raw = [
+      ['29 Oct, 10:42', '[Admin name]', 'Sign-in', 'Signed in with password and emailed code', 'IP 41.57.x.x · Chrome on Windows'],
+      ['29 Oct, 10:38', '[Admin name]', 'Payments', 'Recorded US$750.00 on CX-2026-0012 (MTN Mobile Money). Receipt RC-2026-0007 created and emailed', 'invoice: CX-2026-0012\nstatus: Sent → Paid\nbalance: 750.00 → 0.00 USD\nreference: MM-40211-938'],
+      ['29 Oct, 09:14', 'Website', 'Leads', 'New lead from quote form: Musu Kollie, Greenfield Academy', 'source: /software/school\nproduct: School, High School'],
+      ['28 Oct, 17:05', 'Maima G.', 'Leads', 'Changed stage of Saint Luke’s Clinic from New to Contacted', 'stage: New → Contacted\nfollow-up: 30 Oct 2026'],
+      ['28 Oct, 16:58', '[Admin name]', 'Settings', 'Changed default payment terms from 7 to 14 days', 'payment_terms_days: 7 → 14'],
+      ['27 Oct, 11:20', '[Admin name]', 'Leads', 'Sent quote to St. Peter’s College: US$4,000.00', 'plan: Handover\nproduct: School, College'],
+      ['26 Oct, 07:00', 'System', 'System', 'Renewal reminder (3 days) emailed to Bright Future NGO', 'invoice: CX-2026-0010'],
+      ['22 Oct, 14:03', '[Admin name]', 'Invoices', 'Sent CX-2026-0012 to billing@hopemedical.example', 'number assigned: CX-2026-0012\nstatus: Draft → Sent'],
+      ['21 Oct, 07:00', 'System', 'Invoices', 'Drafted and emailed renewal invoice CX-2026-0011 to Riverside Traders', 'amount: 300.00 USD\ndue: 20 Nov 2026'],
+      ['20 Oct, 15:31', '[Admin name]', 'Payments', 'Recorded part payment US$400.00 on CX-2026-0008 (bank transfer)', 'balance: 800.00 → 400.00 USD'],
+      ['20 Oct, 15:12', '[Admin name]', 'Clients', 'Hope Medical Center deployment status changed to Staging', 'status: Setup → Staging'],
+      ['1 Aug, 12:44', '[Admin name]', 'Invoices', 'Voided CX-2026-0006. Reason: duplicate of CX-2026-0005', 'status: Draft → Void\nreason: Duplicate of CX-2026-0005']
+    ];
+    const rows = raw.map((x, i) => {
+      const open = i === openId;
+      return {
+        when: x[0], who: x[1], area: x[2], text: x[3], detail: x[4],
+        fg: A[x[2]].fg, bg: A[x[2]].bg,
+        open: open, exp: open ? 'true' : 'false', rot: open ? 'rotate(180deg)' : 'none',
+        aria: (open ? 'Hide' : 'Show') + ' details',
+        toggle: () => this.setState({ open: open ? -1 : i })
+      };
+    });
+    return { wide: !s.narrow, rows: rows };
+  }
+}
+</script>
+</body>
+</html>

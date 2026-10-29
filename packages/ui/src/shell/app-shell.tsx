@@ -17,6 +17,8 @@ export type AppShellProps = {
   user: ShellUser;
   /** Records waiting in the offline outbox. */
   pendingSyncCount?: number;
+  /** Show the online/offline badge (default true; apps without offline mode turn it off). */
+  showConnection?: boolean;
   /** Full-width notice above the top bar, for example the demo banner (SPEC.md 11.3). */
   banner?: React.ReactNode;
   /** Extra user-menu items. */
@@ -34,6 +36,7 @@ export function AppShell({
   nav,
   user,
   pendingSyncCount = 0,
+  showConnection = true,
   banner,
   userMenuItems,
   onSignOut,
@@ -47,7 +50,7 @@ export function AppShell({
       <SkipLink />
       {banner}
       <TopBar org={org}>
-        <OnlineStatus pendingCount={pendingSyncCount} />
+        {showConnection ? <OnlineStatus pendingCount={pendingSyncCount} /> : null}
         <UserMenu user={user} onSignOut={onSignOut}>
           {userMenuItems}
         </UserMenu>

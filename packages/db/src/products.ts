@@ -1,8 +1,11 @@
 export const PRODUCTS = ["school", "clinic", "finance"] as const;
 export type Product = (typeof PRODUCTS)[number];
 
-/** Migration targets: client products, plus `web` for Corex's own `corex_web` schema (no core tables). */
-export const MIGRATION_TARGETS = [...PRODUCTS, "web"] as const;
+/**
+ * Migration targets: client products, plus Corex's own `corex_web` schema: `web` (website
+ * leads only) or `admin` (website leads, core tables and the Corex Admin app, SPEC-ADMIN.md 2).
+ */
+export const MIGRATION_TARGETS = [...PRODUCTS, "web", "admin"] as const;
 export type MigrationTarget = (typeof MIGRATION_TARGETS)[number];
 
 /**

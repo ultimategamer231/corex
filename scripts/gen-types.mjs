@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { delimiter, join } from "node:path";
 
-const PRODUCTS = ["school", "finance", "clinic"];
+const PRODUCTS = ["school", "finance", "clinic", "admin"];
 const env = {
   ...process.env,
   PATH: [join(process.cwd(), "node_modules", ".bin"), process.env.PATH].join(delimiter),

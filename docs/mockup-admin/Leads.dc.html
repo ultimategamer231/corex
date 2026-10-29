@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex Admin — Leads</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #F6FAF9; min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased">
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div style="width: 248px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #D9E3E2"><dc-import name="Sidebar" active="leads" hint-size="248px,900px"></dc-import></div>
+</sc-if>
+
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Topbar" hint-size="100%,64px"></dc-import>
+
+<main style="width: 100%; max-width: 1280px; box-sizing: border-box; padding: clamp(16px, 3vw, 32px); display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">Leads</h1>
+<p style="margin: 0; font-size: 14.5px; color: #5B6B6A">Quote and contact form requests from the website, plus leads added by hand.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #0F1F1E; font-family: inherit; font-weight: 600; font-size: 14.5px; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Export CSV</button>
+<button type="button" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #0B6A67; color: #FFFFFF; font-family: inherit; font-weight: 700; font-size: 14.5px; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add lead</button>
+</div>
+</div>
+
+<!-- stage tabs -->
+<div role="tablist" aria-label="Filter by stage" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="7">
+<button type="button" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}" style="flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border: 1.5px solid {{t.border}}; background: {{t.bg}}; color: {{t.fg}}">{{t.label}}<span style="padding: 0 7px; border-radius: 999px; font-size: 12px; background: {{t.cbg}}; color: {{t.cfg}}">{{t.count}}</span></button>
+</sc-for>
+</div>
+
+<!-- toolbar -->
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<div style="flex: 1 1 240px; max-width: 360px; position: relative; display: flex; align-items: center">
+<label for="lead-q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search leads</label>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B6B6A" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 12px"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<input id="lead-q" type="search" placeholder="Name, organization, phone" style="width: 100%; min-height: 44px; padding: 0 12px 0 36px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E; box-sizing: border-box">
+</div>
+<label style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)" for="lead-product">Product</label>
+<select id="lead-product" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E"><option>All products</option><option>School: College</option><option>School: High School</option><option>Clinic</option><option>Finance</option><option>Built on request</option><option>Services</option></select>
+<label style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)" for="lead-owner">Assigned to</label>
+<select id="lead-owner" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E"><option>Assigned to anyone</option><option>[Admin name]</option><option>Maima G.</option><option>Unassigned</option></select>
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div role="group" aria-label="View" style="margin-left: auto; display: inline-flex; padding: 3px; border-radius: 10px; background: #E6F2F1">
+<button type="button" onClick="{{viewTable}}" aria-pressed="{{tablePressed}}" style="min-height: 38px; padding: 0 14px; border-radius: 8px; border: 0; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; background: {{tableBg}}; color: #0F1F1E">Table</button>
+<button type="button" onClick="{{viewBoard}}" aria-pressed="{{boardPressed}}" style="min-height: 38px; padding: 0 14px; border-radius: 8px; border: 0; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; background: {{boardBg}}; color: #0F1F1E">Board</button>
+</div>
+</sc-if>
+</div>
+
+<!-- TABLE -->
+<sc-if value="{{showTable}}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; overflow-x: auto">
+<table style="width: 100%; min-width: 900px; border-collapse: collapse; font-size: 14px">
+<thead>
+<tr style="background: #F6FAF9; text-align: left">
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Contact</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Interested in</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Country</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Plan</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Stage</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Assigned to</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Follow-up</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Received</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<tr style="border-top: 1px solid #EEF3F2">
+<td style="padding: 12px 16px"><a href="LeadDetail.dc.html" style="display: flex; flex-direction: column; gap: 2px; color: inherit; text-decoration: none"><span style="font-weight: 600; color: #0B6A67">{{r.name}}</span><span style="font-size: 13px; color: #5B6B6A">{{r.org}}</span></a></td>
+<td style="padding: 12px 16px">{{r.product}}</td>
+<td style="padding: 12px 16px">{{r.country}}</td>
+<td style="padding: 12px 16px; color: #3C4A49">{{r.plan}}</td>
+<td style="padding: 12px 16px"><span style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; color: {{r.fg}}; background: {{r.bg}}">{{r.stage}}</span></td>
+<td style="padding: 12px 16px; color: {{r.ownerColor}}">{{r.owner}}</td>
+<td style="padding: 12px 16px; white-space: nowrap; font-weight: {{r.followW}}; color: {{r.followC}}">{{r.follow}}</td>
+<td style="padding: 12px 16px; white-space: nowrap; color: #5B6B6A">{{r.received}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; font-size: 14px; color: #5B6B6A">
+<span>Showing {{shown}} of 8 leads</span>
+<div style="display: flex; gap: 8px">
+<button type="button" disabled="" style="min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #8A9998; font-family: inherit; font-size: 14px">Previous</button>
+<button type="button" disabled="" style="min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #8A9998; font-family: inherit; font-size: 14px">Next</button>
+</div>
+</div>
+</sc-if>
+
+<!-- CARDS (narrow) -->
+<sc-if value="{{showCards}}" hint-placeholder-val="{{ false }}">
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<li><a href="LeadDetail.dc.html" style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2; color: inherit; text-decoration: none">
+<span style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px">
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-weight: 700; font-size: 15.5px">{{r.name}}</span><span style="font-size: 13.5px; color: #5B6B6A">{{r.org}}</span></span>
+<span style="flex-shrink: 0; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: {{r.fg}}; background: {{r.bg}}">{{r.stage}}</span>
+</span>
+<span style="display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: #3C4A49"><span>{{r.product}}</span><span>{{r.country}}</span><span>Received {{r.received}}</span></span>
+<sc-if value="{{r.hasFollow}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 600; color: {{r.followC}}">Follow up {{r.follow}}</span></sc-if>
+</a></li>
+</sc-for>
+</ul>
+</sc-if>
+
+<!-- BOARD -->
+<sc-if value="{{showBoard}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px">
+<sc-for list="{{board}}" as="c" hint-placeholder-count="6">
+<section style="flex: 0 0 236px; display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 14px; background: #EEF3F2">
+<h2 style="margin: 0; display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; font-size: 14px; font-weight: 700"><span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{c.dot}}"></span>{{c.label}}</span><span style="font-size: 13px; color: #5B6B6A">{{c.count}}</span></h2>
+<sc-for list="{{c.cards}}" as="r" hint-placeholder-count="2">
+<a href="LeadDetail.dc.html" style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 10px; background: #FFFFFF; border: 1px solid #D9E3E2; color: inherit; text-decoration: none">
+<span style="font-weight: 700; font-size: 14px">{{r.org}}</span>
+<span style="font-size: 13px; color: #3C4A49">{{r.name}} · {{r.country}}</span>
+<span style="font-size: 12.5px; color: #5B6B6A">{{r.product}}</span>
+<sc-if value="{{r.hasFollow}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; font-weight: 600; color: {{r.followC}}">Follow up {{r.follow}}</span></sc-if>
+</a>
+</sc-for>
+</section>
+</sc-for>
+</div>
+</sc-if>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1150}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 900; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const narrow = !!s.narrow;
+    const view = narrow ? 'cards' : (s.view || 'table');
+    const stage = s.stage || 'all';
+    const ST = {
+      'New': { fg: '#1F3A8A', bg: '#E8EEFB', dot: '#3B5BB5' },
+      'Contacted': { fg: '#064644', bg: '#E6F2F1', dot: '#0B6A67' },
+      'Demo booked': { fg: '#3B2F8F', bg: '#EEF0FB', dot: '#6650B8' },
+      'Quoted': { fg: '#8A2E00', bg: '#FFF1E9', dot: '#C2410C' },
+      'Won': { fg: '#1E6B3F', bg: '#E7F5EC', dot: '#1E7B4A' },
+      'Lost': { fg: '#3C4A49', bg: '#EEF3F2', dot: '#7A8A89' }
+    };
+    const raw = [
+      ['Musu Kollie', 'Greenfield Academy', 'School: High School', 'Liberia', 'Managed', 'New', 'Unassigned', '', 'Today'],
+      ['Ibrahim Konneh', 'Mano River Logistics', 'Financial Management', 'Sierra Leone', 'Not sure', 'New', 'Unassigned', '', '28 Oct'],
+      ['Comfort Pewee', 'Saint Luke’s Clinic', 'Clinic Management', 'Liberia', 'Not sure', 'Contacted', 'Maima G.', 'Tomorrow', '24 Oct'],
+      ['Samuel Gaye', 'Coastal View Hotel', 'On request: Hotel', 'Liberia', 'Managed', 'Contacted', 'Maima G.', '3 Nov', '21 Oct'],
+      ['Fatu Kamara', 'Paynesville Women’s Cooperative', 'Financial Management', 'Liberia', 'Managed', 'Demo booked', '[Admin name]', '2 Nov', '19 Oct'],
+      ['Joseph Wleh', 'St. Peter’s College', 'School: College', 'Liberia', 'Handover', 'Quoted', '[Admin name]', '4 Nov', '12 Oct'],
+      ['Patrick Mulbah', 'Kakata Community School', 'School: High School', 'Liberia', 'Managed', 'Won', '[Admin name]', '', '18 Jul'],
+      ['Grace Flomo', 'Unity Pharmacy', 'On request: Pharmacy', 'Liberia', 'Not sure', 'Lost', 'Maima G.', '', '2 Jul']
+    ];
+    const all = raw.map((x) => ({
+      name: x[0], org: x[1], product: x[2], country: x[3], plan: x[4], stage: x[5],
+      fg: ST[x[5]].fg, bg: ST[x[5]].bg,
+      owner: x[6], ownerColor: x[6] === 'Unassigned' ? '#8A2E00' : '#0F1F1E',
+      follow: x[7] || '—', hasFollow: !!x[7],
+      followC: x[7] === 'Tomorrow' ? '#7A4E00' : (x[7] ? '#0F1F1E' : '#5B6B6A'),
+      followW: x[7] === 'Tomorrow' ? '700' : '400',
+      received: x[8]
+    }));
+    const rows = all.filter((r) => stage === 'all' || r.stage === stage);
+    const order = ['New', 'Contacted', 'Demo booked', 'Quoted', 'Won', 'Lost'];
+    const tabs = [['all', 'All', all.length]].concat(order.map((o) => [o, o, all.filter((r) => r.stage === o).length])).map((t) => {
+      const on = t[0] === stage;
+      return {
+        label: t[1], count: String(t[2]), sel: on ? 'true' : 'false',
+        border: on ? '#0B6A67' : '#D9E3E2', bg: on ? '#0B6A67' : '#FFFFFF', fg: on ? '#FFFFFF' : '#0F1F1E',
+        cbg: on ? '#FFFFFF' : '#EEF3F2', cfg: on ? '#064644' : '#3C4A49',
+        pick: () => this.setState({ stage: t[0] })
+      };
+    });
+    const board = order.map((o) => {
+      const cards = all.filter((r) => r.stage === o);
+      return { label: o, dot: ST[o].dot, count: String(cards.length), cards: cards };
+    });
+    return {
+      wide: !narrow, tabs: tabs, rows: rows, shown: String(rows.length), board: board,
+      showTable: view === 'table', showCards: view === 'cards', showBoard: view === 'board',
+      tablePressed: view === 'table' ? 'true' : 'false', boardPressed: view === 'board' ? 'true' : 'false',
+      tableBg: view === 'table' ? '#FFFFFF' : 'transparent', boardBg: view === 'board' ? '#FFFFFF' : 'transparent',
+      viewTable: () => this.setState({ view: 'table' }),
+      viewBoard: () => this.setState({ view: 'board' })
+    };
+  }
+}
+</script>
+</body>
+</html>

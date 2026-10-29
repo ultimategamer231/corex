@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex Admin — Sign in</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #FFFFFF; min-height: 100vh; display: flex; flex-wrap: wrap; -webkit-font-smoothing: antialiased">
+
+<div style="flex: 1 1 420px; background: #064644; color: #FFFFFF; padding: clamp(28px, 5vw, 64px); box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; gap: 40px">
+<div style="display: flex; align-items: center; gap: 12px">
+<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#0B6A67"></circle><g fill="none" stroke="#FF5A12" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h7l5-7h7"></path><path d="M5 20h19"></path><path d="M12 20l5 7h7"></path><circle cx="27" cy="13" r="2.6"></circle><circle cx="27" cy="20" r="2.6"></circle><circle cx="27" cy="27" r="2.6"></circle></g></svg>
+<span style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: 24px">Core<span style="color: #FF7A3D">X</span> <span style="font-weight: 600; color: #B8CFCD">Admin</span></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px; max-width: 460px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.15; letter-spacing: -0.02em">Leads, clients and billing in one place</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #CFE3E1">For the Corex team only. Accounts are created by an admin, and every sign-in needs a code sent to your email.</p>
+</div>
+<div style="font-size: 13px; color: #B8CFCD">© 2026 Corex Digital Solutions</div>
+</div>
+
+<div style="flex: 1 1 420px; display: flex; align-items: center; justify-content: center; padding: clamp(28px, 5vw, 64px) clamp(16px, 4vw, 64px); box-sizing: border-box">
+<div style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 28px">
+
+<ol aria-label="Sign-in steps" style="margin: 0; padding: 0; list-style: none; display: flex; gap: 8px">
+<li style="flex: 1 1 0; display: flex; flex-direction: column; gap: 6px"><span style="height: 4px; border-radius: 999px; background: #0B6A67"></span><span style="font-size: 12.5px; font-weight: 600; color: #064644">1. Password</span></li>
+<li style="flex: 1 1 0; display: flex; flex-direction: column; gap: 6px"><span style="height: 4px; border-radius: 999px; background: {{step2bar}}"></span><span style="font-size: 12.5px; font-weight: 600; color: {{step2text}}">2. Email code</span></li>
+</ol>
+
+<sc-if value="{{onPassword}}" hint-placeholder-val="{{ true }}">
+<form onSubmit="{{toCode}}" style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 26px; font-weight: 700">Sign in</h2>
+<p style="margin: 0; font-size: 15px; color: #5B6B6A">Use the email you were invited with.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="l-email" style="font-size: 14px; font-weight: 600">Email</label>
+<input id="l-email" type="email" autocomplete="username" placeholder="you@your-domain.com" style="min-height: 48px; padding: 0 14px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 16px; color: #0F1F1E">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<label for="l-pass" style="font-size: 14px; font-weight: 600">Password</label>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 32px; font-size: 13.5px; font-weight: 600; color: #0B6A67">Forgot password?</a>
+</div>
+<input id="l-pass" type="password" autocomplete="current-password" style="min-height: 48px; padding: 0 14px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 16px; color: #0F1F1E">
+</div>
+<button type="submit" style="min-height: 50px; border-radius: 10px; border: 0; background: #FF5A12; color: #1B0A02; font-family: inherit; font-weight: 700; font-size: 16px; cursor: pointer">Continue</button>
+<p style="margin: 0; font-size: 13.5px; line-height: 1.55; color: #5B6B6A">After 5 failed attempts, sign-in is paused for 15 minutes.</p>
+</form>
+</sc-if>
+
+<sc-if value="{{onCode}}" hint-placeholder-val="{{ false }}">
+<form style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 26px; font-weight: 700">Check your email</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #5B6B6A">We sent a 6-digit code to y•••@your-domain.com. It expires in 10 minutes.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="l-code" style="font-size: 14px; font-weight: 600">6-digit code</label>
+<input id="l-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" style="min-height: 56px; padding: 0 14px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 24px; letter-spacing: 0.4em; color: #0F1F1E">
+</div>
+<label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14.5px; cursor: pointer"><input type="checkbox" style="width: 18px; height: 18px; accent-color: #0B6A67">Trust this device for 30 days</label>
+<a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-weight: 700; font-size: 16px; text-decoration: none">Verify and sign in</a>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px">
+<button type="button" onClick="{{toPassword}}" style="min-height: 44px; padding: 0; border: 0; background: none; font-family: inherit; font-size: 14px; font-weight: 600; color: #0B6A67; cursor: pointer">Back</button>
+<button type="button" style="min-height: 44px; padding: 0; border: 0; background: none; font-family: inherit; font-size: 14px; font-weight: 600; color: #0B6A67; cursor: pointer">Send a new code</button>
+</div>
+</form>
+</sc-if>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const code = s.step === 'code';
+    return {
+      onPassword: !code, onCode: code,
+      step2bar: code ? '#0B6A67' : '#D9E3E2',
+      step2text: code ? '#064644' : '#5B6B6A',
+      toCode: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ step: 'code' }); },
+      toPassword: () => this.setState({ step: 'password' })
+    };
+  }
+}
+</script>
+</body>
+</html>

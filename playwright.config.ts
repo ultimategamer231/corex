@@ -7,7 +7,8 @@ import { defineConfig, devices } from "@playwright/test";
  * School, Finance and Clinic run against the local Supabase stack: `pnpm db:local:start`,
  * then `node scripts/school-env.mjs --schema e2e_school`,
  * `node scripts/school-env.mjs --app finance --schema e2e_finance` and
- * `node scripts/school-env.mjs --app clinic --schema e2e_clinic` before building.
+ * `node scripts/school-env.mjs --app clinic --schema e2e_clinic` and
+ * `node scripts/school-env.mjs --app admin --schema e2e_admin` before building.
  * Their setup projects rebuild those schemas with fixture data before the tests.
  */
 type App = {
@@ -49,6 +50,8 @@ const apps: App[] = [
     env: { DEMO_MODE: "true", DB_SCHEMA: "demo_clinic" },
   },
   { name: "finance", port: 3003, testDir: "e2e/finance" },
+  // Corex Admin (SPEC-ADMIN.md) on the e2e_admin fixture schema.
+  { name: "admin", port: 3008, testDir: "e2e/admin" },
   // The Finance build as its public demo on the seeded demo_finance schema.
   {
     name: "finance-demo",
@@ -113,6 +116,12 @@ export default defineConfig({
       testDir: "e2e/clinic",
       testMatch: /setup\.ts$/,
       dependencies: ["finance-demo-setup"],
+    },
+    {
+      name: "admin-setup",
+      testDir: "e2e/admin",
+      testMatch: /setup\.ts$/,
+      use: { baseURL: "http://localhost:3008" },
     },
     {
       name: "clinic-demo-setup",

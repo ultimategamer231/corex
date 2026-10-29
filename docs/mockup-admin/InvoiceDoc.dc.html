@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex invoice and receipt document</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<article aria-label="{{d.aria}}" style="position: relative; font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #FFFFFF; width: 100%; max-width: 794px; min-height: 1123px; box-sizing: border-box; padding: clamp(24px, 6vw, 56px) clamp(20px, 6vw, 56px) 40px; display: flex; flex-direction: column; gap: 28px; overflow: hidden">
+
+<sc-if value="{{d.isDraft}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" style="position: absolute; top: 420px; left: 50%; transform: translateX(-50%) rotate(-24deg); font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 120px; font-weight: 800; color: #EEF3F2; letter-spacing: 0.08em; pointer-events: none">DRAFT</div>
+</sc-if>
+
+<!-- Header -->
+<header style="position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<svg width="52" height="52" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#0B6A67"></circle><g fill="none" stroke="#FF5A12" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h7l5-7h7"></path><path d="M5 20h19"></path><path d="M12 20l5 7h7"></path><circle cx="27" cy="13" r="2.6"></circle><circle cx="27" cy="20" r="2.6"></circle><circle cx="27" cy="27" r="2.6"></circle></g></svg>
+<div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: 24px; line-height: 1.1; letter-spacing: -0.01em">Corex<br><span style="color: #0B6A67">Digital Solutions.</span></div>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right">
+<div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: clamp(34px, 6vw, 46px); font-weight: 800; letter-spacing: 0.06em; color: #0B6A67; line-height: 1">{{d.docTitle}}</div>
+<div style="font-size: 15px; font-weight: 700">{{d.dateLine}}</div>
+<div style="font-size: 13px; color: #3C4A49">{{d.numberLine}}</div>
+<span style="margin-top: 4px; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; color: {{d.statusFg}}; background: {{d.statusBg}}">{{d.status}}</span>
+</div>
+</header>
+
+<!-- From / To -->
+<div style="position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; font-size: 13.5px; line-height: 1.6">
+<div style="display: flex; flex-direction: column; min-width: 220px">
+<div style="font-weight: 700; margin-bottom: 2px">Office address</div>
+<div style="color: #3C4A49">[Street address]<br>Monrovia, Liberia</div>
+<div style="color: #3C4A49; margin-top: 8px">+231 775 178 905</div>
+</div>
+<div style="display: flex; flex-direction: column; min-width: 220px; max-width: 280px">
+<div style="font-weight: 700; margin-bottom: 2px">{{d.toLabel}}</div>
+<div style="font-weight: 700; color: #0B6A67">{{d.client}}</div>
+<div style="color: #3C4A49; white-space: pre-line">{{d.clientLines}}</div>
+</div>
+</div>
+
+<!-- Items -->
+<div style="position: relative">
+<table style="width: 100%; border-collapse: collapse; font-size: 13.5px">
+<thead>
+<tr style="background: #0B6A67; color: #FFFFFF">
+<th scope="col" style="text-align: left; padding: 13px 16px; font-weight: 600">Item description</th>
+<th scope="col" style="text-align: right; padding: 13px 12px; font-weight: 600; width: 104px">Unit price</th>
+<th scope="col" style="text-align: center; padding: 13px 12px; font-weight: 600; width: 50px">Qty</th>
+<th scope="col" style="text-align: right; padding: 13px 16px; font-weight: 600; width: 104px">Total</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{d.lines}}" as="l" hint-placeholder-count="2">
+<tr style="border-bottom: 1.5px solid #0F1F1E">
+<td style="padding: 16px 16px 14px; line-height: 1.45"><div style="font-weight: 700">{{l.title}}</div><div style="font-size: 12px; color: #5B6B6A; margin-top: 2px">{{l.sub}}</div></td>
+<td style="padding: 16px 12px 14px; text-align: right; font-weight: 600; white-space: nowrap">{{l.unit}}</td>
+<td style="padding: 16px 12px 14px; text-align: center; font-weight: 600">{{l.qty}}</td>
+<td style="padding: 16px 16px 14px; text-align: right; font-weight: 700; white-space: nowrap">{{l.amount}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+
+<!-- Note + totals -->
+<div style="position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px">
+<div style="flex: 1 1 240px; max-width: 320px; font-size: 12.5px; line-height: 1.55">
+<div style="font-weight: 700; margin-bottom: 4px">Note:</div>
+<div style="color: #3C4A49">{{d.note}}</div>
+</div>
+<div style="flex: 0 1 300px; display: flex; flex-direction: column; gap: 10px">
+<dl style="margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 8px 20px; font-size: 13.5px; padding-right: 16px">
+<sc-for list="{{d.totals}}" as="t" hint-placeholder-count="3">
+<dt style="text-align: right; font-weight: 700; color: {{t.c}}">{{t.k}}</dt>
+<dd style="margin: 0; text-align: right; font-weight: 700; color: {{t.c}}; white-space: nowrap">{{t.v}}</dd>
+</sc-for>
+</dl>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 18px; background: {{d.blockBg}}; color: #FFFFFF">
+<span style="font-size: 15px; font-weight: 700; letter-spacing: 0.06em">{{d.blockLabel}}</span>
+<span style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 22px; font-weight: 800; white-space: nowrap">{{d.blockValue}}</span>
+</div>
+</div>
+</div>
+
+<sc-if value="{{d.isReceipt}}" hint-placeholder-val="{{ false }}">
+<div style="position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px 18px; border: 2px solid #1E7B4A; border-radius: 10px; background: #F3FAF5; font-size: 13.5px">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #1E7B4A; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; color: #1E6B3F">Payment received with thanks</span><span style="color: #3C4A49">Orange Money · Reference OM-8842-1907 · Received by [Admin name]</span></span>
+</div>
+</sc-if>
+
+<div style="position: relative; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700; color: #0B6A67">Thank you for your business</div>
+
+<!-- Footer -->
+<footer style="position: relative; margin-top: auto; padding-top: 20px; border-top: 1.5px solid #0B6A67; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px 28px; font-size: 11.5px; line-height: 1.6">
+<div>
+<div style="font-size: 13px; font-weight: 700; color: #0B6A67; margin-bottom: 6px">Questions?</div>
+<div style="display: grid; grid-template-columns: auto 1fr; gap: 0 10px; color: #3C4A49"><span style="font-weight: 600; color: #0F1F1E">Email</span><span>[billing@your-domain]</span><span style="font-weight: 600; color: #0F1F1E">Call / WhatsApp</span><span>+231 775 178 905</span></div>
+</div>
+<div>
+<div style="font-size: 13px; font-weight: 700; color: #0B6A67; margin-bottom: 6px">{{d.payTitle}}</div>
+<div style="display: grid; grid-template-columns: auto 1fr; gap: 0 10px; color: #3C4A49">
+<sc-for list="{{d.pay}}" as="p" hint-placeholder-count="3"><span style="font-weight: 600; color: #0F1F1E">{{p.k}}</span><span>{{p.v}}</span></sc-for>
+</div>
+</div>
+<div>
+<div style="font-size: 13px; font-weight: 700; color: #0B6A67; margin-bottom: 6px">Terms and notes</div>
+<div style="color: #3C4A49">{{d.terms}}</div>
+</div>
+<div style="grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding-top: 10px; color: #5B6B6A; font-size: 11px">
+<span>Corex Digital Solutions · Tax ID: [if required]</span>
+<span>Generated 29 Oct 2026, 10:42 GMT · Page 1 of 1</span>
+</div>
+</footer>
+</article>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["invoice","receipt","draft"],"default":"invoice"},"$preview":{"width":794,"height":1123}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const kind = this.props.kind ?? 'invoice';
+    const row = (k, v, accent) => ({ k: k + ' :', v: v, c: accent ? '#0B6A67' : '#0F1F1E' });
+    const payInfo = [
+      { k: 'Orange Money', v: '[Corex merchant number]' },
+      { k: 'MTN MoMo', v: '[Corex MoMo number]' },
+      { k: 'Bank (USD)', v: '[Bank], acct [number]' },
+      { k: 'Reference', v: 'Your invoice number' }
+    ];
+    const D = {
+      invoice: {
+        aria: 'Invoice CX-2026-0012 for Hope Medical Center',
+        docTitle: 'INVOICE', dateLine: '22 October 2026', numberLine: 'No. CX-2026-0012 · Due 5 November 2026',
+        status: 'Sent', statusFg: '#1F3A8A', statusBg: '#E8EEFB',
+        toLabel: 'To:', client: 'Hope Medical Center',
+        clientLines: 'Attn: [Contact name], Administrator\n[Street address], Ganta, Nimba County\nbilling@hopemedical.example',
+        lines: [{ title: 'Clinic Management: Managed plan, first year', sub: 'Milestone 2 of 3: 30% at staging review. Contract CT-2026-004, total US$2,500.00', unit: 'US$750.00', qty: '1', amount: 'US$750.00' }],
+        totals: [row('SUBTOTAL', 'US$750.00', true), row('Tax', 'Not applied')],
+        blockLabel: 'TOTAL DUE :', blockValue: 'US$750.00', blockBg: '#0B6A67',
+        note: 'Please quote CX-2026-0012 with your payment. You can also view and download this invoice from the link in our email.',
+        payTitle: 'Payment info', pay: payInfo,
+        terms: 'Payment due within 14 days of the invoice date. Prices in US dollars.'
+      },
+      receipt: {
+        aria: 'Receipt RC-2026-0005 for Hope Medical Center',
+        docTitle: 'RECEIPT', dateLine: '30 September 2026', numberLine: 'No. RC-2026-0005 · For invoice CX-2026-0009',
+        status: 'Paid', statusFg: '#1E6B3F', statusBg: '#E7F5EC',
+        toLabel: 'Received from:', client: 'Hope Medical Center',
+        clientLines: 'Attn: [Contact name], Administrator\n[Street address], Ganta, Nimba County\nbilling@hopemedical.example',
+        lines: [{ title: 'Clinic Management: Managed plan, first year', sub: 'Milestone 1 of 3: 50% deposit at signing', unit: 'US$1,250.00', qty: '1', amount: 'US$1,250.00' }],
+        totals: [row('INVOICE TOTAL', 'US$1,250.00', true), row('Paid before', 'US$0.00'), row('Balance now', 'US$0.00')],
+        blockLabel: 'AMOUNT PAID :', blockValue: 'US$1,250.00', blockBg: '#1E7B4A',
+        note: 'This receipt confirms the payment below. Please keep it for your records.',
+        payTitle: 'Payment details', pay: [{ k: 'Method', v: 'Orange Money' }, { k: 'Reference', v: 'OM-8842-1907' }, { k: 'Date', v: '30 Sep 2026' }],
+        terms: 'Receipt issued automatically when the payment was recorded.'
+      },
+      draft: {
+        aria: 'Draft invoice for St. Peter’s College',
+        docTitle: 'INVOICE', dateLine: 'Date set on sending', numberLine: 'Number assigned on sending',
+        status: 'Draft', statusFg: '#3C4A49', statusBg: '#EEF3F2',
+        toLabel: 'To:', client: 'St. Peter’s College',
+        clientLines: 'Attn: Joseph Wleh, Registrar\n[Street address], Gbarnga, Bong County\nregistrar@stpeters.example',
+        lines: [{ title: 'School Management, College edition: Handover plan', sub: 'Milestone 1 of 3: 50% deposit at signing. Contract CT-2026-006, total US$4,000.00', unit: 'US$2,000.00', qty: '1', amount: 'US$2,000.00' }],
+        totals: [row('SUBTOTAL', 'US$2,000.00', true), row('Tax', 'Not applied')],
+        blockLabel: 'TOTAL DUE :', blockValue: 'US$2,000.00', blockBg: '#0B6A67',
+        note: 'Payment due within 14 days. Work begins once the deposit is received.',
+        payTitle: 'Payment info', pay: payInfo,
+        terms: 'Payment due within 14 days of the invoice date. Prices in US dollars.'
+      }
+    };
+    const d = D[kind] || D.invoice;
+    d.isDraft = kind === 'draft';
+    d.isReceipt = kind === 'receipt';
+    return { d: d };
+  }
+}
+</script>
+</body>
+</html>

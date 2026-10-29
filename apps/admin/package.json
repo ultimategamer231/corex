@@ -1,0 +1,43 @@
+{
+  "name": "@corex/admin",
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": "22.x"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3008",
+    "build": "next build",
+    "start": "next start --port 3008",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@corex/core": "workspace:*",
+    "@corex/ui": "workspace:*",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
+    "lucide-react": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@corex/config": "workspace:*",
+    "@corex/db": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "eslint": "9.39.5",
+    "jsdom": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

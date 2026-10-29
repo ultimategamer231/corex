@@ -1,5 +1,6 @@
 pnpm-lock.yaml
 docs/mockup/
+docs/mockup-admin/
 **/.next/
 **/.turbo/
 coverage/
@@ -7,3 +8,4 @@ playwright-report/
 test-results/
 supabase/.temp/
 docs/SPEC.md
+docs/SPEC-ADMIN.md
