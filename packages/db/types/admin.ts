@@ -262,6 +262,305 @@ export type Database = {
         };
         Relationships: [];
       };
+      client_contacts: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          created_by: string | null;
+          email: string | null;
+          id: string;
+          is_billing: boolean;
+          is_primary: boolean;
+          name: string;
+          phone: string | null;
+          phone_key: string | null;
+          title: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          id?: string;
+          is_billing?: boolean;
+          is_primary?: boolean;
+          name: string;
+          phone?: string | null;
+          phone_key?: never;
+          title?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          id?: string;
+          is_billing?: boolean;
+          is_primary?: boolean;
+          name?: string;
+          phone?: string | null;
+          phone_key?: never;
+          title?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "client_contacts_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      client_documents: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          mime_type: string;
+          name: string;
+          size_bytes: number;
+          storage_path: string;
+          updated_at: string;
+          uploaded_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          mime_type: string;
+          name: string;
+          size_bytes: number;
+          storage_path: string;
+          updated_at?: string;
+          uploaded_at?: string | null;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          mime_type?: string;
+          name?: string;
+          size_bytes?: number;
+          storage_path?: string;
+          updated_at?: string;
+          uploaded_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "client_documents_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      clients: {
+        Row: {
+          address: string | null;
+          city: string | null;
+          country: string | null;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          name: string;
+          notes: string | null;
+          source_lead_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          address?: string | null;
+          city?: string | null;
+          country?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          name: string;
+          notes?: string | null;
+          source_lead_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          address?: string | null;
+          city?: string | null;
+          country?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          name?: string;
+          notes?: string | null;
+          source_lead_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "clients_source_lead_id_fkey";
+            columns: ["source_lead_id"];
+            isOneToOne: true;
+            referencedRelation: "leads";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      contract_sequences: {
+        Row: {
+          last_number: number;
+          year: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          last_number?: number;
+          year: number;
+        };
+        Update: {
+          last_number?: number;
+          year?: number;
+        };
+        Relationships: [];
+      };
+      contracts: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          created_by: string | null;
+          currency: string;
+          id: string;
+          milestone_scheme: number[];
+          notes: string | null;
+          number: string;
+          plan: string;
+          product: string;
+          signed_on: string;
+          total_minor: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          currency: string;
+          id?: string;
+          milestone_scheme?: number[];
+          notes?: string | null;
+          number: string;
+          plan: string;
+          product: string;
+          signed_on: string;
+          total_minor: number;
+          updated_at?: string;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          currency?: string;
+          id?: string;
+          milestone_scheme?: number[];
+          notes?: string | null;
+          number?: string;
+          plan?: string;
+          product?: string;
+          signed_on?: string;
+          total_minor?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "contracts_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      deployments: {
+        Row: {
+          app_url: string | null;
+          client_id: string;
+          contract_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          environment: string;
+          hosting: string | null;
+          hosting_cost_currency: string | null;
+          hosting_cost_minor_per_month: number | null;
+          id: string;
+          product_version: string;
+          schema_name: string | null;
+          supabase_project_ref: string | null;
+          target_go_live: string | null;
+          updated_at: string;
+          warranty_ends_on: string | null;
+          went_live_on: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          app_url?: string | null;
+          client_id: string;
+          contract_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          environment?: string;
+          hosting?: string | null;
+          hosting_cost_currency?: string | null;
+          hosting_cost_minor_per_month?: number | null;
+          id?: string;
+          product_version?: string;
+          schema_name?: string | null;
+          supabase_project_ref?: string | null;
+          target_go_live?: string | null;
+          updated_at?: string;
+          warranty_ends_on?: string | null;
+          went_live_on?: string | null;
+        };
+        Update: {
+          app_url?: string | null;
+          client_id?: string;
+          contract_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          environment?: string;
+          hosting?: string | null;
+          hosting_cost_currency?: string | null;
+          hosting_cost_minor_per_month?: number | null;
+          id?: string;
+          product_version?: string;
+          schema_name?: string | null;
+          supabase_project_ref?: string | null;
+          target_go_live?: string | null;
+          updated_at?: string;
+          warranty_ends_on?: string | null;
+          went_live_on?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "deployments_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "deployments_contract_id_fkey";
+            columns: ["contract_id"];
+            isOneToOne: false;
+            referencedRelation: "contracts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       document_sequences: {
         Row: {
           kind: string;
@@ -596,6 +895,13 @@ export type Database = {
             referencedRelation: "admins";
             referencedColumns: ["id"];
           },
+          {
+            foreignKeyName: "leads_converted_client_fk";
+            columns: ["converted_client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
         ];
       };
       memberships: {
@@ -770,6 +1076,67 @@ export type Database = {
         };
         Relationships: [];
       };
+      subscriptions: {
+        Row: {
+          client_id: string;
+          contract_id: string;
+          created_at: string;
+          created_by: string | null;
+          currency: string;
+          ended_at: string | null;
+          id: string;
+          next_renewal_on: string | null;
+          paused_at: string | null;
+          renewal_amount_minor: number;
+          starts_on: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          contract_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          currency: string;
+          ended_at?: string | null;
+          id?: string;
+          next_renewal_on?: string | null;
+          paused_at?: string | null;
+          renewal_amount_minor: number;
+          starts_on?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          client_id?: string;
+          contract_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          currency?: string;
+          ended_at?: string | null;
+          id?: string;
+          next_renewal_on?: string | null;
+          paused_at?: string | null;
+          renewal_amount_minor?: number;
+          starts_on?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriptions_contract_id_fkey";
+            columns: ["contract_id"];
+            isOneToOne: true;
+            referencedRelation: "contracts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       trusted_devices: {
         Row: {
           created_at: string;
@@ -853,6 +1220,7 @@ export type Database = {
       audit_row_visible: { Args: { p_table_name: string }; Returns: boolean };
       billing_roles: { Args: Record<PropertyKey, never>; Returns: string[] };
       can_bill: { Args: Record<PropertyKey, never>; Returns: boolean };
+      create_client: { Args: { p: Json; p_lead_id: string }; Returns: string };
       current_admin_id: { Args: Record<PropertyKey, never>; Returns: string };
       current_admin_ok: { Args: Record<PropertyKey, never>; Returns: boolean };
       current_roles: { Args: Record<PropertyKey, never>; Returns: string[] };
@@ -894,6 +1262,14 @@ export type Database = {
       };
       log_login: { Args: Record<PropertyKey, never>; Returns: undefined };
       log_view: { Args: { p_record_id: string; p_table_name: string }; Returns: undefined };
+      milestone_amounts: {
+        Args: { p_scheme: number[]; p_total_minor: number };
+        Returns: {
+          amount_minor: number;
+          milestone_no: number;
+          percent: number;
+        }[];
+      };
       money_text: { Args: { p_currency: string; p_minor: number }; Returns: string };
       next_document_number: { Args: { p_kind: string }; Returns: number };
       rate_limit_hits: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
@@ -916,6 +1292,7 @@ export type Database = {
       };
       refresh_invoice_status: { Args: { p_invoice_id: string }; Returns: string };
       require_billing_role: { Args: Record<PropertyKey, never>; Returns: undefined };
+      valid_milestone_scheme: { Args: { p_scheme: number[] }; Returns: boolean };
       void_invoice: { Args: { p_invoice_id: string; p_reason: string }; Returns: undefined };
       void_payment: { Args: { p_payment_id: string; p_reason: string }; Returns: string };
     };

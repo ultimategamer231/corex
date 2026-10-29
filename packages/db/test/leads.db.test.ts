@@ -4,60 +4,23 @@ import type { TransactionSql } from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { verifyActivityLog } from "../src/admin/verify-log.ts";
 import { migrateSchema } from "../src/migrations.ts";
-import {
-  createTestUser,
-  deleteTestUsers,
-  dropSchemas,
-  localKeys,
-  testDb,
-  testEmail,
-  uniqueSchema,
-} from "./helpers.ts";
+import { asServiceRole, type TestAdmin, verifiedAdmin, asAdmin as runAs } from "./admin-helpers.ts";
+import { deleteTestUsers, dropSchemas, localKeys, testDb, uniqueSchema } from "./helpers.ts";
 
 const sql = testDb();
 const keys = localKeys();
 const schema = uniqueSchema("leads");
 const users: string[] = [];
-let admin: { userId: string; sessionId: string; adminId: string };
-let other: { userId: string; sessionId: string; adminId: string };
+let admin: TestAdmin;
+let other: TestAdmin;
 
-async function verifiedAdmin(username: string) {
-  const userId = await createTestUser(keys, testEmail("lead"), "Admin-Test-2026!");
-  users.push(userId);
-  const sessionId = randomUUID();
-  const [row] = await sql.unsafe<{ id: string }[]>(
-    `insert into ${schema}.admins (user_id, username, name, status)
-     values ($1, $2, $3, 'active') returning id`,
-    [userId, username, `Admin ${username}`],
-  );
-  await sql.unsafe(
-    `insert into ${schema}.admin_sessions (user_id, session_id, method) values ($1, $2, 'authenticator')`,
-    [userId, sessionId],
-  );
-  if (!row) throw new Error("admin not inserted");
-  return { userId, sessionId, adminId: row.id };
-}
-
-function asAdmin<T>(
+const asAdmin = <T>(
   who: { userId: string; sessionId: string },
   fn: (tx: TransactionSql) => Promise<T>,
-): Promise<T> {
-  return sql.begin(async (tx) => {
-    const claims = { sub: who.userId, role: "authenticated", session_id: who.sessionId };
-    await tx`select set_config('request.jwt.claims', ${JSON.stringify(claims)}, true)`;
-    await tx.unsafe("set local role authenticated");
-    return fn(tx);
-  }) as Promise<T>;
-}
+) => runAs(sql, who, fn);
 
 /** The website server: service role, no admin named. */
-function asWebsite<T>(fn: (tx: TransactionSql) => Promise<T>): Promise<T> {
-  return sql.begin(async (tx) => {
-    await tx`select set_config('request.jwt.claims', ${JSON.stringify({ role: "service_role" })}, true)`;
-    await tx.unsafe("set local role service_role");
-    return fn(tx);
-  }) as Promise<T>;
-}
+const asWebsite = <T>(fn: (tx: TransactionSql) => Promise<T>) => asServiceRole(sql, fn);
 
 async function websiteLead(phone = "+231 77 123 4567", email: string | null = null) {
   const [row] = await asWebsite((tx) =>
@@ -82,8 +45,8 @@ async function timeline(leadId: string) {
 
 beforeAll(async () => {
   await migrateSchema(sql, schema, "admin");
-  admin = await verifiedAdmin("fatu");
-  other = await verifiedAdmin("maima");
+  admin = await verifiedAdmin(sql, keys, schema, "fatu", users);
+  other = await verifiedAdmin(sql, keys, schema, "maima", users);
 });
 
 afterAll(async () => {

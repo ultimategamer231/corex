@@ -3,7 +3,7 @@ import { Badge } from "@corex/ui/components/badge";
 import { buttonVariants } from "@corex/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@corex/ui/components/card";
 import { cn } from "@corex/ui/lib/utils";
-import { Mail, MessageCircle } from "lucide-react";
+import { Building2, Mail, MessageCircle } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -119,6 +119,23 @@ export default async function LeadPage({ params }: Props) {
               Email
             </a>
           ) : null}
+          {lead.converted_client_id ? (
+            <Link
+              href={`/clients/${lead.converted_client_id}`}
+              className={buttonVariants({ variant: "primary" })}
+            >
+              <Building2 aria-hidden="true" />
+              Open client
+            </Link>
+          ) : (
+            <Link
+              href={`/leads/${lead.id}/convert`}
+              className={buttonVariants({ variant: "accent" })}
+            >
+              <Building2 aria-hidden="true" />
+              Convert to client
+            </Link>
+          )}
         </div>
       </header>
 
@@ -129,10 +146,13 @@ export default async function LeadPage({ params }: Props) {
             {duplicates.map((d) => (
               <li key={d.id}>
                 Same {d.matched_on === "phone" ? "phone number" : "email"} as{" "}
-                <Link href={`/leads/${d.id}`} className="font-semibold underline">
+                <Link
+                  href={d.stage === "client" ? `/clients/${d.id}` : `/leads/${d.id}`}
+                  className="font-semibold underline"
+                >
                   {d.organization} ({d.name})
                 </Link>
-                , {stageLabel(d.stage)}.
+                , {d.stage === "client" ? "a client contact" : stageLabel(d.stage)}.
               </li>
             ))}
           </ul>

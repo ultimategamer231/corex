@@ -93,6 +93,7 @@ export async function seedAdminFixture(
     };
   }
   await seedLeads(sql, s);
+  await seedClients(sql, s);
   return { schema: s, users };
 }
 
@@ -184,6 +185,18 @@ async function seedLeads(sql: Sql, s: string): Promise<void> {
        quote_note = 'College edition, Handover plan, data migration from Excel' where id = $1`,
     [college, adminId(ids, "owner")],
   );
+  await add([
+    "Fatu Kamara",
+    "Paynesville Women's Cooperative",
+    "Liberia",
+    "finance",
+    "managed",
+    "+231 77 555 0606",
+    "fatu@pwc.example",
+    "About 300 members; savings and small loans.",
+    "/software/finance",
+    10,
+  ]);
   const [pharmacy] = await sql.unsafe<{ id: string }[]>(
     `insert into ${s}.leads (source, name, organization, country, product, phone, message, created_at)
      values ('manual', 'Grace Flomo', 'Unity Pharmacy', 'Liberia', 'on-request', '0777 555 050',
@@ -194,4 +207,89 @@ async function seedLeads(sql: Sql, s: string): Promise<void> {
     `update ${s}.leads set stage = 'lost', lost_reason = 'Chose a cheaper supplier' where id = $1`,
     [pharmacy?.id ?? null],
   );
+}
+
+/**
+ * Clients from the mockup (Clients.dc.html), one per status: setting up, renewal due,
+ * grace period and a Handover client in warranty. Dates are relative to today so the
+ * statuses hold whenever the tests run.
+ */
+async function seedClients(sql: Sql, s: string): Promise<void> {
+  const base = {
+    country: "Liberia",
+    contact_title: "Administrator",
+    currency: "USD",
+    milestone_scheme: [50, 30, 20],
+    hosting_cost_minor: 1000,
+    hosting_cost_currency: "USD",
+  };
+  const create = async (details: Record<string, unknown>) => {
+    const [row] = await sql.unsafe<{ id: string }[]>(
+      `select ${s}.create_client(null, $1::jsonb) as id`,
+      [details as never],
+    );
+    if (!row) throw new Error("client not created");
+    return row.id;
+  };
+  const goLive = (clientId: string, daysAgo: number) =>
+    sql.unsafe(
+      `update ${s}.deployments set environment = 'live', went_live_on = current_date - $2::int
+       where client_id = $1`,
+      [clientId, daysAgo],
+    );
+
+  await create({
+    ...base,
+    name: "Hope Medical Center",
+    city: "Ganta",
+    contact_name: "Esther Dolo",
+    contact_phone: "+231 88 555 0601",
+    contact_email: "admin@hopemedical.example",
+    product: "clinic",
+    plan: "managed",
+    total_minor: 250000,
+    signed_on: "2026-09-16",
+    renewal_minor: 60000,
+    target_go_live: "2026-11-15",
+  });
+  const riverside = await create({
+    ...base,
+    name: "Riverside Traders",
+    city: "Monrovia",
+    contact_name: "Moses Toe",
+    contact_phone: "+231 77 555 0602",
+    product: "finance",
+    plan: "managed",
+    total_minor: 150000,
+    signed_on: "2025-10-01",
+    renewal_minor: 30000,
+  });
+  await goLive(riverside, 345);
+  const bright = await create({
+    ...base,
+    name: "Bright Future NGO",
+    country: "Sierra Leone",
+    city: "Freetown",
+    contact_name: "Aminata Sesay",
+    contact_email: "finance@brightfuture.example",
+    product: "finance",
+    plan: "managed",
+    total_minor: 150000,
+    signed_on: "2025-09-20",
+    renewal_minor: 30000,
+  });
+  await goLive(bright, 377);
+  const lakeside = await create({
+    ...base,
+    name: "Lakeside Institute",
+    city: "Buchanan",
+    contact_name: "Daniel Kpoto",
+    contact_phone: "+231 88 555 0604",
+    product: "school_college",
+    plan: "handover",
+    total_minor: 400000,
+    signed_on: "2026-08-12",
+    renewal_minor: null,
+  });
+  await goLive(lakeside, 18);
 }
