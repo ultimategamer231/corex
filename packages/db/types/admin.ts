@@ -749,6 +749,7 @@ export type Database = {
         };
         Returns: string;
       };
+      audit_noun: { Args: { p_table_name: string }; Returns: string };
       audit_redact: { Args: { p_row: Json }; Returns: Json };
       audit_row_visible: { Args: { p_table_name: string }; Returns: boolean };
       billing_roles: { Args: Record<PropertyKey, never>; Returns: string[] };
