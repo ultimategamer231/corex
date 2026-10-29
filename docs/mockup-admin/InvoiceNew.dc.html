@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex Admin — New invoice</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #F6FAF9; min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased">
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div style="width: 248px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #D9E3E2"><dc-import name="Sidebar" active="invoices" hint-size="248px,900px"></dc-import></div>
+</sc-if>
+
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Topbar" hint-size="100%,64px"></dc-import>
+
+<main style="width: 100%; max-width: 1400px; box-sizing: border-box; padding: clamp(16px, 3vw, 32px); display: flex; flex-direction: column; gap: 20px">
+
+<nav aria-label="Breadcrumb" style="font-size: 14px; color: #5B6B6A"><a href="Invoices.dc.html" style="color: #0B6A67; font-weight: 600; text-decoration: none">Invoices</a> / New invoice</nav>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">New invoice</h1>
+<span style="font-size: 14px; color: #5B6B6A">The number is assigned when the invoice is sent: next is CX-2026-0014</span>
+</div>
+
+<div role="status" style="display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; background: #E7F5EC; border: 1px solid #BFE3CC; font-size: 14.5px; line-height: 1.5; color: #1E4D31">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E7B4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><path d="M20 6 9 17l-5-5"></path></svg>
+<span><strong>St. Peter's College is now a client.</strong> Three milestone drafts were created from contract CT-2026-006. This is milestone 1.</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+<form style="flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+<section aria-labelledby="bill-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<h2 id="bill-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Client and terms</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="in-client" style="font-size: 13.5px; font-weight: 600">Client</label><select id="in-client" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #0F1F1E"><option>St. Peter's College</option><option>Hope Medical Center</option><option>Riverside Traders</option><option>Kakata Community School</option><option>Bright Future NGO</option><option>Lakeside Institute</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="in-contact" style="font-size: 13.5px; font-weight: 600">Send to</label><select id="in-contact" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #0F1F1E"><option>Joseph Wleh (registrar@stpeters.example)</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="in-due" style="font-size: 13.5px; font-weight: 600">Payment due</label><select id="in-due" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #0F1F1E"><option>7 days after sending</option><option selected="">14 days after sending</option><option>30 days after sending</option><option>On a set date</option></select></div>
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 6px">
+<legend style="font-size: 13.5px; font-weight: 600; padding: 0; margin-bottom: 6px">Currency</legend>
+<div style="display: inline-flex; padding: 3px; border-radius: 10px; background: #E6F2F1; align-self: flex-start">
+<button type="button" onClick="{{setUsd}}" aria-pressed="{{usdPressed}}" style="min-height: 38px; min-width: 64px; padding: 0 14px; border-radius: 8px; border: 0; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; background: {{usdBg}}; color: #0F1F1E">USD</button>
+<button type="button" onClick="{{setLrd}}" aria-pressed="{{lrdPressed}}" style="min-height: 38px; min-width: 64px; padding: 0 14px; border-radius: 8px; border: 0; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; background: {{lrdBg}}; color: #0F1F1E">LRD</button>
+</div>
+</fieldset>
+</div>
+</section>
+
+<section aria-labelledby="ms-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px"><h2 id="ms-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Milestone from contract</h2><span style="font-size: 13.5px; color: #5B6B6A">CT-2026-006 · total US$4,000.00</span></div>
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px">
+<legend style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Milestone to invoice</legend>
+<sc-for list="{{milestones}}" as="m" hint-placeholder-count="3">
+<label style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 14px; border-radius: 10px; border: 1.5px solid {{m.border}}; background: {{m.bg}}; cursor: pointer">
+<input type="radio" name="milestone" checked="{{m.on}}" onChange="{{m.pick}}" style="width: 18px; height: 18px; accent-color: #0B6A67">
+<span style="flex: 1 1 auto; display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 14.5px">{{m.title}}</span><span style="font-size: 13px; color: #5B6B6A">{{m.sub}}</span></span>
+<span style="font-weight: 700">{{m.amount}}</span>
+</label>
+</sc-for>
+</fieldset>
+</section>
+
+<section aria-labelledby="li-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<h2 id="li-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Line items</h2>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14px">
+<thead><tr style="text-align: left">
+<th scope="col" style="padding: 0 8px 8px 0; font-size: 12.5px; color: #3C4A49">Description</th>
+<th scope="col" style="padding: 0 8px 8px; font-size: 12.5px; color: #3C4A49; width: 64px">Qty</th>
+<th scope="col" style="padding: 0 8px 8px; font-size: 12.5px; color: #3C4A49; width: 120px">Unit price ({{cur}})</th>
+<th scope="col" style="padding: 0 0 8px 8px; font-size: 12.5px; color: #3C4A49; width: 110px; text-align: right">Amount</th>
+<th scope="col" style="width: 44px"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Remove</span></th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="padding: 6px 8px 6px 0"><label for="li-desc" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Description</label><textarea id="li-desc" rows="2" style="width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1.5px solid #C9D9D7; border-radius: 8px; font-family: inherit; font-size: 14px; line-height: 1.4; color: #0F1F1E; resize: vertical">School Management, College edition: Handover plan. Milestone 1 of 3: 50% deposit at signing</textarea></td>
+<td style="padding: 6px 8px"><label for="li-qty" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Quantity</label><input id="li-qty" value="1" inputmode="numeric" style="width: 100%; box-sizing: border-box; min-height: 40px; padding: 0 10px; border: 1.5px solid #C9D9D7; border-radius: 8px; font-family: inherit; font-size: 14px; color: #0F1F1E"></td>
+<td style="padding: 6px 8px"><label for="li-unit" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Unit price</label><input id="li-unit" value="{{unit}}" inputmode="decimal" style="width: 100%; box-sizing: border-box; min-height: 40px; padding: 0 10px; border: 1.5px solid #C9D9D7; border-radius: 8px; font-family: inherit; font-size: 14px; color: #0F1F1E; text-align: right"></td>
+<td style="padding: 6px 0 6px 8px; text-align: right; font-weight: 700">{{unit}}</td>
+<td style="padding: 6px 0 6px 4px"><button type="button" aria-label="Remove line" style="width: 40px; height: 40px; border-radius: 8px; border: 0; background: transparent; color: #5B6B6A; cursor: pointer; display: inline-flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path></svg></button></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" style="display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1.5px dashed #A9C4C1; background: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 600; color: #0B6A67; cursor: pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add a line</button>
+<label for="li-price" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Add from price list</label>
+<select id="li-price" style="min-height: 40px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 8px; background: #FFFFFF; font-family: inherit; font-size: 14px; color: #0F1F1E"><option>Add from price list</option><option>Data migration (US$200–500)</option><option>On-site training day (US$100)</option><option>Custom work, per hour (US$25–40)</option></select>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; padding-top: 8px">
+<div style="display: flex; flex-direction: column; gap: 10px; flex: 1 1 220px">
+<sc-if value="{{noDisc}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{addDisc}}" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1.5px dashed #A9C4C1; background: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 600; color: #0B6A67; cursor: pointer">Add a discount</button>
+</sc-if>
+<sc-if value="{{hasDisc}}" hint-placeholder-val="{{ false }}">
+<fieldset style="margin: 0; padding: 12px; border: 1px solid #E3ECEB; border-radius: 10px; background: #F6FAF9; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px">
+<legend style="padding: 0 4px; font-size: 13.5px; font-weight: 600">Discount</legend>
+<div style="display: flex; flex-direction: column; gap: 4px"><label for="dc-type" style="font-size: 12.5px; color: #3C4A49">Type</label><select id="dc-type" style="min-height: 40px; padding: 0 10px; border: 1.5px solid #C9D9D7; border-radius: 8px; background: #FFFFFF; font-family: inherit; font-size: 14px; color: #0F1F1E"><option selected="">Percent</option><option>Fixed amount</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><label for="dc-val" style="font-size: 12.5px; color: #3C4A49">Value</label><input id="dc-val" value="5" inputmode="decimal" style="width: 80px; min-height: 40px; padding: 0 10px; border: 1.5px solid #C9D9D7; border-radius: 8px; font-family: inherit; font-size: 14px; color: #0F1F1E"></div>
+<div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 140px"><label for="dc-why" style="font-size: 12.5px; color: #3C4A49">Reason (internal)</label><input id="dc-why" value="Early signing" style="min-height: 40px; padding: 0 10px; border: 1.5px solid #C9D9D7; border-radius: 8px; font-family: inherit; font-size: 14px; color: #0F1F1E"></div>
+<button type="button" onClick="{{removeDisc}}" style="min-height: 40px; padding: 0 10px; border: 0; background: none; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #A1190F; cursor: pointer">Remove</button>
+</fieldset>
+</sc-if>
+</div>
+<dl style="margin: 0; width: 100%; max-width: 300px; display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; font-size: 14.5px">
+<dt style="color: #5B6B6A">Subtotal</dt><dd style="margin: 0; text-align: right">{{sym}}{{unit}}</dd>
+<sc-if value="{{hasDisc}}" hint-placeholder-val="{{ false }}"><dt style="color: #5B6B6A">Discount (5%)</dt><dd style="margin: 0; text-align: right; color: #1E6B3F">−{{sym}}{{discAmt}}</dd></sc-if>
+<dt style="color: #5B6B6A">Tax</dt><dd style="margin: 0; text-align: right; color: #5B6B6A">Not applied (Settings)</dd>
+<dt style="font-weight: 800; font-size: 17px; padding-top: 8px; border-top: 2px solid #0F1F1E">Total</dt><dd style="margin: 0; text-align: right; font-weight: 800; font-size: 17px; padding-top: 8px; border-top: 2px solid #0F1F1E">{{sym}}{{total}}</dd>
+</dl>
+</div>
+</section>
+
+<section aria-labelledby="nt-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="nt-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Note on the invoice</h2>
+<label for="in-note" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Note</label>
+<textarea id="in-note" rows="2" style="padding: 10px 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 14.5px; line-height: 1.5; color: #0F1F1E; resize: vertical">Payment due within 14 days. Work begins once the deposit is received.</textarea>
+<p style="margin: 0; font-size: 13px; color: #5B6B6A">Payment instructions (mobile money and bank) are added automatically from Settings.</p>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 16px 0 8px">
+<button type="button" style="min-height: 48px; padding: 0 18px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 600; color: #0F1F1E; cursor: pointer">Save draft</button>
+<button type="button" style="display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 10px; border: 1.5px solid #0B6A67; background: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 600; color: #0B6A67; cursor: pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Save and download PDF</button>
+<a href="InvoiceDetail.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 20px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-size: 15px; font-weight: 700; text-decoration: none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-11 11"></path><path d="M22 2 15 22l-4-9-9-4z"></path></svg>Save and email</a>
+</div>
+</form>
+
+<aside aria-labelledby="pv-h" style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 id="pv-h" style="margin: 0; font-size: 14px; font-weight: 700; color: #3C4A49; text-transform: uppercase; letter-spacing: 0.08em">Preview</h2><span style="font-size: 13px; color: #5B6B6A">Matches the PDF</span></div>
+<div style="border-radius: 12px; border: 1px solid #D9E3E2; overflow: hidden; box-shadow: 0 10px 30px rgba(6, 70, 68, 0.10); background: #FFFFFF">
+<dc-import name="InvoiceDoc" kind="draft" hint-size="100%,1123px"></dc-import>
+</div>
+</aside>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 900; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const lrd = s.cur === 'LRD';
+    const pick = s.ms === undefined ? 0 : s.ms;
+    const ms = [['Milestone 1: 50% deposit at signing', 'Due at signing', 2000], ['Milestone 2: 30% at staging review', 'Draft, send when staging is approved', 1200], ['Milestone 3: 20% at go-live', 'Draft, send at go-live', 800]];
+    const milestones = ms.map((m, i) => ({
+      title: m[0], sub: m[1], amount: 'US$' + m[2].toLocaleString('en-US') + '.00',
+      on: i === pick, border: i === pick ? '#0B6A67' : '#D9E3E2', bg: i === pick ? '#F2F8F7' : '#FFFFFF',
+      pick: () => this.setState({ ms: i })
+    }));
+    const base = ms[pick][2];
+    const disc = !!s.disc;
+    const off = disc ? base * 0.05 : 0;
+    const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const unit = fmt(base);
+    return {
+      wide: !s.narrow, milestones: milestones, unit: unit,
+      hasDisc: disc, noDisc: !disc, discAmt: fmt(off), total: fmt(base - off),
+      addDisc: () => this.setState({ disc: true }), removeDisc: () => this.setState({ disc: false }),
+      cur: lrd ? 'LRD' : 'USD', sym: lrd ? 'L$' : 'US$',
+      usdPressed: lrd ? 'false' : 'true', lrdPressed: lrd ? 'true' : 'false',
+      usdBg: lrd ? 'transparent' : '#FFFFFF', lrdBg: lrd ? '#FFFFFF' : 'transparent',
+      setUsd: () => this.setState({ cur: 'USD' }), setLrd: () => this.setState({ cur: 'LRD' })
+    };
+  }
+}
+</script>
+</body>
+</html>

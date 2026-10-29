@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex Admin top bar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<header style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #FFFFFF; border-bottom: 1px solid #D9E3E2; position: relative; z-index: 20">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 64px; padding: 10px clamp(16px, 3vw, 32px); box-sizing: border-box">
+
+<sc-if value="{{narrow}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{toggleMenu}}" aria-expanded="{{menuExpanded}}" aria-controls="admin-drawer" aria-label="Menu" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #0F1F1E; cursor: pointer">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path></svg></button>
+<a href="Main.dc.html" aria-label="Corex Admin dashboard" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; margin-right: auto">
+<svg width="28" height="28" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#0B6A67"></circle><g fill="none" stroke="#FF5A12" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h7l5-7h7"></path><path d="M5 20h19"></path><path d="M12 20l5 7h7"></path><circle cx="27" cy="13" r="2.6"></circle><circle cx="27" cy="20" r="2.6"></circle><circle cx="27" cy="27" r="2.6"></circle></g></svg>
+<span style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: 18px; color: #0B6A67">Core<span style="color: #E04A08">X</span></span>
+</a>
+</sc-if>
+
+<form role="search" style="flex: 1 1 280px; max-width: 520px; order: {{searchOrder}}; position: relative; display: flex; align-items: center">
+<label for="admin-search" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Search leads, clients and invoices</label>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6B6A" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 14px"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<input id="admin-search" type="search" placeholder="Search leads, clients, invoices" style="width: 100%; min-height: 44px; padding: 0 64px 0 42px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #F6FAF9; font-family: inherit; font-size: 15px; color: #0F1F1E; box-sizing: border-box">
+<kbd style="position: absolute; right: 10px; padding: 2px 7px; border-radius: 6px; border: 1px solid #D9E3E2; background: #FFFFFF; font-family: inherit; font-size: 12px; color: #5B6B6A">Ctrl K</kbd>
+</form>
+
+<div style="display: flex; align-items: center; gap: 8px; margin-left: auto">
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<span style="padding: 4px 10px; border-radius: 999px; background: #FFF1E9; color: #8A2E00; font-size: 12.5px; font-weight: 700; white-space: nowrap">Sample data</span>
+</sc-if>
+<button type="button" aria-label="Notifications, 3 unread" style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #0F1F1E; cursor: pointer">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+<span aria-hidden="true" style="position: absolute; top: 9px; right: 10px; width: 9px; height: 9px; border-radius: 50%; background: #E04A08; border: 2px solid #FFFFFF"></span>
+</button>
+<div style="position: relative">
+<button type="button" onClick="{{toggleNew}}" aria-expanded="{{newExpanded}}" aria-haspopup="menu" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 0; background: #FF5A12; color: #1B0A02; font-family: inherit; font-weight: 700; font-size: 14.5px; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>New</button>
+<sc-if value="{{newOpen}}" hint-placeholder-val="{{ false }}">
+<div role="menu" style="position: absolute; right: 0; top: 52px; width: 230px; padding: 6px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2; box-shadow: 0 12px 32px rgba(6, 70, 68, 0.16); display: flex; flex-direction: column">
+<a role="menuitem" href="InvoiceNew.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; font-size: 14.5px; font-weight: 600; color: #0F1F1E; text-decoration: none">New invoice</a>
+<a role="menuitem" href="InvoiceDetail.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; font-size: 14.5px; font-weight: 600; color: #0F1F1E; text-decoration: none">Record a payment</a>
+<a role="menuitem" href="Leads.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; font-size: 14.5px; font-weight: 600; color: #0F1F1E; text-decoration: none">Add a lead manually</a>
+<a role="menuitem" href="Clients.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; font-size: 14.5px; font-weight: 600; color: #0F1F1E; text-decoration: none">Add a client</a>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+
+<sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+<nav id="admin-drawer" aria-label="Admin" style="border-top: 1px solid #D9E3E2; padding: 8px 16px 16px; display: flex; flex-direction: column; background: #FFFFFF">
+<a href="Main.dc.html" style="display: flex; align-items: center; min-height: 48px; font-size: 16px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Dashboard</a>
+<a href="Leads.dc.html" style="display: flex; align-items: center; justify-content: space-between; min-height: 48px; font-size: 16px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Leads<span style="padding: 1px 8px; border-radius: 999px; background: #FF5A12; color: #1B0A02; font-size: 12px; font-weight: 700">2 new</span></a>
+<a href="Clients.dc.html" style="display: flex; align-items: center; min-height: 48px; font-size: 16px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Clients</a>
+<a href="Subscriptions.dc.html" style="display: flex; align-items: center; min-height: 48px; font-size: 16px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Subscriptions</a>
+<a href="Invoices.dc.html" style="display: flex; align-items: center; min-height: 48px; font-size: 16px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Invoices &amp; receipts</a>
+<a href="Settings.dc.html" style="display: flex; align-items: center; min-height: 48px; font-size: 16px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Settings</a>
+<a href="ActivityLog.dc.html" style="display: flex; align-items: center; min-height: 48px; font-size: 16px; font-weight: 600; color: #0F1F1E; text-decoration: none; border-bottom: 1px solid #EEF3F2">Activity log</a>
+<a href="Login.dc.html" style="display: flex; align-items: center; min-height: 48px; font-size: 16px; font-weight: 600; color: #A1190F; text-decoration: none">Sign out</a>
+</nav>
+</sc-if>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1192,"height":72}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 900; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n, menu: false }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const narrow = !!s.narrow;
+    const menu = narrow && !!s.menu;
+    const nw = !!s.newOpen;
+    return {
+      narrow: narrow, wide: !narrow,
+      searchOrder: narrow ? '10' : '0',
+      menuOpen: menu, menuExpanded: menu ? 'true' : 'false',
+      toggleMenu: () => this.setState({ menu: !menu, newOpen: false }),
+      newOpen: nw, newExpanded: nw ? 'true' : 'false',
+      toggleNew: () => this.setState({ newOpen: !nw, menu: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

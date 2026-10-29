@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex Admin — Clients</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #F6FAF9; min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased">
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div style="width: 248px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #D9E3E2"><dc-import name="Sidebar" active="clients" hint-size="248px,900px"></dc-import></div>
+</sc-if>
+
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Topbar" hint-size="100%,64px"></dc-import>
+
+<main style="width: 100%; max-width: 1280px; box-sizing: border-box; padding: clamp(16px, 3vw, 32px); display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">Clients</h1>
+<p style="margin: 0; font-size: 14.5px; color: #5B6B6A">Organizations with a signed contract, their systems and what they owe.</p>
+</div>
+<button type="button" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #0B6A67; color: #FFFFFF; font-family: inherit; font-weight: 700; font-size: 14.5px; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add client</button>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px">
+<div style="padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2"><div style="font-size: 13px; font-weight: 600; color: #5B6B6A">Clients</div><div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 24px; font-weight: 700; margin-top: 4px">5</div></div>
+<div style="padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2"><div style="font-size: 13px; font-weight: 600; color: #5B6B6A">Managed plan</div><div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 24px; font-weight: 700; margin-top: 4px">4</div></div>
+<div style="padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2"><div style="font-size: 13px; font-weight: 600; color: #5B6B6A">Yearly renewals</div><div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 24px; font-weight: 700; margin-top: 4px">US$1,650</div></div>
+<div style="padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2"><div style="font-size: 13px; font-weight: 600; color: #5B6B6A">Balance owed</div><div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 24px; font-weight: 700; margin-top: 4px">US$1,750</div></div>
+</div>
+
+<div role="tablist" aria-label="Filter by status" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+<button type="button" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}" style="flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border: 1.5px solid {{t.border}}; background: {{t.bg}}; color: {{t.fg}}">{{t.label}}<span style="padding: 0 7px; border-radius: 999px; font-size: 12px; background: {{t.cbg}}; color: {{t.cfg}}">{{t.count}}</span></button>
+</sc-for>
+</div>
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; overflow-x: auto">
+<table style="width: 100%; min-width: 900px; border-collapse: collapse; font-size: 14px">
+<thead>
+<tr style="background: #F6FAF9; text-align: left">
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Client</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">System</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Plan</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Status</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Key date</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49; text-align: right">Balance (USD)</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: #3C4A49">Client since</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+<tr style="border-top: 1px solid #EEF3F2">
+<td style="padding: 14px 16px"><a href="ClientDetail.dc.html" style="display: flex; flex-direction: column; gap: 2px; text-decoration: none"><span style="font-weight: 600; color: #0B6A67">{{r.name}}</span><span style="font-size: 13px; color: #5B6B6A">{{r.place}}</span></a></td>
+<td style="padding: 14px 16px">{{r.product}}</td>
+<td style="padding: 14px 16px">{{r.plan}}</td>
+<td style="padding: 14px 16px"><span style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; color: {{r.fg}}; background: {{r.bg}}">{{r.status}}</span></td>
+<td style="padding: 14px 16px; white-space: nowrap; color: #3C4A49">{{r.date}}</td>
+<td style="padding: 14px 16px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums">{{r.balance}}</td>
+<td style="padding: 14px 16px; color: #5B6B6A">{{r.since}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+
+<sc-if value="{{narrow}}" hint-placeholder-val="{{ false }}">
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+<li><a href="ClientDetail.dc.html" style="display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2; color: inherit; text-decoration: none">
+<span style="display: flex; justify-content: space-between; gap: 10px"><span style="font-weight: 700; font-size: 15.5px">{{r.name}}</span><span style="flex-shrink: 0; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: {{r.fg}}; background: {{r.bg}}">{{r.status}}</span></span>
+<span style="font-size: 13.5px; color: #3C4A49">{{r.product}} · {{r.plan}}</span>
+<span style="display: flex; justify-content: space-between; font-size: 13.5px"><span style="color: #5B6B6A">{{r.date}}</span><span style="font-weight: 700">US{{r.balance}}</span></span>
+</a></li>
+</sc-for>
+</ul>
+</sc-if>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 900; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const f = s.filter || 'all';
+    const T = {
+      'Setting up': { fg: '#1F3A8A', bg: '#E8EEFB', group: 'setup' },
+      'Active': { fg: '#1E6B3F', bg: '#E7F5EC', group: 'active' },
+      'Renewal due': { fg: '#7A4E00', bg: '#FFF4DB', group: 'due' },
+      'Grace period': { fg: '#A1190F', bg: '#FDECEA', group: 'due' },
+      'In warranty': { fg: '#3B2F8F', bg: '#EEF0FB', group: 'active' }
+    };
+    const raw = [
+      ['Hope Medical Center', 'Ganta, Liberia', 'Clinic Management', 'Managed', 'Setting up', 'Go-live 15 Nov 2026', '$750.00', 'Sep 2026'],
+      ['Kakata Community School', 'Kakata, Liberia', 'School: High School', 'Managed', 'Active', 'Renews 15 Sep 2027', '$0.00', 'Jul 2026'],
+      ['Riverside Traders', 'Monrovia, Liberia', 'Financial Management', 'Managed', 'Renewal due', 'Renews 20 Nov 2026', '$300.00', 'Nov 2025'],
+      ['Bright Future NGO', 'Freetown, Sierra Leone', 'Financial Management', 'Managed', 'Grace period', 'Was due 17 Oct 2026', '$300.00', 'Oct 2025'],
+      ['Lakeside Institute', 'Buchanan, Liberia', 'School: College', 'Handover', 'In warranty', 'Warranty ends 10 Dec 2026', '$400.00', 'Aug 2026']
+    ];
+    const all = raw.map((x) => ({ name: x[0], place: x[1], product: x[2], plan: x[3], status: x[4], fg: T[x[4]].fg, bg: T[x[4]].bg, group: T[x[4]].group, date: x[5], balance: x[6], since: x[7] }));
+    const opts = [['all', 'All'], ['active', 'Active'], ['setup', 'Setting up'], ['due', 'Renewal due or overdue']];
+    const tabs = opts.map((o) => {
+      const on = o[0] === f;
+      const n = o[0] === 'all' ? all.length : all.filter((r) => r.group === o[0]).length;
+      return {
+        label: o[1], count: String(n), sel: on ? 'true' : 'false',
+        border: on ? '#0B6A67' : '#D9E3E2', bg: on ? '#0B6A67' : '#FFFFFF', fg: on ? '#FFFFFF' : '#0F1F1E',
+        cbg: on ? '#FFFFFF' : '#EEF3F2', cfg: on ? '#064644' : '#3C4A49',
+        pick: () => this.setState({ filter: o[0] })
+      };
+    });
+    const rows = all.filter((r) => f === 'all' || r.group === f);
+    return { wide: !s.narrow, narrow: !!s.narrow, tabs: tabs, rows: rows };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex Admin — Subscriptions</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #F6FAF9; min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased">
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div style="width: 248px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #D9E3E2"><dc-import name="Sidebar" active="subs" hint-size="248px,900px"></dc-import></div>
+</sc-if>
+
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Topbar" hint-size="100%,64px"></dc-import>
+
+<main style="width: 100%; max-width: 1280px; box-sizing: border-box; padding: clamp(16px, 3vw, 32px); display: flex; flex-direction: column; gap: 24px">
+
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">Subscriptions and renewals</h1>
+<p style="margin: 0; font-size: 14.5px; color: #5B6B6A">Yearly renewals for Managed clients, and warranty periods for Handover clients.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px">
+<div style="padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2"><div style="font-size: 13px; font-weight: 600; color: #5B6B6A">Active subscriptions</div><div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 24px; font-weight: 700; margin-top: 4px">4</div></div>
+<div style="padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2"><div style="font-size: 13px; font-weight: 600; color: #5B6B6A">Renewal value per year</div><div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 24px; font-weight: 700; margin-top: 4px">US$1,650</div></div>
+<div style="padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2"><div style="font-size: 13px; font-weight: 600; color: #5B6B6A">Due in next 30 days</div><div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 24px; font-weight: 700; margin-top: 4px; color: #7A4E00">1</div></div>
+<div style="padding: 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #D9E3E2"><div style="font-size: 13px; font-weight: 600; color: #5B6B6A">In grace period</div><div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 24px; font-weight: 700; margin-top: 4px; color: #A1190F">1</div></div>
+</div>
+
+<section aria-labelledby="ren-h" style="display: flex; flex-direction: column; gap: 12px">
+<h2 id="ren-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 19px; font-weight: 700">Managed plan renewals</h2>
+<div style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; overflow-x: auto">
+<table style="width: 100%; min-width: 960px; border-collapse: collapse; font-size: 14px">
+<thead>
+<tr style="background: #F6FAF9; text-align: left">
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49">Client</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49">Renewal date</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49; text-align: right">Amount (USD)</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49">Status</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49">Reminders sent</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49">Renewal invoice</th>
+<th scope="col" style="padding: 12px 16px; font-size: 12.5px; color: #3C4A49"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Actions</span></th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{subs}}" as="r" hint-placeholder-count="4">
+<tr style="border-top: 1px solid #EEF3F2">
+<td style="padding: 14px 16px"><a href="ClientDetail.dc.html" style="display: flex; flex-direction: column; gap: 2px; text-decoration: none"><span style="font-weight: 600; color: #0B6A67">{{r.client}}</span><span style="font-size: 13px; color: #5B6B6A">{{r.system}}</span></a></td>
+<td style="padding: 14px 16px"><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">{{r.date}}</span><span style="font-size: 13px; color: {{r.relC}}">{{r.rel}}</span></span></td>
+<td style="padding: 14px 16px; text-align: right; font-weight: 600">{{r.amount}}</td>
+<td style="padding: 14px 16px"><span style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; color: {{r.fg}}; background: {{r.bg}}">{{r.status}}</span></td>
+<td style="padding: 14px 16px">
+<span style="display: inline-flex; gap: 6px">
+<sc-for list="{{r.rem}}" as="x" hint-placeholder-count="3"><span style="padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; color: {{x.fg}}; background: {{x.bg}}">{{x.label}}</span></sc-for>
+</span>
+</td>
+<td style="padding: 14px 16px; white-space: nowrap">{{r.invoice}}</td>
+<td style="padding: 14px 16px; text-align: right"><a href="{{r.href}}" style="display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 12px; border-radius: 8px; border: 1.5px solid #D9E3E2; font-size: 13.5px; font-weight: 600; color: #0B6A67; text-decoration: none; white-space: nowrap; box-sizing: border-box">{{r.action}}</a></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<section aria-labelledby="war-h" style="display: flex; flex-direction: column; gap: 12px">
+<h2 id="war-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 19px; font-weight: 700">Handover warranties</h2>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; padding: 18px 20px; border-radius: 14px; background: #FFFFFF; border: 1px solid #D9E3E2">
+<span style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 2px"><a href="ClientDetail.dc.html" style="font-weight: 600; color: #0B6A67; text-decoration: none">Lakeside Institute</a><span style="font-size: 13px; color: #5B6B6A">School: College · went live 10 Oct 2026</span></span>
+<span style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; justify-content: space-between; font-size: 13px"><span style="font-weight: 600">60-day warranty</span><span style="color: #5B6B6A">42 days left · ends 10 Dec</span></span>
+<span style="height: 8px; border-radius: 999px; background: #EEF3F2; overflow: hidden"><span style="display: block; width: 30%; height: 100%; background: #6650B8"></span></span>
+</span>
+<button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1.5px solid #D9E3E2; background: #FFFFFF; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #0B6A67; cursor: pointer">Offer a support plan</button>
+</div>
+</section>
+
+<section aria-labelledby="rule-h" style="display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 14px; background: #E6F2F1">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px"><h2 id="rule-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">How renewals run</h2><a href="Settings.dc.html" style="display: inline-flex; align-items: center; min-height: 32px; font-size: 13.5px; font-weight: 600; color: #064644">Change in Settings</a></div>
+<ol style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; font-size: 14px; line-height: 1.5; color: #23302F">
+<li><strong style="display: block; color: #064644">30 days before</strong>Renewal invoice is drafted and emailed with the first reminder.</li>
+<li><strong style="display: block; color: #064644">14 and 3 days before</strong>Reminder emails, if still unpaid.</li>
+<li><strong style="display: block; color: #064644">Due date passes</strong>Client enters a 30-day grace period. The system keeps running.</li>
+<li><strong style="display: block; color: #064644">30 days overdue</strong>Flagged for an admin to export the data, send it, and pause the system.</li>
+</ol>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 900; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const done = { fg: '#1E6B3F', bg: '#E7F5EC' }, todo = { fg: '#5B6B6A', bg: '#F1F5F4' };
+    const rem = (a, b, c) => [['30d', a], ['14d', b], ['3d', c]].map((x) => ({ label: x[0] + (x[1] ? ' ✓' : ''), fg: x[1] ? done.fg : todo.fg, bg: x[1] ? done.bg : todo.bg }));
+    const subs = [
+      { client: 'Bright Future NGO', system: 'Financial Management', date: '17 Oct 2026', rel: '12 days overdue · pause flag on 16 Nov', relC: '#A1190F', amount: '300.00', status: 'Grace period', fg: '#A1190F', bg: '#FDECEA', rem: rem(true, true, true), invoice: 'CX-2026-0010 · Overdue', action: 'Send reminder', href: 'InvoiceDetail.dc.html' },
+      { client: 'Riverside Traders', system: 'Financial Management', date: '20 Nov 2026', rel: 'In 22 days', relC: '#7A4E00', amount: '300.00', status: 'Due soon', fg: '#7A4E00', bg: '#FFF4DB', rem: rem(true, false, false), invoice: 'CX-2026-0011 · Sent', action: 'View invoice', href: 'InvoiceDetail.dc.html' },
+      { client: 'Kakata Community School', system: 'School: High School', date: '15 Sep 2027', rel: 'In 321 days', relC: '#5B6B6A', amount: '450.00', status: 'Active', fg: '#1E6B3F', bg: '#E7F5EC', rem: rem(false, false, false), invoice: 'Drafted 16 Aug 2027', action: 'Open client', href: 'ClientDetail.dc.html' },
+      { client: 'Hope Medical Center', system: 'Clinic Management', date: '15 Nov 2027', rel: 'Starts at go-live', relC: '#5B6B6A', amount: '600.00', status: 'Starts at go-live', fg: '#1F3A8A', bg: '#E8EEFB', rem: rem(false, false, false), invoice: '—', action: 'Open client', href: 'ClientDetail.dc.html' }
+    ];
+    return { wide: !s.narrow, subs: subs };
+  }
+}
+</script>
+</body>
+</html>

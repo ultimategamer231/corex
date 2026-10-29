@@ -1,0 +1,44 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-10-29T01:10:00Z"},
+  "title": "Corex Admin Mockup",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 1520, "y": 1800, "w": 1440, "h": 1500, "title": "Dashboard", "expand": "fill", "is_interactive": true},
+    "Sidebar.dc.html": {"x": 0, "y": 0, "w": 248, "h": 1000, "title": "Component: Sidebar", "is_interactive": true},
+    "Topbar.dc.html": {"x": 328, "y": 0, "w": 1192, "h": 72, "title": "Component: Top bar", "is_interactive": true},
+    "InvoiceDoc.dc.html": {"x": 1600, "y": 0, "w": 794, "h": 1123, "title": "Component: Invoice / receipt PDF"},
+    "Login.dc.html": {"x": 0, "y": 1800, "w": 1440, "h": 900, "title": "Sign in + two-step code", "expand": "fill", "is_interactive": true},
+    "DashboardMobile.dc.html": {"x": 3040, "y": 1800, "w": 390, "h": 2900, "title": "Dashboard — mobile", "is_interactive": true},
+    "Leads.dc.html": {"x": 0, "y": 5300, "w": 1440, "h": 1150, "title": "Leads", "expand": "fill", "is_interactive": true},
+    "LeadsMobile.dc.html": {"x": 1520, "y": 5300, "w": 390, "h": 2100, "title": "Leads — mobile", "is_interactive": true},
+    "LeadDetail.dc.html": {"x": 1990, "y": 5300, "w": 1440, "h": 1400, "title": "Lead detail + convert to client", "expand": "fill", "is_interactive": true},
+    "Clients.dc.html": {"x": 0, "y": 7900, "w": 1440, "h": 1000, "title": "Clients", "expand": "fill", "is_interactive": true},
+    "ClientDetail.dc.html": {"x": 1520, "y": 7900, "w": 1440, "h": 1600, "title": "Client detail", "expand": "fill", "is_interactive": true},
+    "Subscriptions.dc.html": {"x": 3040, "y": 7900, "w": 1440, "h": 1300, "title": "Subscriptions & renewals", "expand": "fill", "is_interactive": true},
+    "Invoices.dc.html": {"x": 0, "y": 10100, "w": 1440, "h": 1150, "title": "Invoices & receipts", "expand": "fill", "is_interactive": true},
+    "InvoiceNew.dc.html": {"x": 1520, "y": 10100, "w": 1440, "h": 1700, "title": "New invoice", "expand": "fill", "is_interactive": true},
+    "InvoiceDetail.dc.html": {"x": 3040, "y": 10100, "w": 1440, "h": 1700, "title": "Invoice detail + payment", "expand": "fill", "is_interactive": true},
+    "InvoiceDetailMobile.dc.html": {"x": 4560, "y": 10100, "w": 390, "h": 3000, "title": "Invoice detail — mobile", "is_interactive": true},
+    "Settings.dc.html": {"x": 0, "y": 13600, "w": 1440, "h": 1400, "title": "Settings", "expand": "fill", "is_interactive": true},
+    "ActivityLog.dc.html": {"x": 1520, "y": 13600, "w": 1440, "h": 1300, "title": "Activity log (permanent)", "expand": "fill", "is_interactive": true}
+  },
+  "order": [
+    "Main.dc.html", "Sidebar.dc.html", "Topbar.dc.html", "InvoiceDoc.dc.html",
+    "Login.dc.html", "DashboardMobile.dc.html",
+    "Leads.dc.html", "LeadsMobile.dc.html", "LeadDetail.dc.html",
+    "Clients.dc.html", "ClientDetail.dc.html", "Subscriptions.dc.html",
+    "Invoices.dc.html", "InvoiceNew.dc.html", "InvoiceDetail.dc.html", "InvoiceDetailMobile.dc.html",
+    "Settings.dc.html", "ActivityLog.dc.html"
+  ],
+  "notes": {
+    "t0": {"x": 0, "y": -300, "text": "Shared components", "kind": "title1", "maxW": 2400},
+    "t1": {"x": 0, "y": 1500, "text": "Sign in · Dashboard", "kind": "title1", "maxW": 3430},
+    "t2": {"x": 0, "y": 5000, "text": "Leads", "kind": "title1", "maxW": 3430},
+    "t3": {"x": 0, "y": 7600, "text": "Clients · Subscriptions", "kind": "title1", "maxW": 4480},
+    "t4": {"x": 0, "y": 9800, "text": "Invoices and receipts", "kind": "title1", "maxW": 4950},
+    "t5": {"x": 0, "y": 13300, "text": "Settings · Activity log", "kind": "title1", "maxW": 2960}
+  },
+  "designSystems": []
+}

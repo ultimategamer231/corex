@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex Admin — Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #F6FAF9; min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased">
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div style="width: 248px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #D9E3E2"><dc-import name="Sidebar" active="settings" hint-size="248px,900px"></dc-import></div>
+</sc-if>
+
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Topbar" hint-size="100%,64px"></dc-import>
+
+<main style="width: 100%; max-width: 1280px; box-sizing: border-box; padding: clamp(16px, 3vw, 32px); display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">Settings</h1>
+<p style="margin: 0; font-size: 14.5px; color: #5B6B6A">Every change is recorded in the activity log.</p>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+<nav aria-label="Settings sections" style="flex: 1 1 200px; max-width: 240px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{sections}}" as="x" hint-placeholder-count="6">
+<button type="button" onClick="{{x.pick}}" aria-current="{{x.cur}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 9px; border: 0; text-align: left; font-family: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; color: {{x.fg}}; background: {{x.bg}}">{{x.label}}</button>
+</sc-for>
+</nav>
+
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+<!-- COMPANY -->
+<sc-if value="{{s.company}}" hint-placeholder-val="{{ true }}">
+<section aria-labelledby="co-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+<div><h2 id="co-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 19px; font-weight: 700">Company details</h2><p style="margin: 4px 0 0; font-size: 14px; color: #5B6B6A">Shown on every invoice, receipt and email.</p></div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
+<span aria-hidden="true" style="width: 64px; height: 64px; border-radius: 14px; background: #E6F2F1; display: flex; align-items: center; justify-content: center"><svg width="44" height="44" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="#0B6A67"></circle><g fill="none" stroke="#FF5A12" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h7l5-7h7"></path><path d="M5 20h19"></path><path d="M12 20l5 7h7"></path><circle cx="27" cy="13" r="2.6"></circle><circle cx="27" cy="20" r="2.6"></circle><circle cx="27" cy="27" r="2.6"></circle></g></svg></span>
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; font-family: inherit; font-weight: 600; font-size: 14px; color: #0F1F1E; cursor: pointer">Replace logo</button>
+<span style="font-size: 13px; color: #5B6B6A">PNG or SVG, at least 400 px wide</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="co-name" style="font-size: 13.5px; font-weight: 600">Legal name</label><input id="co-name" value="Corex Digital Solutions" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="co-tax" style="font-size: 13.5px; font-weight: 600">Tax ID <span style="font-weight: 400; color: #5B6B6A">(if required)</span></label><input id="co-tax" placeholder="Ask your accountant" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="co-phone" style="font-size: 13.5px; font-weight: 600">Phone / WhatsApp</label><input id="co-phone" value="+231 775 178 905" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="co-email" style="font-size: 13.5px; font-weight: 600">Billing email (sender)</label><input id="co-email" placeholder="billing@your-domain" aria-describedby="co-email-status" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"><span id="co-email-status" style="display: inline-flex; align-self: flex-start; padding: 2px 8px; border-radius: 999px; background: #FFF4DB; color: #7A4E00; font-size: 12px; font-weight: 700">Domain not verified in Resend</span></div>
+<div role="note" style="grid-column: 1 / -1; display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; background: #FFF6E5; border: 1px solid #F2D9A6; font-size: 13.5px; line-height: 1.55; color: #5A3A00"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A4E00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg><span>Invoices and receipts can be downloaded now. Emailing them to clients turns on once the sending domain is verified in Resend.</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; grid-column: 1 / -1"><label for="co-addr" style="font-size: 13.5px; font-weight: 600">Address</label><input id="co-addr" placeholder="[Street address], Monrovia, Liberia" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"></div>
+</div>
+<div style="display: flex; justify-content: flex-end"><button type="button" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: 0; background: #0B6A67; color: #FFFFFF; font-family: inherit; font-weight: 700; font-size: 14.5px; cursor: pointer">Save changes</button></div>
+</section>
+</sc-if>
+
+<!-- INVOICING -->
+<sc-if value="{{s.invoicing}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="iv-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+<div><h2 id="iv-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 19px; font-weight: 700">Invoicing and payments</h2><p style="margin: 4px 0 0; font-size: 14px; color: #5B6B6A">Numbering, terms and the payment instructions printed on invoices.</p></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="iv-pre" style="font-size: 13.5px; font-weight: 600">Invoice prefix</label><input id="iv-pre" value="CX-2026-" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="rc-pre" style="font-size: 13.5px; font-weight: 600">Receipt prefix</label><input id="rc-pre" value="RC-2026-" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="iv-terms" style="font-size: 13.5px; font-weight: 600">Default payment terms</label><select id="iv-terms" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #0F1F1E"><option>7 days</option><option selected="">14 days</option><option>30 days</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="iv-cur" style="font-size: 13.5px; font-weight: 600">Default currency</label><select id="iv-cur" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #0F1F1E"><option selected="">USD</option><option>LRD</option></select></div>
+</div>
+<p style="margin: 0; font-size: 13.5px; color: #5B6B6A">Numbers are sequential and never reused. Next invoice: CX-2026-0014. Next receipt: RC-2026-0007.</p>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 10px; background: #F6FAF9; border: 1px solid #E3ECEB">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Tax on invoices</span><span style="font-size: 13px; color: #5B6B6A">Off. Turn on only after your accountant confirms the rate.</span></span>
+<button type="button" role="switch" aria-checked="false" aria-label="Tax on invoices" style="position: relative; width: 52px; height: 30px; border-radius: 999px; border: 0; background: #C9D9D7; cursor: pointer"><span style="position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #FFFFFF"></span></button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<h3 style="margin: 0; font-size: 15px; font-weight: 700">Payment methods on invoices</h3>
+<sc-for list="{{methods}}" as="m" hint-placeholder-count="4">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 1px solid #E3ECEB">
+<span style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">{{m.name}}</span><span style="font-size: 13px; color: #5B6B6A">{{m.detail}}</span></span>
+<span style="padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; color: {{m.fg}}; background: {{m.bg}}">{{m.state}}</span>
+<button type="button" style="min-height: 40px; padding: 0 12px; border-radius: 8px; border: 1.5px solid #D9E3E2; background: #FFFFFF; font-family: inherit; font-weight: 600; font-size: 13.5px; color: #0B6A67; cursor: pointer">Edit</button>
+</div>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<!-- PRICE LIST -->
+<sc-if value="{{s.prices}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="pl-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px"><div><h2 id="pl-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 19px; font-weight: 700">Price list</h2><p style="margin: 4px 0 0; font-size: 14px; color: #5B6B6A">Used to prefill invoices and quotes. Changing a price never changes past invoices.</p></div><button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; font-family: inherit; font-weight: 600; font-size: 14px; color: #0B6A67; cursor: pointer">Add item</button></div>
+<div style="overflow-x: auto; border: 1px solid #E3ECEB; border-radius: 10px">
+<table style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 14px">
+<thead><tr style="background: #F6FAF9; text-align: left"><th scope="col" style="padding: 12px 14px; font-size: 12.5px; color: #3C4A49">Item</th><th scope="col" style="padding: 12px 14px; font-size: 12.5px; color: #3C4A49; text-align: right">Managed: year 1</th><th scope="col" style="padding: 12px 14px; font-size: 12.5px; color: #3C4A49; text-align: right">Renewal / year</th><th scope="col" style="padding: 12px 14px; font-size: 12.5px; color: #3C4A49; text-align: right">Handover</th></tr></thead>
+<tbody>
+<sc-for list="{{prices}}" as="p" hint-placeholder-count="7">
+<tr style="border-top: 1px solid #EEF3F2"><th scope="row" style="padding: 12px 14px; text-align: left; font-weight: 600">{{p.name}}</th><td style="padding: 12px 14px; text-align: right">{{p.a}}</td><td style="padding: 12px 14px; text-align: right">{{p.r}}</td><td style="padding: 12px 14px; text-align: right">{{p.b}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<p style="margin: 0; font-size: 13px; color: #5B6B6A">All prices in USD. Starting prices from the business plan, still to be confirmed by the team.</p>
+</section>
+</sc-if>
+
+<!-- RENEWALS -->
+<sc-if value="{{s.renewals}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="rn-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<div><h2 id="rn-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 19px; font-weight: 700">Renewal automation</h2><p style="margin: 4px 0 0; font-size: 14px; color: #5B6B6A">Runs every morning at 07:00 Monrovia time.</p></div>
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="4">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 10px; border: 1px solid #E3ECEB">
+<span style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">{{r.title}}</span><span style="font-size: 13px; color: #5B6B6A">{{r.sub}}</span></span>
+<button type="button" role="switch" aria-checked="true" aria-label="{{r.title}}" style="position: relative; width: 52px; height: 30px; border-radius: 999px; border: 0; background: #0B6A67; cursor: pointer"><span style="position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border-radius: 50%; background: #FFFFFF"></span></button>
+</div>
+</sc-for>
+<div style="display: flex; flex-direction: column; gap: 6px; max-width: 280px"><label for="rn-min" style="font-size: 13.5px; font-weight: 600">Minimum renewal vs hosting cost</label><select id="rn-min" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #0F1F1E"><option>2×</option><option selected="">3×</option><option>4×</option></select><span style="font-size: 12.5px; color: #5B6B6A">Clients below this show a warning.</span></div>
+</section>
+</sc-if>
+
+<!-- TEAM -->
+<sc-if value="{{s.team}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="tm-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+<div><h2 id="tm-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 19px; font-weight: 700">Team</h2><p style="margin: 4px 0 0; font-size: 14px; color: #5B6B6A">Accounts are invite-only. Every admin has full access, and everything they do is recorded in the activity log.</p></div>
+<form style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; padding: 14px; border-radius: 12px; background: #F6FAF9; border: 1px solid #E3ECEB">
+<div style="flex: 2 1 200px; display: flex; flex-direction: column; gap: 6px"><label for="tm-name" style="font-size: 13.5px; font-weight: 600">Name</label><input id="tm-name" type="text" placeholder="Full name" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E; background: #FFFFFF"></div>
+<div style="flex: 2 1 220px; display: flex; flex-direction: column; gap: 6px"><label for="tm-email" style="font-size: 13.5px; font-weight: 600">Email</label><input id="tm-email" type="email" placeholder="name@your-domain.com" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E; background: #FFFFFF"></div>
+<button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #0B6A67; color: #FFFFFF; font-family: inherit; font-weight: 700; font-size: 14.5px; cursor: pointer">Send invite</button>
+</form>
+<div style="overflow-x: auto; border: 1px solid #E3ECEB; border-radius: 10px">
+<table style="width: 100%; min-width: 640px; border-collapse: collapse; font-size: 14px">
+<thead><tr style="background: #F6FAF9; text-align: left"><th scope="col" style="padding: 12px 14px; font-size: 12.5px; color: #3C4A49">Person</th><th scope="col" style="padding: 12px 14px; font-size: 12.5px; color: #3C4A49">Role</th><th scope="col" style="padding: 12px 14px; font-size: 12.5px; color: #3C4A49">Status</th><th scope="col" style="padding: 12px 14px; font-size: 12.5px; color: #3C4A49">Last active</th><th scope="col" style="padding: 12px 14px"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Actions</span></th></tr></thead>
+<tbody>
+<sc-for list="{{team}}" as="t" hint-placeholder-count="3">
+<tr style="border-top: 1px solid #EEF3F2">
+<td style="padding: 12px 14px"><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">{{t.name}}</span><span style="font-size: 13px; color: #5B6B6A">{{t.email}}</span></span></td>
+<td style="padding: 12px 14px">{{t.role}}</td>
+<td style="padding: 12px 14px"><span style="padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; color: {{t.fg}}; background: {{t.bg}}">{{t.mfa}}</span></td>
+<td style="padding: 12px 14px; color: #3C4A49">{{t.last}}</td>
+<td style="padding: 12px 14px; text-align: right"><button type="button" style="min-height: 40px; padding: 0 12px; border-radius: 8px; border: 1.5px solid #D9E3E2; background: #FFFFFF; font-family: inherit; font-weight: 600; font-size: 13.5px; color: #0B6A67; cursor: pointer">{{t.action}}</button></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<p style="margin: 0; font-size: 13.5px; line-height: 1.55; color: #5B6B6A">Removing an admin blocks their sign-in at once. Their past entries stay in the activity log. At least one admin must always remain.</p>
+</section>
+</sc-if>
+
+<!-- SECURITY -->
+<sc-if value="{{s.security}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="sc-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<div><h2 id="sc-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 19px; font-weight: 700">Security</h2><p style="margin: 4px 0 0; font-size: 14px; color: #5B6B6A">These protect client contact details and money records.</p></div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 10px; border: 1px solid #E3ECEB"><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Email sign-in code for everyone</span><span style="font-size: 13px; color: #5B6B6A">After the password, a 6-digit code is emailed. It expires in 10 minutes.</span></span><span style="padding: 3px 9px; border-radius: 999px; background: #E7F5EC; color: #1E6B3F; font-size: 12px; font-weight: 700">Always on</span></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="sc-time" style="font-size: 13.5px; font-weight: 600">Sign out after inactivity</label><select id="sc-time" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #0F1F1E"><option>1 hour</option><option selected="">4 hours</option><option>8 hours</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="sc-trust" style="font-size: 13.5px; font-weight: 600">Trusted devices expire after</label><select id="sc-trust" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #0F1F1E"><option>7 days</option><option selected="">30 days</option></select></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<a href="ActivityLog.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #D9E3E2; font-weight: 600; font-size: 14px; color: #0B6A67; text-decoration: none; box-sizing: border-box">View activity log</a>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #D9E3E2; font-weight: 600; font-size: 14px; color: #0B6A67; text-decoration: none; box-sizing: border-box">Export all data</a>
+</div>
+</section>
+</sc-if>
+
+</div>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 900; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const st = this.state || {};
+    const cur = st.sec || 'team';
+    const list = [['company', 'Company details'], ['invoicing', 'Invoicing and payments'], ['prices', 'Price list'], ['renewals', 'Renewals'], ['team', 'Team'], ['security', 'Security']];
+    const sections = list.map((x) => {
+      const on = x[0] === cur;
+      return { label: x[1], cur: on ? 'page' : 'false', fg: on ? '#064644' : '#0F1F1E', bg: on ? '#E6F2F1' : 'transparent', pick: () => this.setState({ sec: x[0] }) };
+    });
+    const s = {};
+    list.forEach((x) => { s[x[0]] = x[0] === cur; });
+    const on = { fg: '#1E6B3F', bg: '#E7F5EC' }, off = { fg: '#3C4A49', bg: '#EEF3F2' };
+    const methods = [
+      ['Orange Money', '[Corex merchant number] · Corex Digital Solutions', true],
+      ['MTN Mobile Money', '[Corex MoMo number] · Corex Digital Solutions', true],
+      ['Bank transfer (USD)', '[Bank name] · account [number] · SWIFT [code]', true],
+      ['USDT', 'Not shown on invoices', false]
+    ].map((m) => ({ name: m[0], detail: m[1], state: m[2] ? 'Shown' : 'Hidden', fg: m[2] ? on.fg : off.fg, bg: m[2] ? on.bg : off.bg }));
+    const prices = [
+      { name: 'Financial Management (SME)', a: '$1,200', r: '$300', b: '$1,800' },
+      { name: 'School Management: High School', a: '$1,800', r: '$450', b: '$2,500' },
+      { name: 'Clinic Management', a: '$2,500', r: '$600', b: '$3,500' },
+      { name: 'School Management: College', a: '$3,000', r: '$750', b: '$4,000' },
+      { name: 'Data migration', a: '$200–$500', r: '—', b: '$200–$500' },
+      { name: 'On-site training, per day', a: '$100', r: '—', b: '$100' },
+      { name: 'Custom work, per hour', a: '$25–$40', r: '—', b: '$25–$40' }
+    ];
+    const rules = [
+      { title: 'Draft and email the renewal invoice 30 days before', sub: 'Uses the client’s renewal amount and billing contact' },
+      { title: 'Send reminders 14 and 3 days before', sub: 'Only while the invoice is unpaid' },
+      { title: 'Start a 30-day grace period after the due date', sub: 'The client’s system keeps running' },
+      { title: 'Flag for pause after 30 days overdue', sub: 'An admin exports the data, sends it and pauses. Nothing happens automatically' }
+    ];
+    const team = [
+      { name: '[Admin name]', email: 'you@your-domain.com', role: 'Admin', mfa: 'Active', fg: on.fg, bg: on.bg, last: 'Now', action: 'Edit' },
+      { name: 'Maima G.', email: 'maima@your-domain.com', role: 'Admin', mfa: 'Active', fg: on.fg, bg: on.bg, last: 'Today, 08:40', action: 'Remove' },
+      { name: '[Name]', email: 'name@your-domain.com', role: 'Admin', mfa: 'Invite pending', fg: '#7A4E00', bg: '#FFF4DB', last: '—', action: 'Resend invite' }
+    ];
+    const Y = '✓', N = '—';
+    const g = '#1E6B3F', m = '#8A9998';
+    const pr = [
+      ['See leads and clients', 1, 1, 1], ['Edit leads, convert to client', 1, 1, 0], ['Create and send invoices', 1, 0, 1],
+      ['Record and void payments', 1, 0, 1], ['Change prices and settings', 1, 0, 0], ['Invite admins and change roles', 1, 0, 0]
+    ];
+    const perms = pr.map((p) => ({ a: p[0], o: p[1] ? Y : N, s: p[2] ? Y : N, f: p[3] ? Y : N, oc: p[1] ? g : m, sc: p[2] ? g : m, fc: p[3] ? g : m }));
+    return { wide: !st.narrow, sections: sections, s: s, methods: methods, prices: prices, rules: rules, team: team, perms: perms };
+  }
+}
+</script>
+</body>
+</html>

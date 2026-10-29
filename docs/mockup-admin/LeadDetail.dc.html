@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex Admin — Lead: St. Peter's College</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #F6FAF9; min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased; position: relative">
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div style="width: 248px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #D9E3E2"><dc-import name="Sidebar" active="leads" hint-size="248px,900px"></dc-import></div>
+</sc-if>
+
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Topbar" hint-size="100%,64px"></dc-import>
+
+<main style="width: 100%; max-width: 1280px; box-sizing: border-box; padding: clamp(16px, 3vw, 32px); display: flex; flex-direction: column; gap: 20px">
+
+<nav aria-label="Breadcrumb" style="font-size: 14px; color: #5B6B6A"><a href="Leads.dc.html" style="color: #0B6A67; font-weight: 600; text-decoration: none">Leads</a> / St. Peter's College</nav>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">St. Peter's College</h1>
+<span style="padding: 4px 10px; border-radius: 999px; background: #FFF1E9; color: #8A2E00; font-size: 12.5px; font-weight: 700">Quoted</span>
+</div>
+<p style="margin: 0; font-size: 15px; color: #3C4A49">Joseph Wleh, Registrar · Gbarnga, Liberia · Received 12 Oct 2026</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<a href="https://wa.me/231000000000" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #0F1F1E; font-weight: 600; font-size: 14.5px; text-decoration: none; box-sizing: border-box">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1 1 21 11.5z"></path></svg>WhatsApp</a>
+<a href="mailto:registrar@stpeters.example" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #0F1F1E; font-weight: 600; font-size: 14.5px; text-decoration: none; box-sizing: border-box">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>Email</a>
+<button type="button" onClick="{{openConvert}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #FF5A12; color: #1B0A02; font-family: inherit; font-weight: 700; font-size: 14.5px; cursor: pointer">Convert to client</button>
+</div>
+</div>
+
+<!-- stage stepper -->
+<ol aria-label="Lead stage" style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{steps}}" as="st" hint-placeholder-count="5">
+<li aria-current="{{st.cur}}" style="flex: 1 1 120px; display: flex; flex-direction: column; gap: 6px">
+<span style="height: 6px; border-radius: 999px; background: {{st.bar}}"></span>
+<span style="font-size: 13px; font-weight: {{st.w}}; color: {{st.c}}">{{st.label}}</span>
+</li>
+</sc-for>
+</ol>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+<div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+<section aria-labelledby="req-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px">
+<h2 id="req-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Original request</h2>
+<span style="font-size: 13px; color: #5B6B6A">Quote form on /software/school · 12 Oct 2026, 14:06</span>
+</div>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px 24px; font-size: 14.5px">
+<div><dt style="font-size: 12.5px; font-weight: 600; color: #5B6B6A">Interested in</dt><dd style="margin: 2px 0 0; font-weight: 600">School Management: College</dd></div>
+<div><dt style="font-size: 12.5px; font-weight: 600; color: #5B6B6A">Plan</dt><dd style="margin: 2px 0 0; font-weight: 600">Handover (you host it)</dd></div>
+<div><dt style="font-size: 12.5px; font-weight: 600; color: #5B6B6A">Phone / WhatsApp</dt><dd style="margin: 2px 0 0; font-weight: 600">+231 [number]</dd></div>
+<div><dt style="font-size: 12.5px; font-weight: 600; color: #5B6B6A">Email</dt><dd style="margin: 2px 0 0; font-weight: 600">registrar@stpeters.example</dd></div>
+<div><dt style="font-size: 12.5px; font-weight: 600; color: #5B6B6A">Country</dt><dd style="margin: 2px 0 0; font-weight: 600">Liberia</dd></div>
+<div><dt style="font-size: 12.5px; font-weight: 600; color: #5B6B6A">Consent to contact</dt><dd style="margin: 2px 0 0; font-weight: 600">Yes</dd></div>
+</dl>
+<blockquote style="margin: 0; padding: 14px 16px; border-radius: 10px; background: #F6FAF9; font-size: 15px; line-height: 1.6; color: #3C4A49">"We have about 900 students across 4 programs and keep grades in Excel. We want our own server and need transcripts with our letterhead."</blockquote>
+</section>
+
+<section aria-labelledby="act-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<h2 id="act-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Notes and activity</h2>
+<form style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 12px; border: 1px solid #E3ECEB; background: #F6FAF9">
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<label for="n-type" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Activity type</label>
+<select id="n-type" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E"><option>Note</option><option>Call</option><option>WhatsApp</option><option>Meeting</option><option>Demo</option></select>
+</div>
+<label for="n-text" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Note</label>
+<textarea id="n-text" rows="3" placeholder="What happened, what was agreed, what's next" style="padding: 10px 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 15px; line-height: 1.5; color: #0F1F1E; resize: vertical"></textarea>
+<div style="display: flex; justify-content: flex-end"><button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #0B6A67; color: #FFFFFF; font-family: inherit; font-weight: 700; font-size: 14.5px; cursor: pointer">Add to timeline</button></div>
+</form>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+<sc-for list="{{timeline}}" as="t" hint-placeholder-count="5">
+<li style="display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid #EEF3F2">
+<span style="flex-shrink: 0; padding: 3px 9px; height: fit-content; border-radius: 999px; font-size: 12px; font-weight: 700; color: {{t.fg}}; background: {{t.bg}}; min-width: 66px; text-align: center">{{t.type}}</span>
+<span style="display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 auto">
+<span style="font-size: 14.5px; line-height: 1.5">{{t.text}}</span>
+<span style="font-size: 12.5px; color: #5B6B6A">{{t.by}} · {{t.when}}</span>
+</span>
+</li>
+</sc-for>
+</ol>
+</section>
+</div>
+
+<aside style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section aria-labelledby="own-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<h2 id="own-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Status</h2>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="ld-stage" style="font-size: 13px; font-weight: 600; color: #3C4A49">Stage</label>
+<select id="ld-stage" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E"><option>New</option><option>Contacted</option><option>Demo booked</option><option selected="">Quoted</option><option>Won</option><option>Lost (reason required)</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="ld-owner" style="font-size: 13px; font-weight: 600; color: #3C4A49">Assigned to</label>
+<select id="ld-owner" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E"><option selected="">[Admin name]</option><option>Maima G.</option><option>Unassigned</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="ld-follow" style="font-size: 13px; font-weight: 600; color: #3C4A49">Next follow-up</label>
+<input id="ld-follow" type="date" value="2026-11-04" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="ld-next" style="font-size: 13px; font-weight: 600; color: #3C4A49">Next step</label>
+<input id="ld-next" type="text" value="Call to confirm the quote and signing date" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #D9E3E2; border-radius: 10px; background: #FFFFFF; font-family: inherit; font-size: 14.5px; color: #0F1F1E">
+</div>
+</section>
+
+<section aria-labelledby="q-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 id="q-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Quote</h2><span style="padding: 3px 9px; border-radius: 999px; background: #E8EEFB; color: #1F3A8A; font-size: 12px; font-weight: 700">Sent 27 Oct</span></div>
+<div style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 26px; font-weight: 700">US$4,000.00</div>
+<div style="font-size: 14px; color: #3C4A49; line-height: 1.55">College edition · Handover plan<br>Includes data migration from Excel</div>
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; font-weight: 600; color: #0B6A67">Download quote PDF</a>
+</section>
+</aside>
+</div>
+
+</main>
+</div>
+
+<!-- CONVERT DIALOG -->
+<sc-if value="{{convertOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; z-index: 50; background: rgba(6, 30, 29, 0.48); display: flex; align-items: center; justify-content: center; padding: 16px">
+<div role="dialog" aria-modal="true" aria-labelledby="cv-h" style="width: 100%; max-width: 560px; max-height: calc(100vh - 32px); overflow-y: auto; background: #FFFFFF; border-radius: 16px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24); display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 24px; border-bottom: 1px solid #E3ECEB">
+<div style="display: flex; flex-direction: column; gap: 4px"><h2 id="cv-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 20px; font-weight: 700">Convert to client</h2><p style="margin: 0; font-size: 14px; color: #5B6B6A">Creates the client, contact, deployment and contract. The lead is marked Won.</p></div>
+<button type="button" onClick="{{closeConvert}}" aria-label="Close" style="flex-shrink: 0; width: 44px; height: 44px; border-radius: 10px; border: 0; background: #F6FAF9; color: #0F1F1E; cursor: pointer; display: inline-flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></button>
+</div>
+<form style="padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="cv-org" style="font-size: 13px; font-weight: 600">Organization</label><input id="cv-org" value="St. Peter's College" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="cv-contact" style="font-size: 13px; font-weight: 600">Primary contact</label><input id="cv-contact" value="Joseph Wleh, Registrar" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="cv-prod" style="font-size: 13px; font-weight: 600">Product</label><select id="cv-prod" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E; background: #FFFFFF"><option selected="">School: College</option><option>School: High School</option><option>Clinic</option><option>Finance</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="cv-plan" style="font-size: 13px; font-weight: 600">Plan</label><select id="cv-plan" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E; background: #FFFFFF"><option>Managed</option><option selected="">Handover</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="cv-amt" style="font-size: 13px; font-weight: 600">Contract amount (USD)</label><input id="cv-amt" value="4,000.00" inputmode="decimal" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="cv-sign" style="font-size: 13px; font-weight: 600">Signing date</label><input id="cv-sign" type="date" value="2026-11-04" style="min-height: 44px; padding: 0 12px; border: 1.5px solid #C9D9D7; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0F1F1E"></div>
+</div>
+<label style="display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 10px; background: #E6F2F1; font-size: 14.5px; line-height: 1.5; cursor: pointer">
+<input type="checkbox" checked="" style="width: 20px; height: 20px; margin-top: 1px; flex-shrink: 0; accent-color: #0B6A67">
+<span><strong>Create milestone invoices as drafts</strong><br>50% US$2,000 · 30% US$1,200 · 20% US$800</span>
+</label>
+</form>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 16px 24px 20px; border-top: 1px solid #E3ECEB">
+<button type="button" onClick="{{closeConvert}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #0F1F1E; font-family: inherit; font-weight: 600; font-size: 14.5px; cursor: pointer">Cancel</button>
+<a href="InvoiceNew.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-weight: 700; font-size: 14.5px; text-decoration: none">Convert and open first invoice</a>
+</div>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 900; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const labels = ['New', 'Contacted', 'Demo booked', 'Quoted', 'Won'];
+    const at = 3;
+    const steps = labels.map((l, i) => ({
+      label: l, cur: i === at ? 'step' : 'false',
+      bar: i < at ? '#0B6A67' : (i === at ? '#C2410C' : '#D9E3E2'),
+      c: i <= at ? '#0F1F1E' : '#5B6B6A', w: i === at ? '700' : '500'
+    }));
+    const T = {
+      Quote: { fg: '#8A2E00', bg: '#FFF1E9' }, Demo: { fg: '#3B2F8F', bg: '#EEF0FB' },
+      Call: { fg: '#064644', bg: '#E6F2F1' }, Stage: { fg: '#3C4A49', bg: '#EEF3F2' }, Form: { fg: '#1F3A8A', bg: '#E8EEFB' }
+    };
+    const tl = [
+      ['Quote', 'Quote sent: College edition, Handover plan, US$4,000 including data migration.', '[Admin name]', '27 Oct, 11:20'],
+      ['Demo', 'Guided demo with the Registrar and 2 deans. Main questions: transcripts and GPA for repeated courses.', '[Admin name]', '21 Oct, 15:00'],
+      ['Call', 'First call. 900 students, 4 programs, grades in Excel. Wants to host on their own server.', 'Maima G.', '14 Oct, 10:05'],
+      ['Stage', 'Assigned to [Admin name]. Stage changed from New to Contacted.', 'Maima G.', '14 Oct, 09:58'],
+      ['Form', 'Quote request submitted from the School Management page.', 'Website', '12 Oct, 14:06']
+    ];
+    const timeline = tl.map((x) => ({ type: x[0], fg: T[x[0]].fg, bg: T[x[0]].bg, text: x[1], by: x[2], when: x[3] }));
+    return {
+      wide: !s.narrow, steps: steps, timeline: timeline,
+      convertOpen: !!s.convert,
+      openConvert: () => this.setState({ convert: true }),
+      closeConvert: () => this.setState({ convert: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

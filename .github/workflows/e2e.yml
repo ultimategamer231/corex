@@ -34,8 +34,9 @@ jobs:
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium
 
-      # School (both editions), Finance and Clinic run against local Supabase with fixture schemas
-      # (e2e/school/setup.ts, e2e/finance/setup.ts, e2e/clinic/setup.ts).
+      # School (both editions), Finance, Clinic and Corex Admin run against local Supabase with
+      # fixture schemas (e2e/school/setup.ts, e2e/finance/setup.ts, e2e/clinic/setup.ts,
+      # e2e/admin/setup.ts).
       - name: Start local Supabase
         run: pnpm db:local:start && pnpm db:local:check
 
@@ -44,6 +45,7 @@ jobs:
           node scripts/school-env.mjs --schema e2e_school
           node scripts/school-env.mjs --app finance --schema e2e_finance
           node scripts/school-env.mjs --app clinic --schema e2e_clinic
+          node scripts/school-env.mjs --app admin --schema e2e_admin
 
       - name: Build
         run: pnpm build

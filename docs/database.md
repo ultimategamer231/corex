@@ -76,7 +76,9 @@ The nightly workflow `.github/workflows/backup.yml` runs at 01:30 Monrovia time.
 
 Restoring a schema from a backup: see `docs/restore.md` (tested by `packages/db/test/backup.db.test.ts`).
 
-## Website leads (`corex_web`)
+## Website leads and Corex Admin (`corex_web`)
+
+The migration target `web` applies only `web/migrations` (leads). The target `admin` applies `web`, then `core`, then `admin/migrations`: the core tables (settings, activity log, billing) plus the admin team, sessions and log extensions (`docs/SPEC-ADMIN.md`). A schema migrated as `admin` can no longer be migrated as `web`. In the admin, the core access helpers (`is_member`, `is_admin`, `has_role`) mean "active admin whose current session passed the authenticator step", so the core policies apply unchanged.
 
 The website project holds one schema, `corex_web`, with `leads`, `rate_limits` and `hit_rate_limit()`. It is not a client schema: no memberships, no core tables, and only `service_role` has access.
 

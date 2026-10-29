@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corex Admin — Dashboard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F1F1E; background: #F6FAF9; min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased">
+
+<sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+<div style="width: 248px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #D9E3E2"><dc-import name="Sidebar" active="dashboard" hint-size="248px,900px"></dc-import></div>
+</sc-if>
+
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Topbar" hint-size="100%,64px"></dc-import>
+
+<main style="width: 100%; max-width: 1280px; box-sizing: border-box; padding: clamp(16px, 3vw, 32px); display: flex; flex-direction: column; gap: 24px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">Dashboard</h1>
+<p style="margin: 0; font-size: 14.5px; color: #5B6B6A">Thursday, 29 October 2026</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<a href="Leads.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1.5px solid #D9E3E2; background: #FFFFFF; color: #0B6A67; font-weight: 600; font-size: 14.5px; text-decoration: none; box-sizing: border-box">View leads</a>
+<a href="InvoiceNew.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 10px; background: #FF5A12; color: #1B0A02; font-weight: 700; font-size: 14.5px; text-decoration: none">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>New invoice</a>
+</div>
+</div>
+
+<!-- KPIs -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px">
+<a href="Leads.dc.html" style="display: flex; flex-direction: column; gap: 8px; padding: 20px; border-radius: 14px; background: #FFFFFF; border: 1px solid #D9E3E2; color: inherit; text-decoration: none">
+<span style="font-size: 13.5px; font-weight: 600; color: #5B6B6A">New leads, last 7 days</span>
+<span style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 30px; font-weight: 700">2</span>
+<span style="font-size: 13.5px; color: #8A2E00; font-weight: 600">2 not contacted yet</span>
+</a>
+<a href="Leads.dc.html" style="display: flex; flex-direction: column; gap: 8px; padding: 20px; border-radius: 14px; background: #FFFFFF; border: 1px solid #D9E3E2; color: inherit; text-decoration: none">
+<span style="font-size: 13.5px; font-weight: 600; color: #5B6B6A">Open pipeline</span>
+<span style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 30px; font-weight: 700">6 leads</span>
+<span style="font-size: 13.5px; color: #5B6B6A">1 quoted at US$4,000</span>
+</a>
+<a href="Invoices.dc.html" style="display: flex; flex-direction: column; gap: 8px; padding: 20px; border-radius: 14px; background: #FFFFFF; border: 1px solid #D9E3E2; color: inherit; text-decoration: none">
+<span style="font-size: 13.5px; font-weight: 600; color: #5B6B6A">Outstanding</span>
+<span style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 30px; font-weight: 700">US$1,750</span>
+<span style="font-size: 13.5px; color: #A1190F; font-weight: 600">1 invoice overdue</span>
+</a>
+<a href="Invoices.dc.html" style="display: flex; flex-direction: column; gap: 8px; padding: 20px; border-radius: 14px; background: #FFFFFF; border: 1px solid #D9E3E2; color: inherit; text-decoration: none">
+<span style="font-size: 13.5px; font-weight: 600; color: #5B6B6A">Collected in 2026</span>
+<span style="font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 30px; font-weight: 700">US$6,410</span>
+<span style="font-size: 13.5px; color: #5B6B6A">plus L$45,000</span>
+</a>
+</div>
+
+<!-- Attention + pipeline -->
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section aria-labelledby="att-h" style="flex: 3 1 460px; min-width: 0; background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; overflow: hidden">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #E3ECEB">
+<h2 id="att-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Needs attention</h2>
+<span style="font-size: 13px; color: #5B6B6A">5 items</span>
+</div>
+<ul style="margin: 0; padding: 0; list-style: none">
+<sc-for list="{{attention}}" as="t" hint-placeholder-count="5">
+<li style="border-bottom: 1px solid #EEF3F2">
+<a href="{{t.href}}" style="display: flex; align-items: center; gap: 14px; padding: 14px 20px; min-height: 44px; color: inherit; text-decoration: none">
+<span style="flex-shrink: 0; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; color: {{t.fg}}; background: {{t.bg}}; min-width: 74px; text-align: center">{{t.tag}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto">
+<span style="font-size: 14.5px; font-weight: 600">{{t.title}}</span>
+<span style="font-size: 13px; color: #5B6B6A">{{t.sub}}</span>
+</span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B6B6A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="m9 6 6 6-6 6"></path></svg>
+</a>
+</li>
+</sc-for>
+</ul>
+</section>
+
+<section aria-labelledby="pipe-h" style="flex: 2 1 300px; min-width: 0; background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<h2 id="pipe-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Lead pipeline</h2>
+<a href="Leads.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-size: 13.5px; font-weight: 600; color: #0B6A67; text-decoration: none">Open board</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{pipeline}}" as="p" hint-placeholder-count="6">
+<div style="display: grid; grid-template-columns: 104px minmax(0, 1fr) 24px; align-items: center; gap: 10px; font-size: 13.5px">
+<span style="font-weight: 600; color: #3C4A49">{{p.label}}</span>
+<span style="height: 12px; border-radius: 999px; background: #EEF3F2; overflow: hidden"><span style="display: block; height: 100%; width: {{p.w}}; background: {{p.color}}; border-radius: 999px"></span></span>
+<span style="font-weight: 700; text-align: right">{{p.n}}</span>
+</div>
+</sc-for>
+</div>
+<p style="margin: 0; padding-top: 4px; font-size: 13px; color: #5B6B6A">Win rate this year: 1 of 2 closed leads</p>
+</section>
+</div>
+
+<!-- Collections + renewals -->
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section aria-labelledby="col-h" style="flex: 3 1 460px; min-width: 0; background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px">
+<h2 id="col-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Collected by month, 2026 (USD)</h2>
+<span style="font-size: 13px; color: #5B6B6A">LRD payments shown separately</span>
+</div>
+<figure role="img" aria-label="Payments collected in US dollars by month in 2026. Highest month was September at 1,250 dollars." style="margin: 0; display: flex; align-items: flex-end; gap: 8px; height: 190px; padding-top: 20px; border-bottom: 1px solid #D9E3E2">
+<sc-for list="{{months}}" as="m" hint-placeholder-count="10">
+<div style="flex: 1 1 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; min-width: 0">
+<span style="font-size: 11px; font-weight: 600; color: #3C4A49; white-space: nowrap">{{m.v}}</span>
+<span style="width: 100%; max-width: 40px; height: {{m.h}}; background: {{m.color}}; border-radius: 4px 4px 0 0"></span>
+</div>
+</sc-for>
+</figure>
+<div aria-hidden="true" style="display: flex; gap: 8px; margin-top: -8px">
+<sc-for list="{{months}}" as="m" hint-placeholder-count="10"><span style="flex: 1 1 0; text-align: center; font-size: 12px; color: #5B6B6A">{{m.m}}</span></sc-for>
+</div>
+</section>
+
+<section aria-labelledby="ren-h" style="flex: 2 1 300px; min-width: 0; background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; overflow: hidden">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid #E3ECEB">
+<h2 id="ren-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Renewals</h2>
+<a href="Subscriptions.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-size: 13.5px; font-weight: 600; color: #0B6A67; text-decoration: none">All renewals</a>
+</div>
+<ul style="margin: 0; padding: 0; list-style: none">
+<sc-for list="{{renewals}}" as="r" hint-placeholder-count="3">
+<li style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; border-bottom: 1px solid #EEF3F2">
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 14.5px; font-weight: 600">{{r.client}}</span>
+<span style="font-size: 13px; color: #5B6B6A">{{r.date}} · {{r.amount}}</span>
+</span>
+<span style="flex-shrink: 0; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; color: {{r.fg}}; background: {{r.bg}}">{{r.status}}</span>
+</li>
+</sc-for>
+</ul>
+</section>
+</div>
+
+<!-- Activity -->
+<section aria-labelledby="act-h" style="background: #FFFFFF; border: 1px solid #D9E3E2; border-radius: 14px; overflow: hidden">
+<div style="padding: 16px 20px; border-bottom: 1px solid #E3ECEB"><h2 id="act-h" style="margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 17px; font-weight: 700">Recent activity</h2></div>
+<ol style="margin: 0; padding: 8px 20px 12px; list-style: none">
+<sc-for list="{{activity}}" as="a" hint-placeholder-count="6">
+<li style="display: flex; gap: 14px; padding: 10px 0">
+<span style="flex-shrink: 0; width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: {{a.dot}}"></span>
+<span style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; flex: 1 1 auto; min-width: 0">
+<span style="font-size: 14.5px">{{a.text}}</span>
+<span style="font-size: 13px; color: #5B6B6A; white-space: nowrap">{{a.when}}</span>
+</span>
+</li>
+</sc-for>
+</ol>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._r = () => { const n = window.innerWidth < 900; if (!this.state || this.state.narrow !== n) this.setState({ narrow: n }); };
+    this._r();
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+  renderVals() {
+    const s = this.state || {};
+    const T = {
+      red: { fg: '#A1190F', bg: '#FDECEA' },
+      amber: { fg: '#7A4E00', bg: '#FFF4DB' },
+      blue: { fg: '#1F3A8A', bg: '#E8EEFB' },
+      teal: { fg: '#064644', bg: '#E6F2F1' },
+      green: { fg: '#1E6B3F', bg: '#E7F5EC' },
+      gray: { fg: '#3C4A49', bg: '#EEF3F2' }
+    };
+    const att = [
+      ['Overdue', 'red', 'Bright Future NGO: renewal 12 days overdue', 'Invoice CX-2026-0010 · US$300.00 · pause date 16 Nov', 'InvoiceDetail.dc.html'],
+      ['Follow-up', 'amber', 'Call Comfort Pewee, Saint Luke’s Clinic', 'Follow-up due tomorrow, 30 Oct', 'LeadDetail.dc.html'],
+      ['New lead', 'blue', '2 new leads not contacted yet', 'Greenfield Academy, Mano River Logistics', 'Leads.dc.html'],
+      ['Renewal', 'amber', 'Riverside Traders renews in 22 days', 'Renewal invoice sent · US$300.00 due 20 Nov', 'Subscriptions.dc.html'],
+      ['Warranty', 'gray', 'Lakeside Institute warranty ends 10 Dec', 'Handover plan · offer a paid support plan', 'ClientDetail.dc.html']
+    ];
+    const attention = att.map((a) => ({ tag: a[0], fg: T[a[1]].fg, bg: T[a[1]].bg, title: a[2], sub: a[3], href: a[4] }));
+    const stages = [['New', 2, '#3B5BB5'], ['Contacted', 2, '#0B6A67'], ['Demo booked', 1, '#6650B8'], ['Quoted', 1, '#C2410C'], ['Won', 1, '#1E7B4A'], ['Lost', 1, '#7A8A89']];
+    const pipeline = stages.map((x) => ({ label: x[0], n: String(x[1]), w: (x[1] / 2 * 100) + '%', color: x[2] }));
+    const mv = [['Jan', 0], ['Feb', 0], ['Mar', 1200], ['Apr', 0], ['May', 900], ['Jun', 540], ['Jul', 1200], ['Aug', 360], ['Sep', 1250], ['Oct', 960]];
+    const months = mv.map((x) => ({ m: x[0], v: x[1] ? '$' + x[1].toLocaleString('en-US') : '', h: Math.max(x[1] / 1250 * 150, x[1] ? 6 : 2) + 'px', color: x[0] === 'Oct' ? '#FF5A12' : '#0B6A67' }));
+    const renewals = [
+      { client: 'Bright Future NGO', date: 'Was due 17 Oct 2026', amount: 'US$300', status: 'Grace period', fg: T.red.fg, bg: T.red.bg },
+      { client: 'Riverside Traders', date: '20 Nov 2026', amount: 'US$300', status: 'Due soon', fg: T.amber.fg, bg: T.amber.bg },
+      { client: 'Kakata Community School', date: '15 Sep 2027', amount: 'US$450', status: 'Active', fg: T.green.fg, bg: T.green.bg }
+    ];
+    const activity = [
+      { text: 'New lead: Musu Kollie, Greenfield Academy (School, High School)', when: 'Today, 09:14', dot: '#3B5BB5' },
+      { text: 'New lead: Ibrahim Konneh, Mano River Logistics (Finance)', when: 'Yesterday, 16:40', dot: '#3B5BB5' },
+      { text: 'Quote sent to St. Peter’s College: US$4,000, Handover', when: '27 Oct', dot: '#C2410C' },
+      { text: 'Invoice CX-2026-0012 emailed to Hope Medical Center', when: '22 Oct', dot: '#0B6A67' },
+      { text: 'Payment recorded: Lakeside Institute, US$400 (bank transfer)', when: '20 Oct', dot: '#1E7B4A' },
+      { text: 'Renewal reminder sent to Bright Future NGO (3 days before due)', when: '14 Oct', dot: '#7A4E00' }
+    ];
+    return { wide: !s.narrow, attention: attention, pipeline: pipeline, months: months, renewals: renewals, activity: activity };
+  }
+}
+</script>
+</body>
+</html>
