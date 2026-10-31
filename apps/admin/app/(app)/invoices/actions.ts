@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { ActionError, dbMessage, runAction } from "@/lib/action";
+import { renderBillingPdf } from "@corex/pdf";
+import { hashToken, randomToken } from "@/lib/auth/tokens";
+import { sendEmail, simpleEmailHtml } from "@/lib/email";
+import { adminEnv } from "@/lib/env";
 import { uuid } from "@/lib/fields";
+import { loadInvoiceDocument } from "@/lib/invoice-document-data";
+import { logEvent } from "@/lib/log";
 import type { FormState } from "@/lib/form-state";
 import { draftPayload, draftSchema, paymentSchema, voidSchema } from "@/lib/invoices";
 
@@ -123,4 +129,99 @@ export async function voidPayment(_previous: FormState, formData: FormData): Pro
     );
     return "Payment voided. Its receipt is void too.";
   });
+}
+
+/** LINK-01: a new 30-day client view link; any older link stops working. */
+export async function createLink(_previous: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    { schema: invoiceRef, revalidate: ["/invoices"] },
+    async (data, session): Promise<FormState> => {
+      const token = randomToken();
+      fail(
+        (
+          await session.supabase.rpc("create_invoice_link", {
+            p_invoice_id: data.invoiceId,
+            p_token_hash: hashToken(token),
+          })
+        ).error,
+      );
+      return {
+        status: "success",
+        message: "New client view link created. Any older link no longer works.",
+        data: { link: `${adminEnv().adminUrl}/i/${token}` },
+      };
+    },
+  );
+}
+
+const emailSchema = z.object({
+  invoiceId: uuid("an invoice"),
+  to: z.email("Enter a valid email address"),
+});
+
+/**
+ * SPEC-ADMIN.md 9.6: emails the invoice PDF and a fresh client view link. While
+ * CLIENT_EMAIL_ENABLED is off the attempt is only recorded.
+ */
+export async function emailInvoice(_previous: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    { schema: emailSchema, revalidate: ["/invoices"] },
+    async (data, session): Promise<FormState> => {
+      if (process.env.CLIENT_EMAIL_ENABLED !== "true") {
+        throw new ActionError(
+          "Emails to clients are off until the sending domain is verified. Use Download or Copy for WhatsApp.",
+        );
+      }
+      const loaded = await loadInvoiceDocument(session.supabase, data.invoiceId);
+      if (!loaded || loaded.invoice.status === "draft" || loaded.invoice.status === "void") {
+        throw new ActionError("Only a sent invoice can be emailed.");
+      }
+      const token = randomToken();
+      fail(
+        (
+          await session.supabase.rpc("create_invoice_link", {
+            p_invoice_id: data.invoiceId,
+            p_token_hash: hashToken(token),
+          })
+        ).error,
+      );
+      const link = `${adminEnv().adminUrl}/i/${token}`;
+      const { invoice, doc, billing } = loaded;
+      const number = invoice.display_number ?? "";
+      const amount = doc.grand.value;
+      const pdf = await renderBillingPdf(doc);
+      const service = session.service();
+      const status = await sendEmail(service, {
+        to: data.to,
+        subject: `Invoice ${number} from ${billing.company.name}`,
+        template: "invoice",
+        entityType: "invoices",
+        entityId: invoice.id,
+        audience: "client",
+        attachments: [{ filename: `${number}.pdf`, content: pdf }],
+        text: `Hello,\n\nPlease find invoice ${number} for ${amount}, due ${doc.meta[1]?.value ?? ""}.\nView it online and download the PDF here (valid 30 days):\n${link}\n\n${billing.company.name}`,
+        html: simpleEmailHtml(
+          `Invoice ${number}`,
+          [
+            "Hello,",
+            `Please find invoice ${number} for ${amount}, due ${doc.meta[1]?.value ?? ""}. The PDF is attached.`,
+          ],
+          { label: "View the invoice", url: link },
+        ),
+      });
+      if (status !== "sent") throw new ActionError("The email could not be sent. Try again later.");
+      await logEvent(service, {
+        area: "invoices",
+        action: "invoice_emailed",
+        summary: `Emailed invoice ${number} to ${data.to}`,
+        actorId: session.admin.userId,
+        entityType: "invoices",
+        entityId: invoice.id,
+        context: session.context,
+      });
+      return { status: "success", message: `Invoice emailed to ${data.to}.` };
+    },
+  );
 }

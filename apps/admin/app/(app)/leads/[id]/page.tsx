@@ -3,7 +3,7 @@ import { Badge } from "@corex/ui/components/badge";
 import { buttonVariants } from "@corex/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@corex/ui/components/card";
 import { cn } from "@corex/ui/lib/utils";
-import { Building2, Mail, MessageCircle } from "lucide-react";
+import { Building2, Download, Mail, MessageCircle } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -243,6 +243,17 @@ export default async function LeadPage({ params }: Props) {
             <CardContent className="flex flex-col gap-4">
               {quote ? (
                 <div className="flex flex-col gap-1">
+                  <a
+                    href={`/leads/${lead.id}/quote`}
+                    className={buttonVariants({
+                      variant: "secondary",
+                      size: "sm",
+                      className: "mb-2 w-fit",
+                    })}
+                  >
+                    <Download aria-hidden="true" />
+                    Download quote PDF
+                  </a>
                   <p className="font-display text-2xl font-bold text-ink">{quote}</p>
                   {lead.quote_note ? (
                     <p className="text-[15px] text-ink-soft">{lead.quote_note}</p>

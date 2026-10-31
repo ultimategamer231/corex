@@ -281,6 +281,9 @@ async function ReceiptList({
                 <Th>Received</Th>
                 <Th>Method</Th>
                 <Th className="text-right">Amount</Th>
+                <Th>
+                  <span className="sr-only">PDF</span>
+                </Th>
               </tr>
             </thead>
             <tbody>
@@ -307,6 +310,14 @@ async function ReceiptList({
                     <Td>{methodLabel(r.payment.method)}</Td>
                     <Td className="text-right whitespace-nowrap">
                       {money(r.payment.amount_minor, r.payment.currency)}
+                    </Td>
+                    <Td>
+                      <a
+                        href={`/invoices/receipts/${r.id}/pdf`}
+                        className="inline-flex min-h-11 min-w-11 items-center font-semibold text-primary underline"
+                      >
+                        PDF<span className="sr-only"> of receipt {r.display_number}</span>
+                      </a>
                     </Td>
                   </tr>
                 );

@@ -1,8 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
-/** Pages reachable without signing in. */
-const PUBLIC_PATHS = ["/forgot-password", "/reset-password", "/invite/"];
+/** Pages reachable without signing in; /i/ is the client view of one invoice (LINK-02). */
+const PUBLIC_PATHS = ["/forgot-password", "/reset-password", "/invite/", "/i/"];
 
 function isPublic(path: string): boolean {
   return path === "/login" || PUBLIC_PATHS.some((p) => path === p || path.startsWith(p));

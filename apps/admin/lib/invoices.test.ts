@@ -151,3 +151,73 @@ describe("billing settings", () => {
     expect(majorText(125050)).toBe("1250.50");
   });
 });
+
+describe("SPEC-ADMIN.md 9.4 and 9.6: documents and WhatsApp text", () => {
+  it("builds the preview and the PDF from one document: totals print only when not zero", async () => {
+    const { invoiceDocument } = await import("./billing-document");
+    const billing = billingFrom("Corex Digital Solutions", { company_tax_id: "123" });
+    const base = {
+      id: "i1",
+      display_number: "CX-26-10-004",
+      kind: "custom",
+      status: "issued",
+      currency: "USD",
+      party_id: "c1",
+      contract_id: null,
+      milestone_no: null,
+      renewal_for: null,
+      issue_date: "2026-10-31",
+      due_date: "2026-11-07",
+      payment_terms_days: 7,
+      subtotal_minor: 70100,
+      discount_type: "fixed",
+      discount_value: 5000,
+      discount_minor: 5000,
+      discount_reason: "Never printed",
+      tax_rate_bp: 0,
+      tax_minor: 0,
+      total_minor: 65100,
+      notes: null,
+      sent_at: null,
+      void_reason: null,
+      voided_at: null,
+      created_at: "2026-10-31T10:00:00Z",
+      clientName: "Hope Medical Center",
+      paidMinor: 0,
+      balanceMinor: 65100,
+      shownStatus: "sent" as const,
+    };
+    const doc = invoiceDocument(base, [], billing, { name: "Hope Medical Center", lines: [] });
+    expect(doc.totals.map((t) => t.label)).toEqual(["Subtotal", "Discount"]);
+    expect(doc.grand).toEqual({ label: "TOTAL DUE", value: "US$651.00", tone: "primary" });
+    expect(doc.meta).toEqual([
+      { label: "Date", value: "31 Oct 2026" },
+      { label: "Due", value: "7 Nov 2026" },
+    ]);
+    expect(JSON.stringify(doc)).not.toContain("Never printed");
+    const draft = invoiceDocument(
+      { ...base, status: "draft", display_number: null, issue_date: null, due_date: null },
+      [],
+      billing,
+      { name: "Hope Medical Center", lines: [] },
+    );
+    expect(draft.watermark).toBe("DRAFT");
+    expect(draft.meta[1]?.value).toBe("7 days after sending");
+  });
+
+  it("writes the WhatsApp message with amount, due date and link", async () => {
+    const { whatsappText } = await import("@/components/invoices/share-invoice");
+    expect(
+      whatsappText({
+        contact: "Esther Dolo",
+        number: "CX-26-10-004",
+        company: "Corex Digital Solutions",
+        amount: "US$651.00",
+        due: "7 Nov 2026",
+        link: "https://admin.example/i/abc",
+      }),
+    ).toBe(
+      "Hello Esther Dolo,\nHere is invoice CX-26-10-004 from Corex Digital Solutions for US$651.00, due 7 Nov 2026.\nView it and download the PDF here (valid 30 days): https://admin.example/i/abc\nThank you.",
+    );
+  });
+});

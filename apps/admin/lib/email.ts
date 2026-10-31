@@ -13,6 +13,8 @@ export type EmailMessage = {
    * sending domain is verified (CLIENT_EMAIL_ENABLED, SPEC-ADMIN.md 9.6).
    */
   audience: "team" | "client";
+  /** Files to attach, for example the invoice PDF. */
+  attachments?: { filename: string; content: Buffer }[];
 };
 
 export type EmailStatus = "sent" | "failed" | "skipped_disabled";
@@ -77,6 +79,14 @@ export async function sendEmail(service: AdminDb, message: EmailMessage): Promis
           subject: message.subject,
           text: message.text,
           html: message.html,
+          ...(message.attachments?.length
+            ? {
+                attachments: message.attachments.map((a) => ({
+                  filename: a.filename,
+                  content: a.content.toString("base64"),
+                })),
+              }
+            : {}),
         }),
       });
       const body = (await response.json().catch(() => ({}))) as { id?: string; message?: string };

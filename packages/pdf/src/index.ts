@@ -1,4 +1,4 @@
-import { type DocumentProps, renderToBuffer } from "@react-pdf/renderer";
+import { type DocumentProps, Font, renderToBuffer } from "@react-pdf/renderer";
 import type { ReactElement } from "react";
 import {
   GradeReportDocument,
@@ -76,5 +76,8 @@ export function renderReportPdf(data: ReportPdfData): Promise<Buffer> {
 
 /** Renders a Corex invoice, receipt or quote (Corex Admin, SPEC-ADMIN.md 9.4). */
 export function renderBillingPdf(data: BillingDocData): Promise<Buffer> {
+  // Corex documents wrap whole words ("Digital", not "Dig-ital"). Only Corex Admin
+  // renders these, so the setting does not reach the product apps' PDFs.
+  Font.registerHyphenationCallback((word) => [word]);
   return renderToBuffer(BillingDocument({ data }) as ReactElement<DocumentProps>);
 }

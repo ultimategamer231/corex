@@ -95,6 +95,9 @@ importers:
       '@corex/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@corex/pdf':
+        specifier: workspace:*
+        version: link:../../packages/pdf
       '@corex/ui':
         specifier: workspace:*
         version: link:../../packages/ui
