@@ -24,6 +24,22 @@ export type Database = {
         };
         Relationships: [];
       };
+      admin_notification_state: {
+        Row: {
+          seen_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          seen_at?: string;
+          user_id: string;
+        };
+        Update: {
+          seen_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       admin_sessions: {
         Row: {
           created_at: string;
@@ -271,6 +287,7 @@ export type Database = {
           id: string;
           is_billing: boolean;
           is_primary: boolean;
+          is_sample: boolean;
           name: string;
           phone: string | null;
           phone_key: string | null;
@@ -286,6 +303,7 @@ export type Database = {
           id?: string;
           is_billing?: boolean;
           is_primary?: boolean;
+          is_sample?: boolean;
           name: string;
           phone?: string | null;
           phone_key?: never;
@@ -300,6 +318,7 @@ export type Database = {
           id?: string;
           is_billing?: boolean;
           is_primary?: boolean;
+          is_sample?: boolean;
           name?: string;
           phone?: string | null;
           phone_key?: never;
@@ -322,6 +341,7 @@ export type Database = {
           created_at: string;
           created_by: string | null;
           id: string;
+          is_sample: boolean;
           mime_type: string;
           name: string;
           size_bytes: number;
@@ -335,6 +355,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          is_sample?: boolean;
           mime_type: string;
           name: string;
           size_bytes: number;
@@ -347,6 +368,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          is_sample?: boolean;
           mime_type?: string;
           name?: string;
           size_bytes?: number;
@@ -372,6 +394,7 @@ export type Database = {
           created_at: string;
           created_by: string | null;
           id: string;
+          is_sample: boolean;
           name: string;
           notes: string | null;
           source_lead_id: string | null;
@@ -385,6 +408,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          is_sample?: boolean;
           name: string;
           notes?: string | null;
           source_lead_id?: string | null;
@@ -397,6 +421,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          is_sample?: boolean;
           name?: string;
           notes?: string | null;
           source_lead_id?: string | null;
@@ -435,6 +460,7 @@ export type Database = {
           created_by: string | null;
           currency: string;
           id: string;
+          is_sample: boolean;
           milestone_scheme: number[];
           notes: string | null;
           number: string;
@@ -451,6 +477,7 @@ export type Database = {
           created_by?: string | null;
           currency: string;
           id?: string;
+          is_sample?: boolean;
           milestone_scheme?: number[];
           notes?: string | null;
           number: string;
@@ -466,6 +493,7 @@ export type Database = {
           created_by?: string | null;
           currency?: string;
           id?: string;
+          is_sample?: boolean;
           milestone_scheme?: number[];
           notes?: string | null;
           number?: string;
@@ -497,6 +525,7 @@ export type Database = {
           hosting_cost_currency: string | null;
           hosting_cost_minor_per_month: number | null;
           id: string;
+          is_sample: boolean;
           product_version: string;
           schema_name: string | null;
           supabase_project_ref: string | null;
@@ -517,6 +546,7 @@ export type Database = {
           hosting_cost_currency?: string | null;
           hosting_cost_minor_per_month?: number | null;
           id?: string;
+          is_sample?: boolean;
           product_version?: string;
           schema_name?: string | null;
           supabase_project_ref?: string | null;
@@ -536,6 +566,7 @@ export type Database = {
           hosting_cost_currency?: string | null;
           hosting_cost_minor_per_month?: number | null;
           id?: string;
+          is_sample?: boolean;
           product_version?: string;
           schema_name?: string | null;
           supabase_project_ref?: string | null;
@@ -687,6 +718,7 @@ export type Database = {
           details: string | null;
           id: string;
           invoice_id: string;
+          is_sample: boolean;
           position: number;
           quantity: number;
           unit_amount_minor: number;
@@ -699,6 +731,7 @@ export type Database = {
           details?: string | null;
           id?: string;
           invoice_id: string;
+          is_sample?: boolean;
           position?: number;
           quantity?: number;
           unit_amount_minor: number;
@@ -710,6 +743,7 @@ export type Database = {
           details?: string | null;
           id?: string;
           invoice_id?: string;
+          is_sample?: boolean;
           position?: number;
           quantity?: number;
           unit_amount_minor?: number;
@@ -822,6 +856,7 @@ export type Database = {
           due_date: string | null;
           emailed_to: string | null;
           id: string;
+          is_sample: boolean;
           issue_date: string | null;
           kind: string;
           milestone_no: number | null;
@@ -856,6 +891,7 @@ export type Database = {
           due_date?: string | null;
           emailed_to?: string | null;
           id?: string;
+          is_sample?: boolean;
           issue_date?: string | null;
           kind?: string;
           milestone_no?: number | null;
@@ -889,6 +925,7 @@ export type Database = {
           due_date?: string | null;
           emailed_to?: string | null;
           id?: string;
+          is_sample?: boolean;
           issue_date?: string | null;
           kind?: string;
           milestone_no?: number | null;
@@ -919,6 +956,34 @@ export type Database = {
           },
         ];
       };
+      job_runs: {
+        Row: {
+          finished_at: string | null;
+          id: string;
+          run_on: string;
+          started_at: string;
+          summary: NonNullable<Json>;
+          trigger: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          finished_at?: string | null;
+          id?: string;
+          run_on: string;
+          started_at?: string;
+          summary?: NonNullable<Json>;
+          trigger?: string;
+        };
+        Update: {
+          finished_at?: string | null;
+          id?: string;
+          run_on?: string;
+          started_at?: string;
+          summary?: NonNullable<Json>;
+          trigger?: string;
+        };
+        Relationships: [];
+      };
       lead_activities: {
         Row: {
           admin_id: string | null;
@@ -926,6 +991,7 @@ export type Database = {
           created_at: string;
           created_by: string | null;
           id: string;
+          is_sample: boolean;
           lead_id: string;
           type: string;
           updated_at: string;
@@ -937,6 +1003,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          is_sample?: boolean;
           lead_id: string;
           type: string;
           updated_at?: string;
@@ -947,6 +1014,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          is_sample?: boolean;
           lead_id?: string;
           type?: string;
           updated_at?: string;
@@ -979,6 +1047,7 @@ export type Database = {
           email: string | null;
           follow_up_on: string | null;
           id: string;
+          is_sample: boolean;
           lost_reason: string | null;
           message: string | null;
           name: string;
@@ -1009,6 +1078,7 @@ export type Database = {
           email?: string | null;
           follow_up_on?: string | null;
           id?: string;
+          is_sample?: boolean;
           lost_reason?: string | null;
           message?: string | null;
           name: string;
@@ -1038,6 +1108,7 @@ export type Database = {
           email?: string | null;
           follow_up_on?: string | null;
           id?: string;
+          is_sample?: boolean;
           lost_reason?: string | null;
           message?: string | null;
           name?: string;
@@ -1105,6 +1176,7 @@ export type Database = {
           currency: string;
           id: string;
           invoice_id: string;
+          is_sample: boolean;
           method: string;
           received_at: string;
           received_by: string | null;
@@ -1118,6 +1190,7 @@ export type Database = {
           currency: string;
           id?: string;
           invoice_id: string;
+          is_sample?: boolean;
           method: string;
           received_at?: string;
           received_by?: string | null;
@@ -1130,6 +1203,7 @@ export type Database = {
           currency?: string;
           id?: string;
           invoice_id?: string;
+          is_sample?: boolean;
           method?: string;
           received_at?: string;
           received_by?: string | null;
@@ -1154,6 +1228,58 @@ export type Database = {
           },
         ];
       };
+      price_list_items: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          created_by: string | null;
+          currency: string;
+          handover_minor: number | null;
+          id: string;
+          is_sample: boolean;
+          kind: string;
+          managed_year1_minor: number | null;
+          name: string;
+          position: number;
+          renewal_minor: number | null;
+          unit_label: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          currency?: string;
+          handover_minor?: number | null;
+          id?: string;
+          is_sample?: boolean;
+          kind?: string;
+          managed_year1_minor?: number | null;
+          name: string;
+          position?: number;
+          renewal_minor?: number | null;
+          unit_label?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          currency?: string;
+          handover_minor?: number | null;
+          id?: string;
+          is_sample?: boolean;
+          kind?: string;
+          managed_year1_minor?: number | null;
+          name?: string;
+          position?: number;
+          renewal_minor?: number | null;
+          unit_label?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       rate_limits: {
         Row: {
           hits: number;
@@ -1177,6 +1303,7 @@ export type Database = {
         Row: {
           display_number: string | null;
           id: string;
+          is_sample: boolean;
           issued_at: string;
           number: number;
           payment_id: string;
@@ -1186,6 +1313,7 @@ export type Database = {
         Insert: {
           display_number?: string | null;
           id?: string;
+          is_sample?: boolean;
           issued_at?: string;
           number: number;
           payment_id: string;
@@ -1194,6 +1322,7 @@ export type Database = {
         Update: {
           display_number?: string | null;
           id?: string;
+          is_sample?: boolean;
           issued_at?: string;
           number?: number;
           payment_id?: string;
@@ -1205,6 +1334,52 @@ export type Database = {
             columns: ["payment_id"];
             isOneToOne: true;
             referencedRelation: "payments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      renewal_reminders: {
+        Row: {
+          created_at: string;
+          id: string;
+          invoice_id: string;
+          sent_to: string | null;
+          stage: string;
+          status: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          invoice_id: string;
+          sent_to?: string | null;
+          stage: string;
+          status: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          invoice_id?: string;
+          sent_to?: string | null;
+          stage?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "renewal_reminders_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoice_balances";
+            referencedColumns: ["invoice_id"];
+          },
+          {
+            foreignKeyName: "renewal_reminders_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoices";
             referencedColumns: ["id"];
           },
         ];
@@ -1261,6 +1436,7 @@ export type Database = {
           currency: string;
           ended_at: string | null;
           id: string;
+          is_sample: boolean;
           next_renewal_on: string | null;
           paused_at: string | null;
           renewal_amount_minor: number;
@@ -1276,6 +1452,7 @@ export type Database = {
           currency: string;
           ended_at?: string | null;
           id?: string;
+          is_sample?: boolean;
           next_renewal_on?: string | null;
           paused_at?: string | null;
           renewal_amount_minor: number;
@@ -1290,6 +1467,7 @@ export type Database = {
           currency?: string;
           ended_at?: string | null;
           id?: string;
+          is_sample?: boolean;
           next_renewal_on?: string | null;
           paused_at?: string | null;
           renewal_amount_minor?: number;
@@ -1379,8 +1557,30 @@ export type Database = {
       };
     };
     Functions: {
+      admin_search: {
+        Args: { p_query: string };
+        Returns: {
+          detail: string;
+          href: string;
+          id: string;
+          kind: string;
+          title: string;
+        }[];
+      };
       admin_session_state: { Args: Record<PropertyKey, never>; Returns: string };
       admin_timeout_minutes: { Args: Record<PropertyKey, never>; Returns: number };
+      attention_items: {
+        Args: { p_today?: string };
+        Returns: {
+          detail: string;
+          href: string;
+          kind: string;
+          record_id: string;
+          since: string;
+          sort_order: number;
+          title: string;
+        }[];
+      };
       audit_area: { Args: { p_table_name: string }; Returns: string };
       audit_canonical: {
         Args: {
@@ -1405,9 +1605,12 @@ export type Database = {
       current_admin_id: { Args: Record<PropertyKey, never>; Returns: string };
       current_admin_ok: { Args: Record<PropertyKey, never>; Returns: boolean };
       current_roles: { Args: Record<PropertyKey, never>; Returns: string[] };
+      daily_job: { Args: { p_email?: boolean; p_trigger?: string }; Returns: Json };
+      dashboard_figures: { Args: { p_today?: string }; Returns: Json };
       delete_invoice_draft: { Args: { p_invoice_id: string }; Returns: undefined };
       enable_audit: { Args: { target: unknown }; Returns: undefined };
       has_role: { Args: { roles: string[] }; Returns: boolean };
+      has_sample_data: { Args: Record<PropertyKey, never>; Returns: boolean };
       hit_rate_limit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };
         Returns: boolean;
@@ -1428,6 +1631,7 @@ export type Database = {
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_member: { Args: Record<PropertyKey, never>; Returns: boolean };
       issue_invoice: { Args: { p_invoice_id: string }; Returns: number };
+      job_rule_on: { Args: { p_rule: string }; Returns: boolean };
       lead_duplicates: {
         Args: { p_email: string; p_exclude?: string; p_phone: string };
         Returns: {
@@ -1457,6 +1661,7 @@ export type Database = {
       };
       log_login: { Args: Record<PropertyKey, never>; Returns: undefined };
       log_view: { Args: { p_record_id: string; p_table_name: string }; Returns: undefined };
+      mark_notifications_seen: { Args: Record<PropertyKey, never>; Returns: string };
       milestone_amounts: {
         Args: { p_scheme: number[]; p_total_minor: number };
         Returns: {
@@ -1472,6 +1677,7 @@ export type Database = {
         Args: { p_ip?: string; p_token_hash: string; p_user_agent?: string };
         Returns: string;
       };
+      product_label: { Args: { p_product: string }; Returns: string };
       rate_limit_hits: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
       record_payment: {
         Args: {
@@ -1491,9 +1697,34 @@ export type Database = {
         }[];
       };
       refresh_invoice_status: { Args: { p_invoice_id: string }; Returns: string };
+      remove_sample_data: { Args: Record<PropertyKey, never>; Returns: Json };
       require_billing_role: { Args: Record<PropertyKey, never>; Returns: undefined };
       save_invoice_draft: { Args: { p: Json; p_invoice_id: string }; Returns: string };
+      subscription_overview: {
+        Args: { p_today?: string };
+        Returns: {
+          client_id: string;
+          client_name: string;
+          contract_id: string;
+          currency: string;
+          days_to_renewal: number;
+          invoice_due_on: string;
+          invoice_id: string;
+          invoice_number: string;
+          invoice_status: string;
+          is_sample: boolean;
+          next_renewal_on: string;
+          pause_flag_on: string;
+          product: string;
+          reminder_14d: string;
+          reminder_3d: string;
+          renewal_amount_minor: number;
+          state: string;
+          subscription_id: string;
+        }[];
+      };
       today_monrovia: { Args: Record<PropertyKey, never>; Returns: string };
+      unseeding: { Args: { p_is_sample: boolean }; Returns: boolean };
       valid_milestone_scheme: { Args: { p_scheme: number[] }; Returns: boolean };
       void_invoice: { Args: { p_invoice_id: string; p_reason: string }; Returns: undefined };
       void_payment: { Args: { p_payment_id: string; p_reason: string }; Returns: string };

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { InvoiceEditor } from "@/components/invoices/invoice-editor";
 import { billingFrom } from "@/lib/billing-settings";
 import { prefill } from "@/lib/invoice-prefill";
+import { fetchPriceItems, priceOptions } from "@/lib/price-list";
 import { getAdminSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "New invoice" };
@@ -22,9 +23,10 @@ export default async function NewInvoicePage({ searchParams }: Props) {
   const clientParam = one(params.client);
   const clientId = z.uuid().safeParse(clientParam).success ? clientParam : "";
   const { supabase } = await getAdminSession();
-  const [{ data: clients }, { data: settings }] = await Promise.all([
+  const [{ data: clients }, { data: settings }, prices] = await Promise.all([
     supabase.from("clients").select("id, name").order("name"),
     supabase.from("settings").select("org_name, config").single(),
+    fetchPriceItems(supabase),
   ]);
   const billing = billingFrom(settings?.org_name ?? "", settings?.config);
   const { values, error } = await prefill(
@@ -62,6 +64,7 @@ export default async function NewInvoicePage({ searchParams }: Props) {
             taxRateBp={billing.taxEnabled ? billing.taxRateBp : 0}
             taxLabel={billing.taxLabel}
             lockedClient={values.kind !== "custom"}
+            prices={priceOptions(prices)}
           />
         </CardContent>
       </Card>

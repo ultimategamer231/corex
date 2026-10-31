@@ -50,8 +50,14 @@ const apps: App[] = [
     env: { DEMO_MODE: "true", DB_SCHEMA: "demo_clinic" },
   },
   { name: "finance", port: 3003, testDir: "e2e/finance" },
-  // Corex Admin (SPEC-ADMIN.md) on the e2e_admin fixture schema.
-  { name: "admin", port: 3008, testDir: "e2e/admin" },
+  // Corex Admin (SPEC-ADMIN.md) on the e2e_admin fixture schema; the test-only cron
+  // secret lets e2e/admin/operations.spec.ts call the daily check.
+  {
+    name: "admin",
+    port: 3008,
+    testDir: "e2e/admin",
+    env: { CRON_SECRET: "e2e-only-cron-secret-not-for-real-use-000" },
+  },
   // The Finance build as its public demo on the seeded demo_finance schema.
   {
     name: "finance-demo",

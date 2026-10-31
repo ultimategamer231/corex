@@ -1,0 +1,39 @@
+name: Admin daily check
+
+# SPEC-ADMIN.md 10: every morning at 07:00 Africa/Monrovia (UTC+0, no daylight saving),
+# ask Corex Admin to run its daily check (renewal invoices, reminders, grace and pause
+# flags, warranties). The admin does the work; running it twice in a day changes
+# nothing. Also runnable by hand.
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: admin-daily
+  cancel-in-progress: false
+
+jobs:
+  run:
+    name: Run the daily check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ADMIN_URL: ${{ vars.ADMIN_URL }}
+      CRON_SECRET: ${{ secrets.ADMIN_CRON_SECRET }}
+    steps:
+      # Until the admin is deployed (apps/admin/README.md), the job reports that and passes.
+      - name: Call the admin
+        run: |
+          if [ -z "$ADMIN_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::notice::ADMIN_URL or ADMIN_CRON_SECRET is not set; the daily check did not run. See apps/admin/README.md."
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error --max-time 120 \
+            --retry 2 --retry-delay 30 --retry-all-errors \
+            -X POST -H "Authorization: Bearer $CRON_SECRET" \
+            "${ADMIN_URL%/}/api/cron/daily"
+          echo

@@ -283,7 +283,10 @@ export function majorText(minorUnits: bigint | number): string {
   return `${sign}${abs / 100n}.${(abs % 100n).toString().padStart(2, "0")}`;
 }
 
-/** The WhatsApp text with amount, due date and the client view link (SPEC-ADMIN.md 9.6). */
+/**
+ * The WhatsApp text with amount, due date and the client view link (SPEC-ADMIN.md 9.6).
+ * A paid invoice says so instead of naming a due date.
+ */
 export function whatsappText(p: {
   contact: string | null;
   number: string;
@@ -291,10 +294,13 @@ export function whatsappText(p: {
   amount: string;
   due: string;
   link: string;
+  paid?: boolean;
 }): string {
   return [
     `Hello${p.contact ? ` ${p.contact}` : ""},`,
-    `Here is invoice ${p.number} from ${p.company} for ${p.amount}, due ${p.due}.`,
+    p.paid
+      ? `Here is invoice ${p.number} from ${p.company} for ${p.amount}. It is paid in full.`
+      : `Here is invoice ${p.number} from ${p.company} for ${p.amount}, due ${p.due}.`,
     `View it and download the PDF here (valid 30 days): ${p.link}`,
     "Thank you.",
   ].join("\n");

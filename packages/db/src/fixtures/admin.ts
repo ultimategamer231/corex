@@ -3,6 +3,9 @@
 // against a real project.
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Sql } from "postgres";
+
+/** What the seeders need: plain queries, inside or outside a transaction. */
+type Db = Pick<Sql, "unsafe">;
 import { totpCode } from "../admin/totp.ts";
 import { USERNAME_EMAIL_DOMAIN } from "../admin/team.ts";
 import { migrateSchema } from "../migrations.ts";
@@ -94,21 +97,22 @@ export async function seedAdminFixture(
   }
   await seedLeads(sql, s);
   await seedClients(sql, s);
+  await seedBillingSettings(sql, s);
   await seedInvoices(sql, s);
+  await seedPriceList(sql, s);
   return { schema: s, users };
 }
 
-function adminId(ids: Record<string, string>, username: string): string {
-  const id = ids[username];
-  if (!id) throw new Error(`fixture admin ${username} is missing`);
-  return id;
+/** The fixture admin by username; in a real schema (sample data) the first admin, if any. */
+function adminId(ids: Record<string, string>, username: string): string | null {
+  return ids[username] ?? Object.values(ids)[0] ?? null;
 }
 
 /**
  * Leads from the mockup (Leads.dc.html): website requests at several stages and one
  * added by hand. Stage changes go through the database rules, so each has its timeline.
  */
-async function seedLeads(sql: Sql, s: string): Promise<void> {
+async function seedLeads(sql: Db, s: string): Promise<void> {
   const ids = Object.fromEntries(
     (
       await sql.unsafe<{ id: string; username: string }[]>(`select id, username from ${s}.admins`)
@@ -215,7 +219,7 @@ async function seedLeads(sql: Sql, s: string): Promise<void> {
  * grace period and a Handover client in warranty. Dates are relative to today so the
  * statuses hold whenever the tests run.
  */
-async function seedClients(sql: Sql, s: string): Promise<void> {
+async function seedClients(sql: Db, s: string): Promise<void> {
   const base = {
     country: "Liberia",
     contact_title: "Administrator",
@@ -300,7 +304,7 @@ async function seedClients(sql: Sql, s: string): Promise<void> {
  * paid, Bright Future's renewal sent and overdue, Riverside's renewal still a draft.
  * Written through the billing functions, so numbers, totals and receipts are real.
  */
-async function seedInvoices(sql: Sql, s: string): Promise<void> {
+async function seedBillingSettings(sql: Db, s: string): Promise<void> {
   await sql.unsafe(`update ${s}.settings set config = config || $1::jsonb`, [
     {
       company_address: "[Office address], Monrovia, Liberia",
@@ -310,12 +314,15 @@ async function seedInvoices(sql: Sql, s: string): Promise<void> {
         "Orange Money: +231 [number] (Corex Digital Solutions)\nBank transfer: [Bank], account [number]",
     } as never,
   ]);
+}
+
+async function seedInvoices(sql: Db, s: string): Promise<void> {
   const client = async (name: string) => {
     const [row] = await sql.unsafe<{ id: string; contract_id: string; next: string | null }[]>(
       `select c.id, k.id as contract_id, s.next_renewal_on::text as next
        from ${s}.clients c join ${s}.contracts k on k.client_id = c.id
        left join ${s}.subscriptions s on s.contract_id = k.id
-       where c.name = $1`,
+       where c.name = $1 order by c.created_at desc limit 1`,
       [name],
     );
     if (!row) throw new Error(`fixture client ${name} is missing`);
@@ -390,4 +397,60 @@ async function seedInvoices(sql: Sql, s: string): Promise<void> {
       },
     ],
   });
+}
+
+/**
+ * The price list from the mockup (Settings.dc.html): starting prices from the business
+ * plan, still to be confirmed. A range is stored as its lowest price.
+ */
+async function seedPriceList(sql: Db, s: string): Promise<void> {
+  const items: [string, string, number | null, number | null, number | null, string | null][] = [
+    ["Financial Management (SME)", "product", 120000, 30000, 180000, null],
+    ["School Management: High School", "product", 180000, 45000, 250000, null],
+    ["Clinic Management", "product", 250000, 60000, 350000, null],
+    ["School Management: College", "product", 300000, 75000, 400000, null],
+    ["Data migration", "addon", 20000, null, 20000, "from, per project"],
+    ["On-site training", "addon", 10000, null, 10000, "per day"],
+    ["Custom work", "addon", 2500, null, 2500, "from, per hour"],
+  ];
+  let position = 0;
+  for (const [name, kind, managed, renewal, handover, unit] of items) {
+    position += 1;
+    await sql.unsafe(
+      `insert into ${s}.price_list_items
+         (name, kind, managed_year1_minor, renewal_minor, handover_minor, unit_label, position)
+       values ($1, $2, $3, $4, $5, $6, $7)`,
+      [name, kind, managed, renewal, handover, unit, position],
+    );
+  }
+}
+
+/**
+ * pnpm admin:seed (SPEC-ADMIN.md 13): the mockup's leads, clients, contracts, invoices
+ * and prices, every row marked is_sample (the database marks what is written while
+ * `corex.sample` is on). Company details and other settings are left as they are.
+ */
+export async function seedAdminSample(sql: Sql, schemaName: string): Promise<void> {
+  const s = assertSchemaName(schemaName);
+  await sql.begin(async (tx) => {
+    const [loaded] = await tx.unsafe<{ has: boolean }[]>(`select ${s}.has_sample_data() as has`);
+    if (loaded?.has) throw new Error("Sample data is already loaded. Run pnpm admin:unseed first.");
+    await tx.unsafe(`select set_config('corex.sample', 'on', true)`);
+    await seedLeads(tx, s);
+    await seedClients(tx, s);
+    await seedInvoices(tx, s);
+    await seedPriceList(tx, s);
+  });
+}
+
+/** pnpm admin:unseed: removes only rows marked is_sample (remove_sample_data). */
+export async function removeAdminSample(
+  sql: Sql,
+  schemaName: string,
+): Promise<Record<string, number>> {
+  const s = assertSchemaName(schemaName);
+  const [row] = await sql.unsafe<{ r: Record<string, number> }[]>(
+    `select ${s}.remove_sample_data() as r`,
+  );
+  return row?.r ?? {};
 }

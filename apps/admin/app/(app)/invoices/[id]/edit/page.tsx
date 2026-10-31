@@ -7,6 +7,7 @@ import { z } from "zod";
 import { InvoiceEditor } from "@/components/invoices/invoice-editor";
 import { getInvoice } from "@/lib/invoices-data";
 import { majorText } from "@/lib/invoices";
+import { fetchPriceItems, priceOptions } from "@/lib/price-list";
 import { getAdminSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Edit draft" };
@@ -21,7 +22,10 @@ export default async function EditInvoicePage({ params }: Props) {
   if (!found) notFound();
   const { invoice, lines } = found;
   if (invoice.status !== "draft") redirect(`/invoices/${id}`);
-  const { data: clients } = await supabase.from("clients").select("id, name").order("name");
+  const [{ data: clients }, prices] = await Promise.all([
+    supabase.from("clients").select("id, name").order("name"),
+    fetchPriceItems(supabase),
+  ]);
   return (
     <div className="flex max-w-5xl flex-col gap-6">
       <nav aria-label="Breadcrumb" className="text-[15px] text-muted">
@@ -73,6 +77,7 @@ export default async function EditInvoicePage({ params }: Props) {
             taxRateBp={invoice.tax_rate_bp}
             taxLabel="Tax"
             lockedClient={invoice.kind !== "custom"}
+            prices={priceOptions(prices)}
           />
         </CardContent>
       </Card>
