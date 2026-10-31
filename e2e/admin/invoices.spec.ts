@@ -153,6 +153,117 @@ test("overdue invoices are found, owed on the clients list, and voided with a re
   await expect(page.getByRole("region", { name: "Receipts" })).toContainText("Hope Medical Center");
 });
 
+async function expectPdf(page: Page, path: string) {
+  const response = await page.request.get(path);
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toBe("application/pdf");
+  expect((await response.body()).subarray(0, 5).toString()).toBe("%PDF-");
+}
+
+test("invoice, receipt and quote PDFs download (SPEC-ADMIN.md 9.4)", async ({ page }) => {
+  await open(page, "/invoices?status=paid");
+  await page.getByRole("link", { name: /CX-/ }).first().click();
+  await page.waitForLoadState("networkidle");
+  const invoicePdf = await page.getByRole("link", { name: "Download PDF" }).getAttribute("href");
+  await expectPdf(page, invoicePdf ?? "");
+  const receiptPdf = await page
+    .getByRole("link", { name: /Download receipt/ })
+    .first()
+    .getAttribute("href");
+  await expectPdf(page, receiptPdf ?? "");
+
+  await open(page, `/leads?q=${encodeURIComponent("St. Peter's College")}`);
+  await page
+    .getByRole("link", { name: /St\. Peter's College/ })
+    .first()
+    .click();
+  await page.waitForLoadState("networkidle");
+  const quotePdf = await page
+    .getByRole("link", { name: "Download quote PDF" })
+    .first()
+    .getAttribute("href");
+  await expectPdf(page, quotePdf ?? "");
+});
+
+test("client view link: shown once, opens signed out, replaced by a new one (LINK)", async ({
+  page,
+  browser,
+  context,
+}) => {
+  test.setTimeout(240_000);
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await setWidth(page, 1440);
+  await open(page, "/invoices?status=paid");
+  await page.getByRole("link", { name: /CX-/ }).first().click();
+  await page.waitForLoadState("networkidle");
+  const title = page.getByRole("heading", { level: 1 });
+  await expect(title).toHaveText(/^CX-/);
+  const number = (await title.textContent()) ?? "";
+
+  const email = page.getByRole("button", { name: "Email" });
+  await expect(email).toBeDisabled();
+  await expect(
+    page.getByText("Verify the sending domain in Settings to email clients."),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Create client view link" }).click();
+  const field = page.getByRole("textbox", { name: "Client view link" });
+  await expect(field).toHaveValue(/\/i\/[A-Za-z0-9_-]{40,60}$/, { timeout: 15_000 });
+  const first = await field.inputValue();
+  await page.getByRole("button", { name: "Copy for WhatsApp" }).click();
+  await expect(page.getByText("Copied.")).toBeVisible();
+  const message = await page.evaluate(() => navigator.clipboard.readText());
+  expect(message).toContain(`invoice ${number}`);
+  expect(message).toContain(first);
+
+  const visitor = await browser.newContext({ storageState: { cookies: [], origins: [] } });
+  const client = await visitor.newPage();
+  try {
+    await open(client, first);
+    await expect(
+      client.getByRole("heading", { level: 1, name: `Invoice ${number}` }),
+    ).toBeVisible();
+    await expect(client.getByText(/Balance due/)).toBeVisible();
+    await expect(client.getByRole("article", { name: "Invoice preview" })).toContainText(number);
+    await expectPdf(client, `${new URL(first).pathname}/pdf`);
+    for (const width of widths) {
+      await setWidth(client, width);
+      await open(client, first);
+      await expectNoSeriousA11yViolations(client);
+      await expectNoHorizontalOverflow(client);
+      await expectTouchTargets(client);
+    }
+
+    await page.reload();
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByText(/A client view link exists until/)).toBeVisible();
+    await page.getByRole("button", { name: "New client view link" }).click();
+    await expect(field).toHaveValue(/\/i\//, { timeout: 15_000 });
+    const second = await field.inputValue();
+    expect(second).not.toBe(first);
+    for (const width of widths) {
+      await setWidth(page, width);
+      await expectNoSeriousA11yViolations(page);
+      await expectNoHorizontalOverflow(page);
+      await expectTouchTargets(page);
+    }
+
+    await open(client, first);
+    await expect(client.getByText("This link is no longer valid. Contact Corex.")).toBeVisible();
+    expect((await client.request.get(`${new URL(first).pathname}/pdf`)).status()).toBe(404);
+    await open(client, "/i/not-a-real-link");
+    await expect(client.getByText("This link is no longer valid. Contact Corex.")).toBeVisible();
+    await open(client, second);
+    await expect(
+      client.getByRole("heading", { level: 1, name: `Invoice ${number}` }),
+    ).toBeVisible();
+    // The client view shows nothing of the admin app.
+    await expect(client.getByRole("navigation")).toHaveCount(0);
+  } finally {
+    await visitor.close();
+  }
+});
+
 test("invoicing settings: payment terms and tax apply to new drafts", async ({ page }) => {
   await open(page, "/settings/invoicing");
   const form = page.getByRole("form", { name: "Invoicing settings" });

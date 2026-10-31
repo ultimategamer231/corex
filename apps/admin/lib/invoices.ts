@@ -282,3 +282,20 @@ export function majorText(minorUnits: bigint | number): string {
   const abs = v < 0n ? -v : v;
   return `${sign}${abs / 100n}.${(abs % 100n).toString().padStart(2, "0")}`;
 }
+
+/** The WhatsApp text with amount, due date and the client view link (SPEC-ADMIN.md 9.6). */
+export function whatsappText(p: {
+  contact: string | null;
+  number: string;
+  company: string;
+  amount: string;
+  due: string;
+  link: string;
+}): string {
+  return [
+    `Hello${p.contact ? ` ${p.contact}` : ""},`,
+    `Here is invoice ${p.number} from ${p.company} for ${p.amount}, due ${p.due}.`,
+    `View it and download the PDF here (valid 30 days): ${p.link}`,
+    "Thank you.",
+  ].join("\n");
+}

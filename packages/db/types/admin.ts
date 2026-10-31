@@ -731,6 +731,83 @@ export type Database = {
           },
         ];
       };
+      invoice_link_opens: {
+        Row: {
+          invoice_id: string;
+          opened_on: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          invoice_id: string;
+          opened_on: string;
+        };
+        Update: {
+          invoice_id?: string;
+          opened_on?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "invoice_link_opens_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoice_balances";
+            referencedColumns: ["invoice_id"];
+          },
+          {
+            foreignKeyName: "invoice_link_opens_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoices";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      invoice_links: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          expires_at: string;
+          id: string;
+          invoice_id: string;
+          token_hash: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          expires_at: string;
+          id?: string;
+          invoice_id: string;
+          token_hash: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string;
+          id?: string;
+          invoice_id?: string;
+          token_hash?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "invoice_links_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: true;
+            referencedRelation: "invoice_balances";
+            referencedColumns: ["invoice_id"];
+          },
+          {
+            foreignKeyName: "invoice_links_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: true;
+            referencedRelation: "invoices";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       invoices: {
         Row: {
           contract_id: string | null;
@@ -1321,6 +1398,10 @@ export type Database = {
       billing_setting: { Args: { p_default: string; p_key: string }; Returns: string };
       can_bill: { Args: Record<PropertyKey, never>; Returns: boolean };
       create_client: { Args: { p: Json; p_lead_id: string }; Returns: string };
+      create_invoice_link: {
+        Args: { p_invoice_id: string; p_token_hash: string };
+        Returns: string;
+      };
       current_admin_id: { Args: Record<PropertyKey, never>; Returns: string };
       current_admin_ok: { Args: Record<PropertyKey, never>; Returns: boolean };
       current_roles: { Args: Record<PropertyKey, never>; Returns: string[] };
@@ -1387,6 +1468,10 @@ export type Database = {
       money_text: { Args: { p_currency: string; p_minor: number }; Returns: string };
       next_display_number: { Args: { p_kind: string; p_on: string }; Returns: string };
       next_document_number: { Args: { p_kind: string }; Returns: number };
+      open_invoice_link: {
+        Args: { p_ip?: string; p_token_hash: string; p_user_agent?: string };
+        Returns: string;
+      };
       rate_limit_hits: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
       record_payment: {
         Args: {

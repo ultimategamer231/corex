@@ -318,6 +318,71 @@ describe("PAY-06: renewals", () => {
   });
 });
 
+describe("LINK-01 to LINK-04: client view links", () => {
+  const hash = (n: number) => n.toString(16).padStart(64, "0");
+  const open = (h: string) =>
+    sql.begin(async (tx) => {
+      await tx`select set_config('request.jwt.claims', ${JSON.stringify({ role: "service_role" })}, true)`;
+      await tx.unsafe("set local role service_role");
+      const [row] = await tx.unsafe<{ id: string | null }[]>(
+        `select ${schema}.open_invoice_link($1, '203.0.113.7') as id`,
+        [h],
+      );
+      return row?.id ?? null;
+    });
+
+  it("only sent invoices get a link; a new link replaces the old; first open per day is logged", async () => {
+    const id = await draft({}, [{ description: "Link test", unit_amount_minor: 5000 }]);
+    await expect(
+      asAdmin((tx) => tx.unsafe(`select ${schema}.create_invoice_link($1, $2)`, [id, hash(1)])),
+    ).rejects.toThrow(/Only a sent invoice/);
+    await send(id);
+    const [created] = await asAdmin((tx) =>
+      tx.unsafe<{ days: number }[]>(
+        `select extract(day from ${schema}.create_invoice_link($1, $2) - now())::int as days`,
+        [id, hash(1)],
+      ),
+    );
+    expect(created?.days).toBe(30);
+    expect(await open(hash(1))).toBe(id);
+    expect(await open(hash(1))).toBe(id);
+    const [opens] = await sql.unsafe<{ n: string }[]>(
+      `select count(*) as n from ${schema}.audit_events
+       where action = 'client_link_opened' and record_id = $1 and actor_type = 'client_link'`,
+      [id],
+    );
+    expect(Number(opens?.n)).toBe(1);
+
+    await asAdmin((tx) => tx.unsafe(`select ${schema}.create_invoice_link($1, $2)`, [id, hash(2)]));
+    expect(await open(hash(1))).toBeNull();
+    expect(await open(hash(2))).toBe(id);
+    expect(await open(hash(999))).toBeNull();
+  });
+
+  it("expired links and void invoices show nothing; only the server can open links", async () => {
+    const id = await draft({}, [{ description: "Expiry test", unit_amount_minor: 5000 }]);
+    await send(id);
+    await asAdmin((tx) => tx.unsafe(`select ${schema}.create_invoice_link($1, $2)`, [id, hash(3)]));
+    await sql.unsafe(
+      `update ${schema}.invoice_links set expires_at = now() - interval '1 minute' where invoice_id = $1`,
+      [id],
+    );
+    expect(await open(hash(3))).toBeNull();
+    await asAdmin((tx) => tx.unsafe(`select ${schema}.create_invoice_link($1, $2)`, [id, hash(4)]));
+    expect(await open(hash(4))).toBe(id);
+    await asAdmin((tx) => tx.unsafe(`select ${schema}.void_invoice($1, 'Sent twice')`, [id]));
+    expect(await open(hash(4))).toBeNull();
+    await expect(
+      asAdmin((tx) => tx.unsafe(`select ${schema}.open_invoice_link($1)`, [hash(4)])),
+    ).rejects.toThrow(/permission denied/);
+    const leaked = await sql.unsafe(
+      `select seq from ${schema}.audit_events where table_name = 'invoice_links'
+       and (after ? 'token_hash' or before ? 'token_hash')`,
+    );
+    expect(leaked).toHaveLength(0);
+  });
+});
+
 describe("access", () => {
   it("only verified admins see invoices; the activity log stays verifiable", async () => {
     const unverified = { userId: admin.userId, sessionId: randomUUID() };

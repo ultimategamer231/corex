@@ -16,11 +16,12 @@ import { FormField } from "@/components/action-form";
 import { ConfirmAction } from "@/components/confirm-action";
 import { FormDialog } from "@/components/form-dialog";
 import { DeleteDraft } from "@/components/invoices/delete-draft";
-import { InvoicePreview } from "@/components/invoices/invoice-preview";
+import { BillingPreview } from "@/components/invoices/invoice-preview";
+import { ShareInvoice } from "@/components/invoices/share-invoice";
 import { InvoiceStatusBadge } from "@/components/invoices/status-badge";
-import { billingFrom } from "@/lib/billing-settings";
 import { money } from "@/lib/clients";
 import { formatDateTime, formatDay, todayIso } from "@/lib/format";
+import { loadInvoiceDocument } from "@/lib/invoice-document-data";
 import { fetchReceipts, getInvoice } from "@/lib/invoices-data";
 import { majorText, methodLabel, PAYMENT_METHODS } from "@/lib/invoices";
 import { getAdminSession } from "@/lib/session";
@@ -48,26 +49,19 @@ const KIND_LABEL: Record<string, string> = {
 
 export default async function InvoicePage({ params }: Props) {
   const { id } = await params;
-  const { supabase, invoice, lines } = await load(id);
-  const [{ data: settings }, { data: client }, { data: billingContact }, receipts] =
-    await Promise.all([
-      supabase.from("settings").select("org_name, config").single(),
-      supabase
-        .from("clients")
-        .select("id, name, address, city, country")
-        .eq("id", invoice.party_id)
-        .single(),
-      supabase
-        .from("client_contacts")
-        .select("name, email")
-        .eq("client_id", invoice.party_id)
-        .order("is_billing", { ascending: false })
-        .order("is_primary", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      fetchReceipts(supabase, { offset: 0, limit: 100 }, id),
-    ]);
-  const billing = billingFrom(settings?.org_name ?? "", settings?.config);
+  const { supabase, invoice } = await load(id);
+  const [docData, receipts, { data: link }] = await Promise.all([
+    loadInvoiceDocument(supabase, id),
+    fetchReceipts(supabase, { offset: 0, limit: 100 }, id),
+    supabase
+      .from("invoice_links")
+      .select("expires_at")
+      .eq("invoice_id", id)
+      .gt("expires_at", new Date().toISOString())
+      .maybeSingle(),
+  ]);
+  if (!docData) notFound();
+  const { billing, doc } = docData;
   const draft = invoice.status === "draft";
   const open = invoice.status === "issued" || invoice.status === "partially_paid";
   const c = invoice.currency;
@@ -192,81 +186,100 @@ export default async function InvoicePage({ params }: Props) {
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <InvoicePreview
-          invoice={invoice}
-          lines={lines}
-          billing={billing}
-          billTo={{
-            name: client?.name ?? invoice.clientName,
-            contact: billingContact?.name ?? null,
-            email: billingContact?.email ?? null,
-            address:
-              [client?.address, client?.city, client?.country].filter(Boolean).join(", ") || null,
-          }}
-        />
-        <Card className="h-fit">
-          <CardHeader>
-            <CardTitle>Payments and receipts</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            {!draft ? (
-              <dl className="grid grid-cols-2 gap-2 text-[15px]">
-                <dt className="text-muted">Total</dt>
-                <dd className="text-right">{money(invoice.total_minor, c)}</dd>
-                <dt className="text-muted">Paid</dt>
-                <dd className="text-right">{money(invoice.paidMinor, c)}</dd>
-                <dt className="font-semibold">Balance</dt>
-                <dd className="text-right font-semibold">{money(invoice.balanceMinor, c)}</dd>
-              </dl>
-            ) : (
-              <p className="text-muted">Payments can be recorded once the invoice is sent.</p>
-            )}
-            {receipts.rows.length > 0 ? (
-              <ul aria-label="Payments" className="flex flex-col divide-y divide-border-subtle">
-                {receipts.rows.map((r) => {
-                  const voided = r.payment.status === "void";
-                  return (
-                    <li key={r.id} className="flex flex-col gap-1 py-3">
-                      <p
-                        className={cn(
-                          "flex justify-between font-semibold",
-                          voided && "line-through",
+        <BillingPreview doc={doc} />
+        <div className="flex flex-col gap-6">
+          <Card className="h-fit">
+            <CardHeader>
+              <CardTitle>Share</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ShareInvoice
+                invoiceId={id}
+                sent={open || invoice.status === "paid"}
+                number={invoice.display_number ?? ""}
+                company={billing.company.name}
+                contact={doc.billTo.lines[0] ?? null}
+                amount={money(
+                  invoice.balanceMinor > 0 ? invoice.balanceMinor : invoice.total_minor,
+                  c,
+                )}
+                due={doc.meta[1]?.value ?? ""}
+                linkExpires={link ? formatDay(link.expires_at) : null}
+                emailEnabled={process.env.CLIENT_EMAIL_ENABLED === "true"}
+                defaultEmail={doc.billTo.lines.find((l) => l.includes("@")) ?? ""}
+              />
+            </CardContent>
+          </Card>
+          <Card className="h-fit">
+            <CardHeader>
+              <CardTitle>Payments and receipts</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              {!draft ? (
+                <dl className="grid grid-cols-2 gap-2 text-[15px]">
+                  <dt className="text-muted">Total</dt>
+                  <dd className="text-right">{money(invoice.total_minor, c)}</dd>
+                  <dt className="text-muted">Paid</dt>
+                  <dd className="text-right">{money(invoice.paidMinor, c)}</dd>
+                  <dt className="font-semibold">Balance</dt>
+                  <dd className="text-right font-semibold">{money(invoice.balanceMinor, c)}</dd>
+                </dl>
+              ) : (
+                <p className="text-muted">Payments can be recorded once the invoice is sent.</p>
+              )}
+              {receipts.rows.length > 0 ? (
+                <ul aria-label="Payments" className="flex flex-col divide-y divide-border-subtle">
+                  {receipts.rows.map((r) => {
+                    const voided = r.payment.status === "void";
+                    return (
+                      <li key={r.id} className="flex flex-col gap-1 py-3">
+                        <p
+                          className={cn(
+                            "flex justify-between font-semibold",
+                            voided && "line-through",
+                          )}
+                        >
+                          <span>{r.display_number}</span>
+                          <span>{money(r.payment.amount_minor, r.payment.currency)}</span>
+                        </p>
+                        <p className="text-sm text-ink-soft">
+                          {methodLabel(r.payment.method)}
+                          {r.payment.reference ? ` · ${r.payment.reference}` : ""} ·{" "}
+                          {formatDay(r.payment.received_at)}
+                        </p>
+                        <a
+                          href={`/invoices/receipts/${r.id}/pdf`}
+                          className="inline-flex min-h-11 min-w-11 items-center text-sm font-semibold text-primary underline"
+                        >
+                          Download receipt<span className="sr-only"> {r.display_number}</span>
+                        </a>
+                        {voided ? (
+                          <p className="text-sm text-danger">Void: {r.payment.void_reason}</p>
+                        ) : (
+                          <div>
+                            <ConfirmAction
+                              action={voidPayment}
+                              fields={{ id: r.payment.id }}
+                              triggerLabel={`Void payment ${r.display_number ?? ""}`}
+                              title="Void this payment?"
+                              description="The payment and its receipt stay visible, marked void, and the balance goes back up."
+                              confirmLabel="Void payment"
+                              reasonLabel="Why is it voided?"
+                            />
+                          </div>
                         )}
-                      >
-                        <span>{r.display_number}</span>
-                        <span>{money(r.payment.amount_minor, r.payment.currency)}</span>
-                      </p>
-                      <p className="text-sm text-ink-soft">
-                        {methodLabel(r.payment.method)}
-                        {r.payment.reference ? ` · ${r.payment.reference}` : ""} ·{" "}
-                        {formatDay(r.payment.received_at)}
-                      </p>
-                      {voided ? (
-                        <p className="text-sm text-danger">Void: {r.payment.void_reason}</p>
-                      ) : (
-                        <div>
-                          <ConfirmAction
-                            action={voidPayment}
-                            fields={{ id: r.payment.id }}
-                            triggerLabel={`Void payment ${r.display_number ?? ""}`}
-                            title="Void this payment?"
-                            description="The payment and its receipt stay visible, marked void, and the balance goes back up."
-                            confirmLabel="Void payment"
-                            reasonLabel="Why is it voided?"
-                          />
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : null}
-            <p className="text-xs text-muted">
-              Created {formatDateTime(invoice.created_at)}
-              {invoice.sent_at ? ` · sent ${formatDateTime(invoice.sent_at)}` : ""}
-            </p>
-          </CardContent>
-        </Card>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : null}
+              <p className="text-xs text-muted">
+                Created {formatDateTime(invoice.created_at)}
+                {invoice.sent_at ? ` · sent ${formatDateTime(invoice.sent_at)}` : ""}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
