@@ -316,3 +316,97 @@ describe("finance PDFs", () => {
     expect(out).toContain("$1,200.00");
   });
 });
+
+describe("Corex invoice, receipt and quote (SPEC-ADMIN.md 9.4)", () => {
+  const base = {
+    company: { name: "Corex Digital Solutions", lines: ["Monrovia, Liberia", "TIN 123456"] },
+    billTo: { name: "Hope Medical Center", lines: ["Esther Dolo", "Ganta, Liberia"] },
+    lines: [
+      {
+        title: "Milestone 2 of 3 (30%)",
+        details: "Clinic Management, contract CT-26-09-001",
+        quantity: "1",
+        unit: "US$750.00",
+        amount: "US$750.00",
+      },
+    ],
+    totals: [
+      { label: "Subtotal", value: "US$750.00" },
+      { label: "Discount (10%)", value: "-US$75.00" },
+    ],
+    note: "Thank you for paying early.",
+    questions: ["billing@corex.example"],
+    paymentInfo: "Orange Money: +231 [number]",
+    terms: "Payment is due within 7 days.",
+    generatedAt: "31 Oct 2026, 20:30",
+  };
+
+  it("renders the invoice layout with number, totals, footer and generation time", async () => {
+    const { renderBillingPdf } = await import("./index");
+    const pdf = await renderBillingPdf({
+      ...base,
+      kind: "invoice",
+      number: "CX-26-10-003",
+      watermark: null,
+      meta: [
+        { label: "Date", value: "31 Oct 2026" },
+        { label: "Due", value: "7 Nov 2026" },
+      ],
+      grand: { label: "TOTAL DUE", value: "US$675.00", tone: "primary" },
+    });
+    const content = await text(pdf);
+    for (const expected of [
+      "INVOICE",
+      "CX-26-10-003",
+      "Hope Medical Center",
+      "Milestone 2 of 3 (30%)",
+      "-US$75.00",
+      "TOTAL DUE",
+      "US$675.00",
+      "Orange Money: +231 [number]",
+      "Generated 31 Oct 2026, 20:30",
+      "Page 1 of 1",
+    ]) {
+      expect(content).toContain(expected);
+    }
+  });
+
+  it("marks drafts and titles receipts and quotes", async () => {
+    const { renderBillingPdf } = await import("./index");
+    const draft = await text(
+      await renderBillingPdf({
+        ...base,
+        kind: "invoice",
+        number: null,
+        watermark: "DRAFT",
+        meta: [],
+        grand: { label: "TOTAL DUE", value: "US$675.00", tone: "primary" },
+      }),
+    );
+    expect(draft).toContain("DRAFT");
+    expect(draft).toContain("Number assigned on sending");
+    const receipt = await text(
+      await renderBillingPdf({
+        ...base,
+        kind: "receipt",
+        number: "RC-26-10-002",
+        watermark: null,
+        meta: [{ label: "Invoice", value: "CX-26-10-003" }],
+        grand: { label: "AMOUNT PAID", value: "US$300.00", tone: "paid" },
+      }),
+    );
+    expect(receipt).toContain("RECEIPT");
+    expect(receipt).toContain("AMOUNT PAID");
+    const quote = await text(
+      await renderBillingPdf({
+        ...base,
+        kind: "quote",
+        number: "Quote for St. Peter's College",
+        watermark: null,
+        meta: [],
+        grand: { label: "TOTAL", value: "US$4,000.00", tone: "primary" },
+      }),
+    );
+    expect(quote).toContain("QUOTE");
+  });
+});
