@@ -7,23 +7,7 @@ import { useState } from "react";
 import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
 import { FormDialog } from "@/components/form-dialog";
 import { createLink, emailInvoice } from "@/app/(app)/invoices/actions";
-
-/** The WhatsApp text with amount, due date and the client view link (SPEC-ADMIN.md 9.6). */
-export function whatsappText(p: {
-  contact: string | null;
-  number: string;
-  company: string;
-  amount: string;
-  due: string;
-  link: string;
-}): string {
-  return [
-    `Hello${p.contact ? ` ${p.contact}` : ""},`,
-    `Here is invoice ${p.number} from ${p.company} for ${p.amount}, due ${p.due}.`,
-    `View it and download the PDF here (valid 30 days): ${p.link}`,
-    "Thank you.",
-  ].join("\n");
-}
+import { whatsappText } from "@/lib/invoices";
 
 function CopyButton({ text, label }: { text: string; label: string }) {
   const [copied, setCopied] = useState(false);

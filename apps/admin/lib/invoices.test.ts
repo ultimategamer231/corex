@@ -8,6 +8,7 @@ import {
   lineAmount,
   majorText,
   paymentSchema,
+  whatsappText,
 } from "./invoices";
 
 const clientId = "7c9e6679-7425-40de-944b-e07fc1f90ae7";
@@ -205,8 +206,7 @@ describe("SPEC-ADMIN.md 9.4 and 9.6: documents and WhatsApp text", () => {
     expect(draft.meta[1]?.value).toBe("7 days after sending");
   });
 
-  it("writes the WhatsApp message with amount, due date and link", async () => {
-    const { whatsappText } = await import("@/components/invoices/share-invoice");
+  it("writes the WhatsApp message with amount, due date and link", () => {
     expect(
       whatsappText({
         contact: "Esther Dolo",
