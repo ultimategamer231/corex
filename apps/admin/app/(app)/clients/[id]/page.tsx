@@ -25,6 +25,7 @@ import {
 import { FormField } from "@/components/action-form";
 import { DocumentUpload } from "@/components/clients/document-upload";
 import { ClientStatusBadge } from "@/components/clients/status-badge";
+import { InvoiceStatusBadge } from "@/components/invoices/status-badge";
 import { ConfirmAction } from "@/components/confirm-action";
 import { FormDialog } from "@/components/form-dialog";
 import { changeLines } from "@/lib/activity";
@@ -40,11 +41,14 @@ import {
   money,
 } from "@/lib/clients";
 import { clientSummary, hostingMultiple } from "@/lib/clients-data";
-import { formatDateTime, formatDay } from "@/lib/format";
+import { formatDateTime, formatDay, todayIso } from "@/lib/format";
+import { fetchInvoices, outstandingTotals } from "@/lib/invoices-data";
+import { invoiceStatus } from "@/lib/invoices";
 import { getAdminSession } from "@/lib/session";
 
 const TABS = [
   ["overview", "Overview"],
+  ["invoices", "Invoices"],
   ["contacts", "Contacts"],
   ["documents", "Documents"],
   ["activity", "Activity"],
@@ -135,7 +139,7 @@ export default async function ClientPage({ params, searchParams }: Props) {
                   {" · "}
                   <Link
                     href={`/leads/${lead.id}`}
-                    className="inline-flex min-h-11 items-center font-semibold text-primary underline"
+                    className="inline-flex min-h-11 min-w-11 items-center font-semibold text-primary underline"
                   >
                     Original lead
                   </Link>
@@ -144,32 +148,41 @@ export default async function ClientPage({ params, searchParams }: Props) {
             </p>
           </div>
         </div>
-        <FormDialog
-          action={saveClientDetails}
-          triggerLabel="Edit client"
-          triggerIcon={<Pencil aria-hidden="true" />}
-          title="Edit client"
-          description="Changes are recorded in the activity log."
-        >
-          <input type="hidden" name="clientId" value={client.id} />
-          <FormField name="name" label="Name" required>
-            <Input defaultValue={client.name} />
-          </FormField>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FormField name="city" label="City">
-              <Input defaultValue={client.city ?? ""} />
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/invoices/new?client=${client.id}`}
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
+          >
+            <Plus aria-hidden="true" />
+            New invoice
+          </Link>
+          <FormDialog
+            action={saveClientDetails}
+            triggerLabel="Edit client"
+            triggerIcon={<Pencil aria-hidden="true" />}
+            title="Edit client"
+            description="Changes are recorded in the activity log."
+          >
+            <input type="hidden" name="clientId" value={client.id} />
+            <FormField name="name" label="Name" required>
+              <Input defaultValue={client.name} />
             </FormField>
-            <FormField name="country" label="Country">
-              <Input defaultValue={client.country ?? ""} />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField name="city" label="City">
+                <Input defaultValue={client.city ?? ""} />
+              </FormField>
+              <FormField name="country" label="Country">
+                <Input defaultValue={client.country ?? ""} />
+              </FormField>
+            </div>
+            <FormField name="address" label="Address">
+              <Input defaultValue={client.address ?? ""} />
             </FormField>
-          </div>
-          <FormField name="address" label="Address">
-            <Input defaultValue={client.address ?? ""} />
-          </FormField>
-          <FormField name="notes" label="Notes">
-            <Textarea rows={3} defaultValue={client.notes ?? ""} />
-          </FormField>
-        </FormDialog>
+            <FormField name="notes" label="Notes">
+              <Textarea rows={3} defaultValue={client.notes ?? ""} />
+            </FormField>
+          </FormDialog>
+        </div>
       </header>
 
       <nav aria-label="Client sections" className="overflow-x-auto">
@@ -194,6 +207,7 @@ export default async function ClientPage({ params, searchParams }: Props) {
       </nav>
 
       {tab === "overview" ? <Overview id={id} /> : null}
+      {tab === "invoices" ? <ClientInvoices id={id} /> : null}
       {tab === "contacts" ? <Contacts id={id} /> : null}
       {tab === "documents" ? <Documents id={id} /> : null}
       {tab === "activity" ? <Activity id={id} /> : null}
@@ -232,6 +246,20 @@ async function Overview({ id }: { id: string }) {
         .maybeSingle(),
       hostingMultiple(supabase),
     ]);
+  const { data: contractInvoices } = contract
+    ? await supabase
+        .from("invoices")
+        .select("id, kind, milestone_no, renewal_for, status, display_number, due_date")
+        .eq("contract_id", contract.id)
+        .neq("status", "void")
+    : { data: [] };
+  const milestoneInvoice = new Map(
+    (contractInvoices ?? []).filter((i) => i.kind === "milestone").map((i) => [i.milestone_no, i]),
+  );
+  const renewalInvoice = (contractInvoices ?? []).find(
+    (i) => i.kind === "renewal" && i.renewal_for === subscription?.next_renewal_on,
+  );
+  const today = todayIso();
 
   const check = hostingCheck(
     subscription
@@ -336,7 +364,28 @@ async function Overview({ id }: { id: string }) {
                       </span>
                       <span className="flex items-center gap-3">
                         <span className="font-semibold">{money(amount, contract.currency)}</span>
-                        <Badge variant="neutral">Not invoiced</Badge>
+                        {(() => {
+                          const inv = milestoneInvoice.get(i + 1);
+                          return inv ? (
+                            <Link
+                              href={`/invoices/${inv.id}`}
+                              className="inline-flex min-h-11 min-w-11 items-center gap-2 font-semibold text-primary underline"
+                            >
+                              {inv.display_number ?? "Draft"}
+                              <InvoiceStatusBadge
+                                status={invoiceStatus(inv.status, inv.due_date, today)}
+                              />
+                            </Link>
+                          ) : (
+                            <Link
+                              href={`/invoices/new?client=${id}&kind=milestone&milestone=${i + 1}`}
+                              className={buttonVariants({ variant: "secondary", size: "sm" })}
+                            >
+                              Create invoice
+                              <span className="sr-only"> for milestone {i + 1}</span>
+                            </Link>
+                          );
+                        })()}
                       </span>
                     </li>
                   ),
@@ -521,6 +570,21 @@ async function Overview({ id }: { id: string }) {
                 {subscription.next_renewal_on
                   ? formatDay(subscription.next_renewal_on)
                   : "One year after go-live"}
+                {renewalInvoice ? (
+                  <Link
+                    href={`/invoices/${renewalInvoice.id}`}
+                    className="ml-2 font-semibold text-primary underline"
+                  >
+                    {renewalInvoice.display_number ?? "Draft invoice"}
+                  </Link>
+                ) : subscription.next_renewal_on ? (
+                  <Link
+                    href={`/invoices/new?client=${id}&kind=renewal`}
+                    className="ml-2 font-semibold text-primary underline"
+                  >
+                    Create renewal invoice
+                  </Link>
+                ) : null}
               </Detail>
               <Detail term="Hosting cost">
                 {deployment?.hosting_cost_minor_per_month != null &&
@@ -828,5 +892,89 @@ function Detail({ term, children }: { term: string; children: React.ReactNode })
       <dt className="text-sm font-semibold text-muted">{term}</dt>
       <dd className="text-[15px] text-ink">{children}</dd>
     </div>
+  );
+}
+
+async function ClientInvoices({ id }: { id: string }) {
+  const { supabase } = await getAdminSession();
+  const [{ rows }, totals] = await Promise.all([
+    fetchInvoices(supabase, { clientId: id }, { offset: 0, limit: 100 }),
+    outstandingTotals(supabase, id),
+  ]);
+  return (
+    <Card>
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <CardTitle>Invoices</CardTitle>
+          <p className="text-sm text-muted">
+            Outstanding:{" "}
+            {Object.keys(totals).length === 0
+              ? "nothing"
+              : Object.entries(totals)
+                  .map(([c, t]) => money(t.outstanding, c))
+                  .join(" · ")}
+          </p>
+        </div>
+        <Link
+          href={`/invoices/new?client=${id}`}
+          className={buttonVariants({ variant: "secondary", size: "sm" })}
+        >
+          <Plus aria-hidden="true" />
+          New invoice
+        </Link>
+      </CardHeader>
+      <CardContent>
+        {rows.length === 0 ? (
+          <p className="text-muted">
+            No invoices yet. Create milestone invoices from the Overview.
+          </p>
+        ) : (
+          <TableScroll label="Client invoices">
+            <Table>
+              <thead>
+                <tr>
+                  <Th>Number</Th>
+                  <Th>Description</Th>
+                  <Th>Issued</Th>
+                  <Th className="text-right">Amount</Th>
+                  <Th>Status</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.id}>
+                    <Td>
+                      <Link
+                        href={`/invoices/${r.id}`}
+                        className={cn(
+                          "inline-flex min-h-11 min-w-11 items-center font-semibold text-primary underline",
+                          r.status === "void" && "line-through",
+                        )}
+                      >
+                        {r.display_number ?? "Draft"}
+                      </Link>
+                    </Td>
+                    <Td>
+                      {r.kind === "milestone"
+                        ? `Milestone ${r.milestone_no}`
+                        : r.kind === "renewal"
+                          ? "Yearly renewal"
+                          : "Custom"}
+                    </Td>
+                    <Td className="whitespace-nowrap">{formatDay(r.issue_date)}</Td>
+                    <Td className="text-right whitespace-nowrap">
+                      {money(r.total_minor, r.currency)}
+                    </Td>
+                    <Td>
+                      <InvoiceStatusBadge status={r.shownStatus} />
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </TableScroll>
+        )}
+      </CardContent>
+    </Card>
   );
 }

@@ -94,6 +94,7 @@ export async function seedAdminFixture(
   }
   await seedLeads(sql, s);
   await seedClients(sql, s);
+  await seedInvoices(sql, s);
   return { schema: s, users };
 }
 
@@ -292,4 +293,101 @@ async function seedClients(sql: Sql, s: string): Promise<void> {
     renewal_minor: null,
   });
   await goLive(lakeside, 18);
+}
+
+/**
+ * Invoices from the mockup (Invoices.dc.html): Hope Medical's first milestone sent and
+ * paid, Bright Future's renewal sent and overdue, Riverside's renewal still a draft.
+ * Written through the billing functions, so numbers, totals and receipts are real.
+ */
+async function seedInvoices(sql: Sql, s: string): Promise<void> {
+  await sql.unsafe(`update ${s}.settings set config = config || $1::jsonb`, [
+    {
+      company_address: "[Office address], Monrovia, Liberia",
+      company_phone: "+231 [number]",
+      company_email: "billing@corex.example",
+      payment_instructions:
+        "Orange Money: +231 [number] (Corex Digital Solutions)\nBank transfer: [Bank], account [number]",
+    } as never,
+  ]);
+  const client = async (name: string) => {
+    const [row] = await sql.unsafe<{ id: string; contract_id: string; next: string | null }[]>(
+      `select c.id, k.id as contract_id, s.next_renewal_on::text as next
+       from ${s}.clients c join ${s}.contracts k on k.client_id = c.id
+       left join ${s}.subscriptions s on s.contract_id = k.id
+       where c.name = $1`,
+      [name],
+    );
+    if (!row) throw new Error(`fixture client ${name} is missing`);
+    return row;
+  };
+  const draft = async (details: Record<string, unknown>) => {
+    const [row] = await sql.unsafe<{ id: string }[]>(
+      `select ${s}.save_invoice_draft(null, $1::jsonb) as id`,
+      [details as never],
+    );
+    if (!row) throw new Error("invoice not created");
+    return row.id;
+  };
+
+  const hope = await client("Hope Medical Center");
+  const milestone = await draft({
+    client_id: hope.id,
+    kind: "milestone",
+    contract_id: hope.contract_id,
+    milestone_no: 1,
+    currency: "USD",
+    lines: [
+      {
+        description: "Milestone 1 of 3 (50%)",
+        details: "Clinic Management, contract",
+        quantity: 1,
+        unit_amount_minor: 125000,
+      },
+    ],
+  });
+  await sql.unsafe(`select ${s}.issue_invoice($1)`, [milestone]);
+  await sql.unsafe(
+    `select * from ${s}.record_payment(gen_random_uuid(), $1, 125000, 'USD', 'orange_money', 'OM-55021')`,
+    [milestone],
+  );
+
+  const bright = await client("Bright Future NGO");
+  const overdue = await draft({
+    client_id: bright.id,
+    kind: "renewal",
+    contract_id: bright.contract_id,
+    renewal_for: bright.next,
+    currency: "USD",
+    lines: [
+      {
+        description: "Yearly renewal",
+        details: "Financial Management",
+        quantity: 1,
+        unit_amount_minor: 30000,
+      },
+    ],
+  });
+  await sql.unsafe(`select ${s}.issue_invoice($1)`, [overdue]);
+  await sql.unsafe(
+    `update ${s}.invoices set issue_date = current_date - 42, due_date = current_date - 12 where id = $1`,
+    [overdue],
+  );
+
+  const riverside = await client("Riverside Traders");
+  await draft({
+    client_id: riverside.id,
+    kind: "renewal",
+    contract_id: riverside.contract_id,
+    renewal_for: riverside.next,
+    currency: "USD",
+    lines: [
+      {
+        description: "Yearly renewal",
+        details: "Financial Management",
+        quantity: 1,
+        unit_amount_minor: 30000,
+      },
+    ],
+  });
 }
