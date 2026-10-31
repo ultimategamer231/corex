@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { ActionError, must, runAction } from "@/lib/action";
 import { authEmailFor, emailSchema, usernameSchema } from "@/lib/auth/identity";
+import { companySchema, invoicingSchema } from "@/lib/billing-settings";
 import { LINK_HOURS, randomToken } from "@/lib/auth/tokens";
 import { sendEmail, simpleEmailHtml } from "@/lib/email";
 import { optionalText, requiredText, uuid } from "@/lib/fields";
@@ -310,4 +311,50 @@ export async function forgetMyDevices(
     );
     return "Your trusted devices were forgotten. Each will ask for a code next time.";
   });
+}
+
+/** Settings → Company details: printed on invoices, receipts and emails. */
+export async function saveCompany(_previous: FormState, formData: FormData): Promise<FormState> {
+  return runAction(formData, { schema: companySchema, revalidate: TEAM }, async (data, session) => {
+    const current = must(await session.supabase.from("settings").select("config").single());
+    const config = {
+      ...(current.config as Record<string, unknown>),
+      company_address: data.address,
+      company_phone: data.phone,
+      company_email: data.email,
+      company_website: data.website,
+      company_tax_id: data.taxId,
+    };
+    must(
+      await session.supabase
+        .from("settings")
+        .update({ org_name: data.name, config })
+        .eq("id", true),
+    );
+    return "Company details saved.";
+  });
+}
+
+/** Settings → Invoicing and payments: terms, numbering, tax and payment instructions. */
+export async function saveInvoicing(_previous: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    { schema: invoicingSchema, revalidate: TEAM },
+    async (data, session) => {
+      const current = must(await session.supabase.from("settings").select("config").single());
+      const config = {
+        ...(current.config as Record<string, unknown>),
+        payment_terms_days: data.termsDays,
+        invoice_prefix: data.invoicePrefix,
+        receipt_prefix: data.receiptPrefix,
+        tax_enabled: data.taxEnabled,
+        tax_rate_bp: data.taxRateBp,
+        tax_label: data.taxLabel,
+        payment_instructions: data.paymentInstructions,
+        invoice_terms: data.invoiceTerms,
+      };
+      must(await session.supabase.from("settings").update({ config }).eq("id", true));
+      return "Invoicing settings saved. They apply to new drafts and invoices sent from now on.";
+    },
+  );
 }

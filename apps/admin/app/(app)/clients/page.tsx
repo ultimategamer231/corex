@@ -11,6 +11,7 @@ import Link from "next/link";
 import { ClientStatusBadge } from "@/components/clients/status-badge";
 import { inGroup, money, STATUS_GROUPS, type StatusGroup } from "@/lib/clients";
 import { clientSummaries } from "@/lib/clients-data";
+import { clientBalances } from "@/lib/invoices-data";
 import { getAdminSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Clients" };
@@ -27,7 +28,19 @@ export default async function ClientsPage({ searchParams }: Props) {
     "all") as StatusGroup;
   const q = one(params.q)?.trim().slice(0, 100);
   const { supabase } = await getAdminSession();
-  const all = await clientSummaries(supabase, q);
+  const [all, balances] = await Promise.all([
+    clientSummaries(supabase, q),
+    clientBalances(supabase),
+  ]);
+  const owed = (id: string) => {
+    const b = balances.get(id);
+    return b && Object.values(b).some((v) => v > 0)
+      ? Object.entries(b)
+          .filter(([, v]) => v > 0)
+          .map(([c, v]) => money(v, c))
+          .join(" · ")
+      : "—";
+  };
   const rows = all.filter((c) => inGroup(c.status, group));
   const managed = all.filter((c) => c.plan === "Managed").length;
   const renewals = new Map<string, bigint>();
@@ -142,7 +155,10 @@ export default async function ClientsPage({ searchParams }: Props) {
                     {c.product}
                     {c.plan ? ` · ${c.plan}` : ""}
                   </span>
-                  <span className="text-sm text-ink-soft">{c.keyDate}</span>
+                  <span className="flex justify-between text-sm text-ink-soft">
+                    <span>{c.keyDate}</span>
+                    <span>Owes {owed(c.id)}</span>
+                  </span>
                 </Link>
               </li>
             ))}
@@ -157,6 +173,7 @@ export default async function ClientsPage({ searchParams }: Props) {
                     <Th>Plan</Th>
                     <Th>Status</Th>
                     <Th>Key date</Th>
+                    <Th className="text-right">Balance owed</Th>
                     <Th>Client since</Th>
                   </tr>
                 </thead>
@@ -178,6 +195,7 @@ export default async function ClientsPage({ searchParams }: Props) {
                         <ClientStatusBadge status={c.status} />
                       </Td>
                       <Td className="whitespace-nowrap">{c.keyDate}</Td>
+                      <Td className="text-right whitespace-nowrap">{owed(c.id)}</Td>
                       <Td className="whitespace-nowrap">{c.since}</Td>
                     </tr>
                   ))}

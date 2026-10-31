@@ -7,15 +7,19 @@ import {
   CardTitle,
 } from "@corex/ui/components/card";
 import { EmptyState } from "@corex/ui/components/empty-state";
+import { Input } from "@corex/ui/components/input";
 import { PageHeader } from "@corex/ui/components/page-header";
 import { Select } from "@corex/ui/components/select";
 import { Table, TableScroll, Td, Th } from "@corex/ui/components/table";
+import { Textarea } from "@corex/ui/components/textarea";
 import { Construction } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   forgetMyDevices,
   inviteAdmin,
+  saveCompany,
+  saveInvoicing,
   newInviteLink,
   passwordResetLink,
   removeAdmin,
@@ -29,6 +33,7 @@ import { LinkAction } from "@/components/link-action";
 import { SubNav } from "@/components/sub-nav";
 import { formatDateTime } from "@/lib/format";
 import { getAdminSession } from "@/lib/session";
+import { billingFrom, percentText } from "@/lib/billing-settings";
 import { securityFrom } from "@/lib/settings";
 
 const SECTIONS = [
@@ -62,7 +67,11 @@ export default async function SettingsPage({ params }: Props) {
       />
       {section === "team" ? <TeamSection /> : null}
       {section === "security" ? <SecuritySection /> : null}
-      {section !== "team" && section !== "security" ? <Later section={section as Section} /> : null}
+      {section === "company" ? <CompanySection /> : null}
+      {section === "invoicing" ? <InvoicingSection /> : null}
+      {section === "prices" || section === "renewals" ? (
+        <Later section={section as Section} />
+      ) : null}
     </div>
   );
 }
@@ -292,5 +301,137 @@ async function SecuritySection() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+async function CompanySection() {
+  const { supabase } = await getAdminSession();
+  const { data } = await supabase.from("settings").select("org_name, config").single();
+  const b = billingFrom(data?.org_name ?? "", data?.config);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Company details</CardTitle>
+        <CardDescription>Printed on invoices, receipts and emails.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ActionForm action={saveCompany} resetOnSuccess={false} aria-label="Company details">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField name="name" label="Company name" required>
+              <Input defaultValue={b.company.name} />
+            </FormField>
+            <FormField name="taxId" label="Tax ID (TIN)">
+              <Input defaultValue={b.company.taxId ?? ""} />
+            </FormField>
+            <FormField name="phone" label="Phone">
+              <Input type="tel" defaultValue={b.company.phone ?? ""} />
+            </FormField>
+            <FormField name="email" label="Email">
+              <Input type="email" defaultValue={b.company.email ?? ""} />
+            </FormField>
+            <FormField name="website" label="Website">
+              <Input defaultValue={b.company.website ?? ""} />
+            </FormField>
+          </div>
+          <FormField name="address" label="Office address">
+            <Textarea rows={2} defaultValue={b.company.address ?? ""} />
+          </FormField>
+          <div>
+            <SubmitButton variant="primary">Save company details</SubmitButton>
+          </div>
+        </ActionForm>
+      </CardContent>
+    </Card>
+  );
+}
+
+async function InvoicingSection() {
+  const { supabase } = await getAdminSession();
+  const { data } = await supabase.from("settings").select("org_name, config").single();
+  const b = billingFrom(data?.org_name ?? "", data?.config);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Invoicing and payments</CardTitle>
+        <CardDescription>
+          Changes apply to new drafts and to invoices sent from now on. Sent invoices keep what they
+          were sent with.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ActionForm action={saveInvoicing} resetOnSuccess={false} aria-label="Invoicing settings">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <FormField
+              name="termsDays"
+              label="Payment terms (days)"
+              required
+              hint="Due date = date sent + these days; each invoice can change it"
+            >
+              <Input inputMode="numeric" defaultValue={String(b.termsDays)} />
+            </FormField>
+            <FormField
+              name="invoicePrefix"
+              label="Invoice prefix"
+              required
+              hint={`For example ${b.invoicePrefix}-26-10-001`}
+            >
+              <Input defaultValue={b.invoicePrefix} />
+            </FormField>
+            <FormField
+              name="receiptPrefix"
+              label="Receipt prefix"
+              required
+              hint={`For example ${b.receiptPrefix}-26-10-001`}
+            >
+              <Input defaultValue={b.receiptPrefix} />
+            </FormField>
+          </div>
+          <fieldset className="flex flex-col gap-3 rounded-xl border border-border p-4">
+            <legend className="px-1 font-semibold">Tax</legend>
+            <label className="flex min-h-11 items-center gap-3">
+              <input
+                type="checkbox"
+                name="taxEnabled"
+                defaultChecked={b.taxEnabled}
+                className="size-5"
+              />
+              Charge tax on new invoices (after any discount)
+            </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                name="taxRate"
+                label="Rate (%)"
+                hint={b.taxEnabled ? `Now ${percentText(b.taxRateBp)}` : "Off"}
+              >
+                <Input
+                  inputMode="decimal"
+                  defaultValue={b.taxEnabled ? String(b.taxRateBp / 100) : ""}
+                />
+              </FormField>
+              <FormField name="taxLabel" label="Name on invoices">
+                <Input defaultValue={b.taxLabel} placeholder="GST" />
+              </FormField>
+            </div>
+          </fieldset>
+          <FormField
+            name="paymentInstructions"
+            label="Payment instructions"
+            hint="Printed on every invoice: bank account, Orange Money and MTN numbers"
+          >
+            <Textarea rows={4} defaultValue={b.paymentInstructions ?? ""} />
+          </FormField>
+          <FormField
+            name="invoiceTerms"
+            label="Terms and notes"
+            hint="Printed in the invoice footer"
+          >
+            <Textarea rows={2} defaultValue={b.invoiceTerms ?? ""} />
+          </FormField>
+          <div>
+            <SubmitButton variant="primary">Save invoicing settings</SubmitButton>
+          </div>
+        </ActionForm>
+      </CardContent>
+    </Card>
   );
 }
