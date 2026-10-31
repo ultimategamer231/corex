@@ -561,6 +561,25 @@ export type Database = {
           },
         ];
       };
+      document_counters: {
+        Row: {
+          kind: string;
+          last_number: number;
+          year: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          kind: string;
+          last_number?: number;
+          year: number;
+        };
+        Update: {
+          kind?: string;
+          last_number?: number;
+          year?: number;
+        };
+        Relationships: [];
+      };
       document_sequences: {
         Row: {
           kind: string;
@@ -665,8 +684,10 @@ export type Database = {
           amount_minor: number;
           created_at: string;
           description: string;
+          details: string | null;
           id: string;
           invoice_id: string;
+          position: number;
           quantity: number;
           unit_amount_minor: number;
         };
@@ -675,8 +696,10 @@ export type Database = {
           amount_minor: number;
           created_at?: string;
           description: string;
+          details?: string | null;
           id?: string;
           invoice_id: string;
+          position?: number;
           quantity?: number;
           unit_amount_minor: number;
         };
@@ -684,8 +707,10 @@ export type Database = {
           amount_minor?: number;
           created_at?: string;
           description?: string;
+          details?: string | null;
           id?: string;
           invoice_id?: string;
+          position?: number;
           quantity?: number;
           unit_amount_minor?: number;
         };
@@ -708,46 +733,114 @@ export type Database = {
       };
       invoices: {
         Row: {
+          contract_id: string | null;
           created_at: string;
           created_by: string | null;
           currency: string;
+          discount_minor: number;
+          discount_reason: string | null;
+          discount_type: string | null;
+          discount_value: number | null;
+          display_number: string | null;
           due_date: string | null;
+          emailed_to: string | null;
           id: string;
           issue_date: string | null;
+          kind: string;
+          milestone_no: number | null;
           notes: string | null;
           number: number | null;
           party_id: string;
           party_type: string;
+          payment_terms_days: number | null;
+          renewal_applied: boolean;
+          renewal_for: string | null;
+          sent_at: string | null;
           status: string;
+          subtotal_minor: number;
+          tax_minor: number;
+          tax_rate_bp: number;
+          total_minor: number;
+          updated_at: string;
+          void_reason: string | null;
+          voided_at: string | null;
         };
         ComputedFields: never;
         Insert: {
+          contract_id?: string | null;
           created_at?: string;
           created_by?: string | null;
           currency: string;
+          discount_minor?: number;
+          discount_reason?: string | null;
+          discount_type?: string | null;
+          discount_value?: number | null;
+          display_number?: string | null;
           due_date?: string | null;
+          emailed_to?: string | null;
           id?: string;
           issue_date?: string | null;
+          kind?: string;
+          milestone_no?: number | null;
           notes?: string | null;
           number?: number | null;
           party_id: string;
           party_type: string;
+          payment_terms_days?: number | null;
+          renewal_applied?: boolean;
+          renewal_for?: string | null;
+          sent_at?: string | null;
           status?: string;
+          subtotal_minor?: number;
+          tax_minor?: number;
+          tax_rate_bp?: number;
+          total_minor?: number;
+          updated_at?: string;
+          void_reason?: string | null;
+          voided_at?: string | null;
         };
         Update: {
+          contract_id?: string | null;
           created_at?: string;
           created_by?: string | null;
           currency?: string;
+          discount_minor?: number;
+          discount_reason?: string | null;
+          discount_type?: string | null;
+          discount_value?: number | null;
+          display_number?: string | null;
           due_date?: string | null;
+          emailed_to?: string | null;
           id?: string;
           issue_date?: string | null;
+          kind?: string;
+          milestone_no?: number | null;
           notes?: string | null;
           number?: number | null;
           party_id?: string;
           party_type?: string;
+          payment_terms_days?: number | null;
+          renewal_applied?: boolean;
+          renewal_for?: string | null;
+          sent_at?: string | null;
           status?: string;
+          subtotal_minor?: number;
+          tax_minor?: number;
+          tax_rate_bp?: number;
+          total_minor?: number;
+          updated_at?: string;
+          void_reason?: string | null;
+          voided_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "invoices_contract_id_fkey";
+            columns: ["contract_id"];
+            isOneToOne: false;
+            referencedRelation: "contracts";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       lead_activities: {
         Row: {
@@ -1005,23 +1098,29 @@ export type Database = {
       };
       receipts: {
         Row: {
+          display_number: string | null;
           id: string;
           issued_at: string;
           number: number;
           payment_id: string;
+          voided_at: string | null;
         };
         ComputedFields: never;
         Insert: {
+          display_number?: string | null;
           id?: string;
           issued_at?: string;
           number: number;
           payment_id: string;
+          voided_at?: string | null;
         };
         Update: {
+          display_number?: string | null;
           id?: string;
           issued_at?: string;
           number?: number;
           payment_id?: string;
+          voided_at?: string | null;
         };
         Relationships: [
           {
@@ -1184,20 +1283,20 @@ export type Database = {
           currency: string;
           invoice_id: string;
           paid_minor: number | null;
-          total_minor: number | null;
+          total_minor: number;
         };
         ComputedFields: never;
         Insert: {
           currency?: string | null;
           invoice_id?: string | null;
           paid_minor?: never;
-          total_minor?: never;
+          total_minor?: number | null;
         };
         Update: {
           currency?: string | null;
           invoice_id?: string | null;
           paid_minor?: never;
-          total_minor?: never;
+          total_minor?: number | null;
         };
         Relationships: [];
       };
@@ -1219,16 +1318,31 @@ export type Database = {
       audit_redact: { Args: { p_row: Json }; Returns: Json };
       audit_row_visible: { Args: { p_table_name: string }; Returns: boolean };
       billing_roles: { Args: Record<PropertyKey, never>; Returns: string[] };
+      billing_setting: { Args: { p_default: string; p_key: string }; Returns: string };
       can_bill: { Args: Record<PropertyKey, never>; Returns: boolean };
       create_client: { Args: { p: Json; p_lead_id: string }; Returns: string };
       current_admin_id: { Args: Record<PropertyKey, never>; Returns: string };
       current_admin_ok: { Args: Record<PropertyKey, never>; Returns: boolean };
       current_roles: { Args: Record<PropertyKey, never>; Returns: string[] };
+      delete_invoice_draft: { Args: { p_invoice_id: string }; Returns: undefined };
       enable_audit: { Args: { target: unknown }; Returns: undefined };
       has_role: { Args: { roles: string[] }; Returns: boolean };
       hit_rate_limit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };
         Returns: boolean;
+      };
+      invoice_totals: {
+        Args: {
+          p_discount_type: string;
+          p_discount_value: number;
+          p_subtotal_minor: number;
+          p_tax_rate_bp: number;
+        };
+        Returns: {
+          discount_minor: number;
+          tax_minor: number;
+          total_minor: number;
+        }[];
       };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_member: { Args: Record<PropertyKey, never>; Returns: boolean };
@@ -1271,6 +1385,7 @@ export type Database = {
         }[];
       };
       money_text: { Args: { p_currency: string; p_minor: number }; Returns: string };
+      next_display_number: { Args: { p_kind: string; p_on: string }; Returns: string };
       next_document_number: { Args: { p_kind: string }; Returns: number };
       rate_limit_hits: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
       record_payment: {
@@ -1292,6 +1407,8 @@ export type Database = {
       };
       refresh_invoice_status: { Args: { p_invoice_id: string }; Returns: string };
       require_billing_role: { Args: Record<PropertyKey, never>; Returns: undefined };
+      save_invoice_draft: { Args: { p: Json; p_invoice_id: string }; Returns: string };
+      today_monrovia: { Args: Record<PropertyKey, never>; Returns: string };
       valid_milestone_scheme: { Args: { p_scheme: number[] }; Returns: boolean };
       void_invoice: { Args: { p_invoice_id: string; p_reason: string }; Returns: undefined };
       void_payment: { Args: { p_payment_id: string; p_reason: string }; Returns: string };
