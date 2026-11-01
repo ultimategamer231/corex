@@ -23,6 +23,8 @@ export type AppShellProps = {
   banner?: React.ReactNode;
   /** Extra user-menu items. */
   userMenuItems?: React.ReactNode;
+  /** Controls in the top bar before the user menu, for example search and notifications. */
+  topBarActions?: React.ReactNode;
   onSignOut?: () => void | Promise<void>;
   children: React.ReactNode;
 };
@@ -39,6 +41,7 @@ export function AppShell({
   showConnection = true,
   banner,
   userMenuItems,
+  topBarActions,
   onSignOut,
   children,
 }: AppShellProps) {
@@ -50,6 +53,7 @@ export function AppShell({
       <SkipLink />
       {banner}
       <TopBar org={org}>
+        {topBarActions}
         {showConnection ? <OnlineStatus pendingCount={pendingSyncCount} /> : null}
         <UserMenu user={user} onSignOut={onSignOut}>
           {userMenuItems}

@@ -45,6 +45,7 @@ export function ShareInvoice({
   linkExpires,
   emailEnabled,
   defaultEmail,
+  paid = false,
 }: {
   invoiceId: string;
   sent: boolean;
@@ -56,6 +57,7 @@ export function ShareInvoice({
   linkExpires: string | null;
   emailEnabled: boolean;
   defaultEmail: string;
+  paid?: boolean;
 }) {
   const [link, setLink] = useState<string | null>(null);
   return (
@@ -133,7 +135,7 @@ export function ShareInvoice({
               <div className="flex flex-wrap gap-2">
                 <CopyButton text={link} label="Copy link" />
                 <CopyButton
-                  text={whatsappText({ contact, number, company, amount, due, link })}
+                  text={whatsappText({ contact, number, company, amount, due, link, paid })}
                   label="Copy for WhatsApp"
                 />
               </div>

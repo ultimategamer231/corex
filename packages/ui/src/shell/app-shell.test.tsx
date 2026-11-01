@@ -50,6 +50,12 @@ describe("AppShell", () => {
     expect(screen.getByText("Bethel High School")).toBeInTheDocument();
   });
 
+  it("puts top bar actions in the banner, before the user menu", () => {
+    renderShell({ topBarActions: <button type="button">Search</button> });
+    const banner = screen.getByRole("banner");
+    expect(within(banner).getByRole("button", { name: "Search" })).toBeInTheDocument();
+  });
+
   it("starts with a skip link that targets the main landmark", async () => {
     renderShell();
     await userEvent.tab();

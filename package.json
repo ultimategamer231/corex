@@ -31,7 +31,9 @@
     "demo:seed": "node packages/db/src/cli/demo-seed.ts",
     "admin:invite": "node packages/db/src/cli/admin-invite.ts",
     "admin:reset-authenticator": "node packages/db/src/cli/admin-reset-authenticator.ts",
-    "admin:verify-log": "node packages/db/src/cli/admin-verify-log.ts"
+    "admin:verify-log": "node packages/db/src/cli/admin-verify-log.ts",
+    "admin:seed": "node packages/db/src/cli/admin-seed.ts",
+    "admin:unseed": "node packages/db/src/cli/admin-unseed.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

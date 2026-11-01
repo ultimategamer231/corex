@@ -207,6 +207,7 @@ export default async function InvoicePage({ params }: Props) {
                 linkExpires={link ? formatDay(link.expires_at) : null}
                 emailEnabled={process.env.CLIENT_EMAIL_ENABLED === "true"}
                 defaultEmail={doc.billTo.lines.find((l) => l.includes("@")) ?? ""}
+                paid={invoice.status === "paid"}
               />
             </CardContent>
           </Card>

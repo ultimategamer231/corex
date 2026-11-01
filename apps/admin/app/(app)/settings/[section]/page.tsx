@@ -12,7 +12,7 @@ import { PageHeader } from "@corex/ui/components/page-header";
 import { Select } from "@corex/ui/components/select";
 import { Table, TableScroll, Td, Th } from "@corex/ui/components/table";
 import { Textarea } from "@corex/ui/components/textarea";
-import { Construction } from "lucide-react";
+import { Pencil, Plus, Tags } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
@@ -23,7 +23,11 @@ import {
   newInviteLink,
   passwordResetLink,
   removeAdmin,
+  removePriceItem,
   resetAuthenticator,
+  runDailyCheck,
+  savePriceItem,
+  saveRenewals,
   saveSecurity,
 } from "../actions";
 import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
@@ -35,6 +39,11 @@ import { formatDateTime } from "@/lib/format";
 import { getAdminSession } from "@/lib/session";
 import { billingFrom, percentText } from "@/lib/billing-settings";
 import { securityFrom } from "@/lib/settings";
+import { JOB_RULES, ruleOn } from "@/lib/dashboard";
+import { lastJobRun } from "@/lib/dashboard-data";
+import { FormDialog } from "@/components/form-dialog";
+import { majorText } from "@/lib/invoices";
+import { MULTIPLE_CHOICES, PRICE_KINDS, type PriceItem, priceText } from "@/lib/price-list";
 
 const SECTIONS = [
   ["company", "Company details"],
@@ -44,8 +53,6 @@ const SECTIONS = [
   ["team", "Team"],
   ["security", "Security"],
 ] as const;
-
-type Section = (typeof SECTIONS)[number][0];
 
 type Props = { params: Promise<{ section: string }> };
 
@@ -69,26 +76,9 @@ export default async function SettingsPage({ params }: Props) {
       {section === "security" ? <SecuritySection /> : null}
       {section === "company" ? <CompanySection /> : null}
       {section === "invoicing" ? <InvoicingSection /> : null}
-      {section === "prices" || section === "renewals" ? (
-        <Later section={section as Section} />
-      ) : null}
+      {section === "prices" ? <PricesSection /> : null}
+      {section === "renewals" ? <RenewalsSection /> : null}
     </div>
-  );
-}
-
-function Later({ section }: { section: Section }) {
-  const text: Record<string, string> = {
-    company: "Company details printed on invoices, receipts and emails.",
-    invoicing: "Numbering, payment terms, tax and the payment instructions printed on invoices.",
-    prices: "The price list used to prefill invoices and quotes.",
-    renewals: "The renewal reminders and the minimum renewal against hosting cost.",
-  };
-  return (
-    <EmptyState
-      icon={<Construction />}
-      title="This section is being built"
-      description={text[section] ?? ""}
-    />
   );
 }
 
@@ -433,5 +423,250 @@ async function InvoicingSection() {
         </ActionForm>
       </CardContent>
     </Card>
+  );
+}
+
+async function PricesSection() {
+  const { supabase } = await getAdminSession();
+  const { data } = await supabase
+    .from("price_list_items")
+    .select(
+      "id, name, kind, currency, managed_year1_minor, renewal_minor, handover_minor, unit_label, active",
+    )
+    .order("kind")
+    .order("position")
+    .order("name");
+  const items = (data ?? []) as PriceItem[];
+  return (
+    <Card>
+      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <CardTitle>Price list</CardTitle>
+          <CardDescription>
+            Used to prefill invoices. Changing a price never changes an invoice already drafted.
+          </CardDescription>
+        </div>
+        <PriceDialog />
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {items.length === 0 ? (
+          <EmptyState
+            icon={<Tags aria-hidden="true" />}
+            title="No prices yet"
+            description="Add your products and add-ons with their Managed, renewal and Handover prices."
+          />
+        ) : (
+          <TableScroll label="Price list">
+            <Table>
+              <thead>
+                <tr>
+                  <Th scope="col">Item</Th>
+                  <Th scope="col" className="text-right">
+                    Managed: year 1
+                  </Th>
+                  <Th scope="col" className="text-right">
+                    Renewal per year
+                  </Th>
+                  <Th scope="col" className="text-right">
+                    Handover
+                  </Th>
+                  <Th scope="col">
+                    <span className="sr-only">Actions</span>
+                  </Th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <Td>
+                      <span className="font-semibold">{item.name}</span>
+                      <span className="block text-sm text-ink-soft">
+                        {PRICE_KINDS.find(([k]) => k === item.kind)?.[1]}
+                        {item.unit_label ? ` · ${item.unit_label}` : ""}
+                        {item.active ? "" : " · Hidden from invoices"}
+                      </span>
+                    </Td>
+                    <Td className="text-right whitespace-nowrap">
+                      {priceText(item.managed_year1_minor, item.currency)}
+                    </Td>
+                    <Td className="text-right whitespace-nowrap">
+                      {priceText(item.renewal_minor, item.currency)}
+                    </Td>
+                    <Td className="text-right whitespace-nowrap">
+                      {priceText(item.handover_minor, item.currency)}
+                    </Td>
+                    <Td>
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <PriceDialog item={item} />
+                        <ConfirmAction
+                          action={removePriceItem}
+                          fields={{ id: item.id }}
+                          triggerLabel={`Remove ${item.name}`}
+                          triggerVariant="ghost"
+                          triggerSize="sm"
+                          title={`Remove ${item.name}?`}
+                          description="It no longer appears when you prefill invoices. Invoices already drafted keep their lines."
+                          confirmLabel="Remove"
+                          variant="danger"
+                        />
+                      </div>
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </TableScroll>
+        )}
+        <p className="text-sm text-ink-soft">
+          Prices are in each item&apos;s currency. USD and LRD are never added together.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function PriceDialog({ item }: { item?: PriceItem }) {
+  const amount = (minor: number | null | undefined) =>
+    minor === null || minor === undefined ? "" : majorText(minor);
+  return (
+    <FormDialog
+      action={savePriceItem}
+      triggerLabel={item ? `Edit ${item.name}` : "Add item"}
+      triggerVariant={item ? "ghost" : "secondary"}
+      triggerIcon={item ? <Pencil aria-hidden="true" /> : <Plus aria-hidden="true" />}
+      title={item ? `Edit ${item.name}` : "Add a price list item"}
+      description="Leave a price empty when it does not apply."
+      submitLabel={item ? "Save item" : "Add item"}
+    >
+      <input type="hidden" name="id" value={item?.id ?? ""} />
+      <FormField name="name" label="Item" required>
+        <Input defaultValue={item?.name ?? ""} />
+      </FormField>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField name="kind" label="Kind" required>
+          <Select defaultValue={item?.kind ?? "product"}>
+            {PRICE_KINDS.map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </Select>
+        </FormField>
+        <FormField name="currency" label="Currency" required>
+          <Select defaultValue={item?.currency ?? "USD"}>
+            <option value="USD">USD</option>
+            <option value="LRD">LRD</option>
+          </Select>
+        </FormField>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <FormField name="managed" label="Managed: year 1">
+          <Input inputMode="decimal" defaultValue={amount(item?.managed_year1_minor)} />
+        </FormField>
+        <FormField name="renewal" label="Renewal per year">
+          <Input inputMode="decimal" defaultValue={amount(item?.renewal_minor)} />
+        </FormField>
+        <FormField name="handover" label="Handover">
+          <Input inputMode="decimal" defaultValue={amount(item?.handover_minor)} />
+        </FormField>
+      </div>
+      <FormField name="unitLabel" label="Unit" hint="For example per day or per hour">
+        <Input defaultValue={item?.unit_label ?? ""} />
+      </FormField>
+      <label className="flex min-h-11 items-center gap-3">
+        <input
+          type="checkbox"
+          name="active"
+          defaultChecked={item?.active ?? true}
+          className="size-5"
+        />
+        Offer it when prefilling invoices
+      </label>
+    </FormDialog>
+  );
+}
+
+async function RenewalsSection() {
+  const { supabase } = await getAdminSession();
+  const [{ data }, lastRun] = await Promise.all([
+    supabase.from("settings").select("config").single(),
+    lastJobRun(supabase),
+  ]);
+  const config = (data?.config ?? {}) as Record<string, unknown>;
+  const multiple = String(config.renewal_min_hosting_multiple ?? "3");
+  return (
+    <div className="flex flex-col gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Renewal automation</CardTitle>
+          <CardDescription>
+            A daily check runs every morning at 07:00 Monrovia time. Nothing is ever paused
+            automatically.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ActionForm action={saveRenewals} resetOnSuccess={false} aria-label="Renewal settings">
+            <fieldset className="flex flex-col gap-1">
+              <legend className="mb-2 font-semibold">Rules</legend>
+              {JOB_RULES.map(([rule, title, detail]) => (
+                <div key={rule} className="flex flex-col py-1">
+                  <label className="flex min-h-11 items-center gap-3 font-semibold">
+                    <input
+                      type="checkbox"
+                      name={rule}
+                      defaultChecked={ruleOn(config, rule)}
+                      aria-describedby={`rule-${rule}-detail`}
+                      className="size-5 shrink-0"
+                    />
+                    {title}
+                  </label>
+                  <p id={`rule-${rule}-detail`} className="pl-8 text-sm text-ink-soft">
+                    {detail}
+                  </p>
+                </div>
+              ))}
+              <p className="py-2 text-sm text-ink-soft">
+                After the renewal date the client has a 30-day grace period and their system keeps
+                running. This cannot be switched off.
+              </p>
+            </fieldset>
+            <FormField
+              name="multiple"
+              label="Minimum renewal against hosting cost"
+              hint="Clients whose yearly renewal is below this many times their yearly hosting cost show a warning"
+            >
+              <Select defaultValue={MULTIPLE_CHOICES.includes(multiple as never) ? multiple : "3"}>
+                {MULTIPLE_CHOICES.map((m) => (
+                  <option key={m} value={m}>
+                    {m}×
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+            <div>
+              <SubmitButton variant="primary">Save renewal settings</SubmitButton>
+            </div>
+          </ActionForm>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Daily check</CardTitle>
+          <CardDescription>
+            {lastRun ? `Last run ${formatDateTime(lastRun.started_at)}.` : "It has not run yet."}{" "}
+            Running it again the same day changes nothing.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ActionForm action={runDailyCheck} aria-label="Run the daily check">
+            <div>
+              <SubmitButton variant="secondary" pendingLabel="Running...">
+                Run the daily check now
+              </SubmitButton>
+            </div>
+          </ActionForm>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

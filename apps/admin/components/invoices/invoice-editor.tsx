@@ -12,7 +12,8 @@ import { useId, useMemo, useState } from "react";
 import { ActionForm, FormField, SubmitButton, useFormResult } from "@/components/action-form";
 import { saveDraft } from "@/app/(app)/invoices/actions";
 import { money } from "@/lib/clients";
-import { invoiceTotals, lineAmount } from "@/lib/invoices";
+import { invoiceTotals, lineAmount, majorText } from "@/lib/invoices";
+import type { PriceOption } from "@/lib/price-list";
 
 export type EditorLine = { description: string; details: string; quantity: string; price: string };
 
@@ -62,16 +63,20 @@ export function InvoiceEditor({
   taxRateBp,
   taxLabel,
   lockedClient,
+  prices = [],
 }: {
   values: EditorValues;
   clients: { id: string; name: string }[];
   taxRateBp: number;
   taxLabel: string;
   lockedClient: boolean;
+  /** Price list items to add as lines (Settings → Price list). */
+  prices?: PriceOption[];
 }) {
   const router = useRouter();
   const ids = useId();
   const [currency, setCurrency] = useState(values.currency);
+  const [priceKey, setPriceKey] = useState("");
   const [lines, setLines] = useState<EditorLine[]>(
     values.lines.length
       ? values.lines
@@ -253,7 +258,7 @@ export function InvoiceEditor({
             );
           })}
         </ol>
-        <div>
+        <div className="flex flex-wrap items-end gap-3">
           <Button
             variant="secondary"
             size="sm"
@@ -267,6 +272,49 @@ export function InvoiceEditor({
             <Plus aria-hidden="true" />
             Add line
           </Button>
+          {prices.some((p) => p.currency === currency) ? (
+            <div className="flex flex-wrap items-end gap-2">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={`${ids}-price`}>Add from price list</Label>
+                <Select
+                  id={`${ids}-price`}
+                  value={priceKey}
+                  onChange={(e) => setPriceKey(e.target.value)}
+                  className="max-w-[min(28rem,80vw)]"
+                >
+                  <option value="">Choose an item</option>
+                  {prices
+                    .filter((p) => p.currency === currency)
+                    .map((p) => (
+                      <option key={p.key} value={p.key}>
+                        {p.label}
+                      </option>
+                    ))}
+                </Select>
+              </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={!priceKey}
+                onClick={() => {
+                  const item = prices.find((p) => p.key === priceKey);
+                  if (!item) return;
+                  setLines((all) => [
+                    ...all.filter((l) => l.description.trim() || l.price.trim()),
+                    {
+                      description: item.description,
+                      details: item.details ?? "",
+                      quantity: "1",
+                      price: majorText(item.unitMinor),
+                    },
+                  ]);
+                  setPriceKey("");
+                }}
+              >
+                Add item
+              </Button>
+            </div>
+          ) : null}
         </div>
       </fieldset>
 

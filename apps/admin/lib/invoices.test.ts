@@ -219,5 +219,21 @@ describe("SPEC-ADMIN.md 9.4 and 9.6: documents and WhatsApp text", () => {
     ).toBe(
       "Hello Esther Dolo,\nHere is invoice CX-26-10-004 from Corex Digital Solutions for US$651.00, due 7 Nov 2026.\nView it and download the PDF here (valid 30 days): https://admin.example/i/abc\nThank you.",
     );
+    expect(
+      whatsappText({
+        contact: null,
+        number: "CX-26-10-001",
+        company: "Corex Digital Solutions",
+        amount: "US$1,250.00",
+        due: "7 Nov 2026",
+        link: "https://admin.example/i/abc",
+        paid: true,
+      })
+        .split("\n")
+        .slice(0, 2),
+    ).toEqual([
+      "Hello,",
+      "Here is invoice CX-26-10-001 from Corex Digital Solutions for US$1,250.00. It is paid in full.",
+    ]);
   });
 });

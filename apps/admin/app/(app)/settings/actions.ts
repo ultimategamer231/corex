@@ -9,6 +9,8 @@ import { sendEmail, simpleEmailHtml } from "@/lib/email";
 import { optionalText, requiredText, uuid } from "@/lib/fields";
 import type { FormState } from "@/lib/form-state";
 import { logEvent } from "@/lib/log";
+import { runDailyJob } from "@/lib/daily-job";
+import { priceItemRow, priceItemSchema, renewalsConfig, renewalsSchema } from "@/lib/price-list";
 import { DEVICE_DAY_CHOICES, TIMEOUT_CHOICES } from "@/lib/settings";
 import type { AdminSession } from "@/lib/session";
 import { issueLink, signOutEverywhere } from "@/lib/team";
@@ -355,6 +357,94 @@ export async function saveInvoicing(_previous: FormState, formData: FormData): P
       };
       must(await session.supabase.from("settings").update({ config }).eq("id", true));
       return "Invoicing settings saved. They apply to new drafts and invoices sent from now on.";
+    },
+  );
+}
+
+/** Settings → Price list: add or change an item. Past invoices keep their prices. */
+export async function savePriceItem(_previous: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    { schema: priceItemSchema, revalidate: ["/settings", "/invoices"] },
+    async (data, session) => {
+      const row = priceItemRow(data);
+      if (data.id) {
+        must(
+          await session.supabase
+            .from("price_list_items")
+            .update(row)
+            .eq("id", data.id)
+            .select("id")
+            .single(),
+        );
+        return `${data.name} saved.`;
+      }
+      must(await session.supabase.from("price_list_items").insert(row).select("id").single());
+      return `${data.name} added to the price list.`;
+    },
+  );
+}
+
+const priceRef = z.object({ id: uuid("an item") });
+
+/** Settings → Price list: remove an item. Invoices already drafted keep their lines. */
+export async function removePriceItem(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  return runAction(
+    formData,
+    { schema: priceRef, revalidate: ["/settings", "/invoices"] },
+    async (data, session) => {
+      must(
+        await session.supabase
+          .from("price_list_items")
+          .delete()
+          .eq("id", data.id)
+          .select("id")
+          .single(),
+      );
+      return "Item removed from the price list.";
+    },
+  );
+}
+
+/** Settings → Renewals: the daily job's rules and the hosting-cost warning. */
+export async function saveRenewals(_previous: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    { schema: renewalsSchema, revalidate: ["/settings", "/subscriptions", "/clients", "/"] },
+    async (data, session) => {
+      const current = must(await session.supabase.from("settings").select("config").single());
+      const config = {
+        ...(current.config as Record<string, string | number | boolean>),
+        ...(renewalsConfig(data) as Record<string, string | number>),
+      };
+      must(await session.supabase.from("settings").update({ config }).eq("id", true));
+      return "Renewal settings saved. The next daily check follows them.";
+    },
+  );
+}
+
+/** Settings → Renewals: run the daily check now (it changes nothing if it already ran). */
+export async function runDailyCheck(_previous: FormState, formData: FormData): Promise<FormState> {
+  return runAction(
+    formData,
+    { schema: z.object({}), revalidate: ["/settings", "/subscriptions", "/invoices", "/"] },
+    async (_data, session) => {
+      const outcome = await runDailyJob(session.service(), "manual", session.context);
+      const s = outcome.summary as Record<string, number | boolean>;
+      const made = Number(s.renewal_invoices ?? 0);
+      const reminders = Number(s.reminders ?? 0);
+      const parts = [
+        made
+          ? `${made} renewal invoice${made === 1 ? "" : "s"} ${s.renewal_invoices_sent ? "sent" : "drafted"}`
+          : null,
+        reminders ? `${reminders} reminder${reminders === 1 ? "" : "s"} recorded` : null,
+      ].filter(Boolean);
+      return parts.length
+        ? `Daily check done: ${parts.join(", ")}.`
+        : "Daily check done: nothing new to do.";
     },
   );
 }
