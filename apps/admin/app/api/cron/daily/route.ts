@@ -3,6 +3,9 @@ import { runDailyJob, secretMatches } from "@/lib/daily-job";
 import { contextFrom } from "@/lib/request-context";
 import { getServiceSupabase } from "@/lib/supabase";
 
+/** Wrong secrets per address per hour before the endpoint answers 429. */
+const FAILED_PER_HOUR = 10;
+
 /**
  * The daily job (SPEC-ADMIN.md 10), called every morning at 07:00 Monrovia time by
  * GitHub Actions (.github/workflows/admin-daily.yml) with `Authorization: Bearer
@@ -14,10 +17,18 @@ async function handle(request: Request): Promise<Response> {
   if (!process.env.CRON_SECRET) {
     return Response.json({ ok: false, error: "CRON_SECRET is not set" }, { status: 503 });
   }
-  if (!secretMatches(given, process.env.CRON_SECRET)) {
-    return Response.json({ ok: false, error: "Not allowed" }, { status: 401 });
-  }
   const context = contextFrom(request.headers);
+  if (!secretMatches(given, process.env.CRON_SECRET)) {
+    // Wrong secrets are counted per address; past the limit the answer is 429.
+    const { data: allowed } = await getServiceSupabase(context).rpc("hit_rate_limit", {
+      p_key: `cron:${context.ip ?? "unknown"}`,
+      p_limit: FAILED_PER_HOUR,
+      p_window_seconds: 3600,
+    });
+    return allowed === false
+      ? Response.json({ ok: false, error: "Too many attempts" }, { status: 429 })
+      : Response.json({ ok: false, error: "Not allowed" }, { status: 401 });
+  }
   try {
     const outcome = await runDailyJob(getServiceSupabase(context), "schedule", context);
     return Response.json({ ok: true, ...outcome });

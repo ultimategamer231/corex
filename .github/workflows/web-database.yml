@@ -1,7 +1,9 @@
 name: Website database
 
 # Creates or updates the website's corex_web schema (leads and rate limits) in the
-# website's Supabase project (docs/database.md, "Website leads"). Run by hand after
+# website's Supabase project (docs/database.md, "Website leads"). With the repository
+# variable WEB_DB_PRODUCT=admin it also applies the Corex Admin migrations (clients,
+# invoices, the activity log; docs/admin-runbook.md). Leave it unset until then. Run by hand after
 # adding DATABASE_URL_WEB, and again after a new web migration is merged. It also runs
 # twice a week, which applies any pending migration and keeps a free Supabase project
 # from pausing after a week without activity.
@@ -24,6 +26,7 @@ jobs:
     timeout-minutes: 10
     env:
       DATABASE_URL_WEB: ${{ secrets.DATABASE_URL_WEB }}
+      WEB_DB_PRODUCT: ${{ vars.WEB_DB_PRODUCT }}
     steps:
       - name: Check configuration
         run: |
@@ -45,4 +48,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Migrate
-        run: pnpm db:migrate --schema corex_web --product web --project web
+        run: |
+          product="${WEB_DB_PRODUCT:-web}"
+          if [ "$product" != "web" ] && [ "$product" != "admin" ]; then
+            echo "::error::WEB_DB_PRODUCT must be web or admin."
+            exit 1
+          fi
+          pnpm db:migrate --schema corex_web --product "$product" --project web

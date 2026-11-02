@@ -39,6 +39,17 @@ The tool:
 2. If the backup is older than the latest migrations, bring it up to date: `pnpm db:migrate --schema <name> --product <product> --project <label>`.
 3. Tell the staff what date the data is from.
 
+## Website and Corex Admin (`corex_web`)
+
+The website's leads and all Corex Admin data (clients, contracts, invoices, payments, receipts, the activity log) are in the `corex_web` schema of the website's Supabase project. The nightly backup saves it too (when `DATABASE_URL_WEB` is set). Restore it the same way:
+
+```bash
+pnpm db:restore --schema corex_web --project web --confirm corex_web
+pnpm admin:verify-log --project web          # the activity log chain must still be intact
+```
+
+Website requests and admin work saved after the backup are not in it: check the latest leads and payments with the team afterwards. Uploaded client documents stay in the `corex_web` Storage bucket, as above. `packages/db/test/admin-backup.db.test.ts` rehearses this round trip in CI.
+
 ## Rehearsal
 
 `packages/db/test/backup.db.test.ts` runs a full round trip on the local stack in CI: back up a schema, change and add records, restore, then check that the data, the migrations and row-level security are back and that the neighbouring schema did not change. Before the first client goes live, rehearse once on the real project with a scratch schema:

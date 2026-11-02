@@ -90,11 +90,12 @@ test("the daily check needs its secret and changes nothing when run twice (SPEC-
   request,
 }) => {
   const denied = await request.post("/api/cron/daily");
-  expect(denied.status()).toBe(401);
+  // 429 once security.spec.ts has used up the wrong-secret allowance.
+  expect([401, 429]).toContain(denied.status());
   const wrong = await request.post("/api/cron/daily", {
     headers: { Authorization: `Bearer ${"x".repeat(CRON_SECRET.length)}` },
   });
-  expect(wrong.status()).toBe(401);
+  expect([401, 429]).toContain(wrong.status());
   const call = () =>
     request.post("/api/cron/daily", { headers: { Authorization: `Bearer ${CRON_SECRET}` } });
   const first = await call();
