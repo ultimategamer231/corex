@@ -1,6 +1,7 @@
 name: Nightly backup
 
-# SPEC.md 4.5: back up every registered client schema each night and keep 30 days.
+# SPEC.md 4.5: back up every registered client schema each night and keep 30 days,
+# and corex_web (website leads and Corex Admin, SPEC-ADMIN.md 14 A6).
 # Off until configured: set the repository variable BACKUPS_ENABLED=true and the
 # secrets below (Settings > Secrets and variables > Actions).
 on:
@@ -48,3 +49,9 @@ jobs:
 
       - name: Back up and prune
         run: pnpm db:backup --all true --keep-days 30
+
+      # The website and Corex Admin data (leads, clients, invoices, the activity log)
+      # live in corex_web in the website's project, which is not in the client registry.
+      - name: Back up corex_web (website and Corex Admin)
+        if: ${{ env.DATABASE_URL_WEB != '' }}
+        run: pnpm db:backup --schema corex_web --project web --keep-days 30

@@ -2,7 +2,7 @@
 
 Internal back office for Corex staff (`docs/SPEC-ADMIN.md`): leads, clients, subscriptions, invoices and receipts, the dashboard, a permanent activity log and settings. Data lives in the `corex_web` schema of the website's Supabase project; the admin never reads client system data.
 
-Built so far (Blocks A1 to A5): sign-in with an email or username, a password and an authenticator app; leads; clients, contracts and documents; invoices, payments, receipts, PDFs and client view links; the dashboard, subscriptions, the daily check, search and notifications; settings; the activity log.
+Complete (Blocks A1 to A6): sign-in with an email or username, a password and an authenticator app; leads; clients, contracts and documents; invoices, payments, receipts, PDFs and client view links; the dashboard, subscriptions, the daily check, search and notifications; settings; the activity log.
 
 ## Run
 
@@ -57,4 +57,4 @@ Every morning at 07:00 Monrovia time the GitHub workflow `Admin daily check` cal
 
 ## Deploy (Vercel)
 
-One project, Root Directory `apps/admin`, with the settings in `.env.example`. See `docs/deploy.md`.
+One project, Root Directory `apps/admin`, with the settings in `.env.example`. Going live step by step, in plain words: `docs/admin-runbook.md` (sign-up off, `WEB_DB_PRODUCT=admin`, Vercel settings, GitHub secrets, the **Admin first invite** workflow, company details). Backups and restore of `corex_web`: `docs/restore.md`.

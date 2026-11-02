@@ -49,6 +49,8 @@ test("website requests are listed, filtered and exported with the filters (LEAD-
 
   await open(page, "/activity?area=leads");
   await expect(page.getByText("Exported 1 lead to CSV")).toBeVisible();
+  // Searched for, since other specs add entries that can push it to a later page.
+  await open(page, "/activity?area=leads&q=Greenfield");
   await expect(page.getByText("Website quote request from Greenfield Academy")).toBeVisible();
 
   await openLead(page, "St. Peter", "St. Peter's College");
