@@ -2,7 +2,7 @@
 
 One guide for everything: the domain, email, the website, the four demos and Corex Admin. Do the parts in order. Each step says where to click and what to type, and each part ends with a check.
 
-Everything here is on free plans: Namecheap (where the domain was bought), Cloudflare, Vercel, Supabase, Resend and GitHub.
+Everything here is on free plans: Namecheap (where the domain was bought), Cloudflare, Zoho Mail, Vercel, Supabase, Resend and GitHub.
 
 ## The addresses
 
@@ -15,11 +15,16 @@ Everything here is on free plans: Namecheap (where the domain was bought), Cloud
 | `demo-clinic.corexlr.com`        | Clinic demo                        | `corex-demo-clinic`  |
 | `demo-finance.corexlr.com`       | Finance demo                       | `corex-demo-finance` |
 
-Email:
+Email. Two services share the domain without getting in each other's way:
 
-- `hello@corexlr.com`: shown on the website. Mail to it arrives in `agamer0297@gmail.com`.
-- `billing@corexlr.com`: invoices and receipts are sent from it, and clients' replies arrive in the same Gmail.
-- `website@corexlr.com`: sends you an email for each new quote request. Nobody writes to it.
+- **Zoho Mail** holds the inboxes people read: your own mailbox (for example `fatu@corexlr.com`) and group addresses that reach several staff.
+- **Resend** sends the apps' automatic emails (invoices, receipts, reminders, admin invites, quote alerts). Nobody reads mail in Resend.
+
+| Address               | In Zoho                                   | Used by the apps                                                      |
+| --------------------- | ----------------------------------------- | --------------------------------------------------------------------- |
+| `hello@corexlr.com`   | A group (or alias) reaching you and staff | Shown on the website; new quote requests are sent here                |
+| `billing@corexlr.com` | A group (or alias)                        | Invoices and receipts are sent from it; clients' replies land in Zoho |
+| `website@corexlr.com` | Nothing                                   | Sends the quote-request alerts                                        |
 
 ## Before you start: two random secrets
 
@@ -53,21 +58,43 @@ The domain stays registered at Namecheap. Cloudflare only manages its settings. 
 
 ## Part 2. Email
 
-### 2a. Receive mail at hello@ and billing@ (Cloudflare Email Routing)
+### 2a. Your mailboxes and group addresses (Zoho Mail)
 
-1. Cloudflare → `corexlr.com` → **Email** → **Email Routing** → **Get started**.
-2. **Custom address**: `hello`. **Destination**: `agamer0297@gmail.com`. Click **Create and continue**.
-3. Open Gmail and click the link in Cloudflare's verification email.
-4. Back in Cloudflare, click **Add records and enable**. Cloudflare adds the email records itself.
-5. Under **Routing rules** → **Create address**: `billing` → send to `agamer0297@gmail.com`. Save.
+Zoho's free plan has up to 5 users, used on the web at mail.zoho.com and in the Zoho Mail phone app. Do not turn on Cloudflare **Email Routing**: a domain's incoming mail can go to only one place, and here that is Zoho.
 
-**Check:** from another email account, send a message to `hello@corexlr.com`. It arrives in your Gmail within a minute.
+1. Go to **zoho.com/mail** → **Pricing**. Scroll to the **Forever Free** plan and click **Sign up now**.
+2. Choose **Sign up with a domain I already own** and type `corexlr.com`. Create your own account first, for example `fatu@corexlr.com`. This account becomes the Zoho administrator.
+3. **Verify the domain.** Zoho shows a **TXT** record (it starts with `zoho-verification=`).
+   1. In Cloudflare → `corexlr.com` → **DNS** → **Records** → **Add record**, add it: Type **TXT**, Name `@`, Content as Zoho shows.
+   2. Back in Zoho, click **Verify**.
+
+   If Zoho offers to set up the records in Cloudflare for you, you can use that instead.
+
+4. **Clear out old email records first.** In Cloudflare's DNS list, delete any **MX** records that are not Zoho's (for example ones ending in `registrar-servers.com`, left over from Namecheap) and any other TXT record on `@` that starts with `v=spf1`.
+5. **Add Zoho's mail records.** Zoho's setup shows them; add each one in Cloudflare exactly as shown.
+   - **Three MX records**, Name `@`, each with its priority (usually `mx.zoho.com` 10, `mx2.zoho.com` 20 and `mx3.zoho.com` 50; use Zoho's values if they differ, for example `.eu`).
+   - **One SPF** record: TXT, Name `@`, the value Zoho shows (it starts with `v=spf1 include:`). Have only one `v=spf1` record on `@`.
+   - **DKIM**: Zoho → **Admin Console** → **Domains** → `corexlr.com` → **DKIM** → **Add** (selector `zmail`). Add the TXT record it shows (Name `zmail._domainkey`), then click **Verify** in Zoho.
+
+   Wait until Zoho shows the MX, SPF and DKIM checks green. It can take up to an hour.
+
+6. **Create the shared addresses**, in Zoho **Admin Console**:
+   - **Users** → add your staff (up to 5 in total, you included).
+   - **Groups** → **Create group** named `Hello`, address `hello@corexlr.com`, members: you and whoever answers customers. In the group's settings, set **who can send to this group** to **Everyone** (or "Public"), so customers outside Corex can write to it.
+   - Do the same for `billing@corexlr.com`.
+   - If your plan does not offer Groups, add each address as an **alias** instead: **Users** → your account → **Email alias** → add `hello@corexlr.com` and `billing@corexlr.com`.
+7. Install the **Zoho Mail** app on your phone and sign in.
+
+**Check:** from Gmail, send a message to `hello@corexlr.com`. It arrives in Zoho, in your inbox or the group's, within a minute. Reply from Zoho: the answer arrives in Gmail from your corexlr.com address.
 
 ### 2b. Send mail from corexlr.com (Resend)
 
 1. Go to **resend.com** and sign up (or sign in).
 2. **Domains** → **Add Domain** → `corexlr.com`. Region: **Ireland (eu-west-1)**, the closest to Liberia.
 3. If Resend offers **Auto configure** with Cloudflare, use it and allow access. Otherwise, add each record Resend shows in Cloudflare → **DNS** → **Records** → **Add record**: same Type, Name and Value/Content, Proxy status **DNS only**. There are usually 3 or 4 records, named `resend._domainkey`, `send` (MX and TXT) and `_dmarc`.
+
+   These are separate from Zoho's: Resend's records are on `send` and `resend._domainkey`, Zoho's on `@` and `zmail._domainkey`. Do not delete or change Zoho's records. Add a `_dmarc` record only once; if one is already there, keep it.
+
 4. Back in Resend, click **Verify DNS Records**. Wait until the domain shows **Verified**. This usually takes a few minutes, sometimes up to an hour.
 5. **API Keys** → **Create API Key**: name `corex`, permission **Sending access**, domain `corexlr.com`. Copy the key (it starts with `re_`). Resend shows it once, so save it in your password manager as the **Resend key**.
 
@@ -223,7 +250,7 @@ Then, in **Actions**:
 2. GitHub → **Actions** → **Admin first invite** → **Run workflow**:
    - name: your full name;
    - username: for example `fatu`;
-   - email: `agamer0297@gmail.com`.
+   - email: `agamer0297@gmail.com`, or your new Zoho address (for example `fatu@corexlr.com`).
 
    Then click **Run workflow**.
 
@@ -261,7 +288,7 @@ Then, in **Actions**:
 ## Done: the checklist
 
 - [ ] Part 1: Cloudflare shows `corexlr.com` **Active**, and the website opens.
-- [ ] Part 2: mail to `hello@corexlr.com` reaches Gmail, and Resend shows **Verified**.
+- [ ] Part 2: mail to `hello@corexlr.com` reaches Zoho, and Resend shows **Verified**.
 - [ ] Part 3: all five new addresses show **Valid Configuration** in Vercel.
 - [ ] Part 4: the settings are in all six projects, and each one is redeployed.
 - [ ] Part 5: sign-up is off, and the URL settings are saved.
