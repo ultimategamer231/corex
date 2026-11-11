@@ -14,7 +14,7 @@ export const site = {
   },
   /** Numbers for calls or WhatsApp, primary first. */
   phones: ["231770021026", "231775178905", "231777352002"],
-  /** Forwarded to the owner's inbox by Cloudflare Email Routing (docs/go-live.md). */
+  /** A Zoho Mail group address that reaches the team (docs/go-live.md, Part 2a). */
   email: { address: "hello@corexlr.com", isPlaceholder: false },
   address: {
     street: "Carey & Johnson Street",
