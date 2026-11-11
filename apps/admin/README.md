@@ -57,4 +57,4 @@ Every morning at 07:00 Monrovia time the GitHub workflow `Admin daily check` cal
 
 ## Deploy (Vercel)
 
-One project, Root Directory `apps/admin`, with the settings in `.env.example`. Going live step by step, in plain words: `docs/admin-runbook.md` (sign-up off, `WEB_DB_PRODUCT=admin`, Vercel settings, GitHub secrets, the **Admin first invite** workflow, company details). Backups and restore of `corex_web`: `docs/restore.md`.
+One project, Root Directory `apps/admin`, with the settings in `.env.example`. Going live on `admin.corexlr.com`, step by step: `docs/go-live.md`; day-to-day use: `docs/admin-runbook.md`. Backups and restore of `corex_web`: `docs/restore.md`.
