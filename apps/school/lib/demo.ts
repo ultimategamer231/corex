@@ -15,6 +15,6 @@ export function demoInstance(): DemoInstance | null {
 
 /** "Get this system": the website quote page with this product prefilled. */
 export function quoteUrl(demo: DemoInstance): string {
-  const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || "corex.example";
+  const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || "corexlr.com";
   return `https://${root}/contact?product=${demo.quoteProduct}&from=demo-${demo.name}`;
 }

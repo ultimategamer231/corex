@@ -5,7 +5,7 @@ import { site } from "@/content/site";
 export function siteUrl(env: Record<string, string | undefined> = process.env): string {
   const domain =
     env.NEXT_PUBLIC_SITE_URL?.trim() ||
-    `https://${env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || "corex.example"}`;
+    `https://${env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || "corexlr.com"}`;
   return domain.replace(/\/$/, "");
 }
 

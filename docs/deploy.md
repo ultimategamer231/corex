@@ -16,7 +16,7 @@ Each client, and each public demo, is its own deployment of one app with its own
 | `DEMO_MODE`                                            |          | demos only                | demos only | demos only | `true` on the public demos (`docs/demos.md`).                                 |
 | `APP_URL`                                              |          | yes                       |            |            | Links in emails (password reset).                                             |
 | `NEXT_PUBLIC_SITE_URL`                                 | yes      |                           |            |            | The website's address (canonical links, sitemap).                             |
-| `NEXT_PUBLIC_ROOT_DOMAIN`                              | yes      | demos                     | demos      | demos      | Builds demo links and "Get this system".                                      |
+| `NEXT_PUBLIC_ROOT_DOMAIN`                              | yes      | demos                     | demos      | demos      | `corexlr.com`. Builds demo links and "Get this system".                       |
 | `NEXT_PUBLIC_DEMO_HOST_PATTERN`                        | optional |                           |            |            | Demo addresses before the domain exists, e.g. `corex-{subdomain}.vercel.app`. |
 | `RESEND_API_KEY`, `LEAD_NOTIFY_TO`, `LEAD_NOTIFY_FROM` | optional |                           |            |            | Email the team about new quote requests.                                      |
 
@@ -27,7 +27,7 @@ Each app's `.env.example` lists its settings with comments. Never commit real va
 1. In Vercel, **Add New > Project**, choose the `corex` repository, then **Import single project** next to the app's folder (`apps/web`, `apps/school`, `apps/clinic` or `apps/finance`). Never import `packages/*`.
 2. Root Directory: the app's folder. Framework: Next.js. Leave the install, build and output commands as detected.
 3. Add the settings above for that app, then **Deploy**.
-4. Add the domain (for example `bethel.corex.lr`) under Settings > Domains.
+4. Add the domain (for example `bethel.corexlr.com`) under Settings > Domains, and its CNAME record in Cloudflare (`docs/go-live.md`, Part 3).
 
 Each app has a `vercel.json` that skips a build when nothing in that app or its packages changed.
 

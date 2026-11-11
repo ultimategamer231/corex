@@ -1,8 +1,8 @@
 import type { Demo, DemoRole } from "@/content/products";
 
-/** Root domain for demo subdomains (SPEC.md 11.1); a placeholder until it is decided. */
+/** Root domain for demo subdomains (SPEC.md 11.1): corexlr.com unless set (owner, 2026-11-11). */
 export function rootDomain(env: Record<string, string | undefined> = process.env): string {
-  return env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || "corex.example";
+  return env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || "corexlr.com";
 }
 
 /**

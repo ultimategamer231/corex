@@ -14,8 +14,8 @@ export const site = {
   },
   /** Numbers for calls or WhatsApp, primary first. */
   phones: ["231770021026", "231775178905", "231777352002"],
-  /** Owner's address until the company domain is bought (PROGRESS.md); switch then. */
-  email: { address: "agamer0297@gmail.com", isPlaceholder: false },
+  /** Forwarded to the owner's inbox by Cloudflare Email Routing (docs/go-live.md). */
+  email: { address: "hello@corexlr.com", isPlaceholder: false },
   address: {
     street: "Carey & Johnson Street",
     city: "Monrovia",
