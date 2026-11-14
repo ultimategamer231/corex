@@ -212,6 +212,12 @@ Settings only reach an app when it is built again. In each of the six projects: 
 - **Redirect URLs** → add `https://demo-college.corexlr.com/**`, `https://demo-school.corexlr.com/**`, `https://demo-clinic.corexlr.com/**` and `https://demo-finance.corexlr.com/**`.
 - **Save**.
 
+### 5c. If a project is ever paused
+
+A free Supabase project pauses after 7 days without activity. Two things keep yours awake, so one can fail without harm: GitHub's scheduled jobs (Part 6), and a daily check from Vercel to `/api/keepalive` on the website and each demo (nothing to set up; it starts with the next deployment).
+
+If Supabase still shows a project as **Paused**: open it and click **Restore project**. Nothing is lost. It takes a few minutes.
+
 ---
 
 ## Part 6. GitHub

@@ -44,6 +44,6 @@ The demo layer is `packages/db/demo/migrations`, applied only by `pnpm demo:seed
 
 ## Nightly reset
 
-`.github/workflows/demo-reset.yml` runs at 02:00 Africa/Monrovia (UTC) and on demand. For each demo it creates any missing sign-ins, sets the published password, applies pending migrations and the demo layer, then empties and reseeds every table in one transaction, so visitors keep the old data until the new data is complete. The nightly connection also keeps the Supabase project active. Until the secrets exist the job passes with a notice.
+`.github/workflows/demo-reset.yml` runs at 02:00 Africa/Monrovia (UTC) and on demand. For each demo it creates any missing sign-ins, sets the published password, applies pending migrations and the demo layer, then empties and reseeds every table in one transaction, so visitors keep the old data until the new data is complete. The nightly connection also keeps the Supabase project active, and so does each demo's daily Vercel cron to `/api/keepalive` (`vercel.json`), which reads one row even if GitHub's schedules stop. Until the secrets exist the job passes with a notice.
 
 A failed run leaves yesterday's data in place. GitHub emails the workflow owner about failed scheduled runs; a team email notice will be added with the email provider. During the few seconds of a reset, sign-ins to the demos wait for it to finish.
