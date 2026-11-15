@@ -2,7 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 /** Pages reachable without signing in. */
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth/", "/~offline", "/serwist/"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/forgot-password",
+  "/auth/",
+  "/~offline",
+  "/serwist/",
+  "/api/keepalive",
+];
 
 /**
  * Refreshes the Supabase session cookie on every request and sends signed-out

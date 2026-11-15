@@ -17,7 +17,8 @@
     "./xlsx": "./src/xlsx.ts",
     "./offline/react": "./src/offline/react.tsx",
     "./offline/transport": "./src/offline/transport.ts",
-    "./offline/server": "./src/offline/server.ts"
+    "./offline/server": "./src/offline/server.ts",
+    "./keepalive": "./src/keepalive.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
