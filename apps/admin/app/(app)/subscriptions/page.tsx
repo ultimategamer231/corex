@@ -319,9 +319,9 @@ function addDays(day: string, days: number): string {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-1 rounded-xl border border-border bg-background p-4">
+    <div className="flex min-w-0 flex-col gap-1 rounded-xl border border-border bg-background p-4">
       <dt className="text-sm font-semibold text-muted">{label}</dt>
-      <dd className="font-display text-2xl font-bold text-ink">{value}</dd>
+      <dd className="font-display text-2xl font-bold break-words text-ink">{value}</dd>
     </div>
   );
 }
