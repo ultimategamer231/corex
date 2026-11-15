@@ -5,6 +5,7 @@
 //   pnpm db:local:stop     stop it (data is kept in Docker volumes)
 //   pnpm db:local:status   print URLs and local keys
 //   pnpm db:local:check    verify the API and auth services answer
+//   node scripts/supabase-local.mjs keys   the local URLs and keys as JSON (for scripts)
 //
 // Images are pulled from Docker Hub by default because some networks block the
 // CLI's default registry (public.ecr.aws). Override with SUPABASE_INTERNAL_IMAGE_REGISTRY.
@@ -90,10 +91,14 @@ switch (command) {
   case "status":
     supabase(["status"]);
     break;
+  case "keys":
+    // Scripts read this, not `status`: the CLI's default status output is a table.
+    console.log(JSON.stringify(localKeys()));
+    break;
   case "check":
     await check();
     break;
   default:
-    console.error("Usage: supabase-local.mjs <start|stop|status|check>");
+    console.error("Usage: supabase-local.mjs <start|stop|status|keys|check>");
     process.exit(1);
 }
