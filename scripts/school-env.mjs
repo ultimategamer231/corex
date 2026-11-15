@@ -25,9 +25,12 @@ if (!values.schema || !/^[a-z][a-z0-9_]{2,62}$/.test(values.schema)) {
   );
   process.exit(2);
 }
-const status = spawnSync("node", ["scripts/supabase-local.mjs", "status"], { encoding: "utf8" });
-const json = status.stdout.slice(status.stdout.indexOf("{"));
-const local = JSON.parse(json);
+const keys = spawnSync("node", ["scripts/supabase-local.mjs", "keys"], { encoding: "utf8" });
+if (keys.status !== 0) {
+  process.stderr.write(keys.stderr);
+  process.exit(keys.status ?? 1);
+}
+const local = JSON.parse(keys.stdout);
 const env = [
   "# Written by scripts/school-env.mjs for the local Supabase stack. Do not commit.",
   `NEXT_PUBLIC_SUPABASE_URL=${local.API_URL}`,
