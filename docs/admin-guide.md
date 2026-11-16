@@ -199,11 +199,12 @@ The daily check runs by itself every morning. To run it at once (for example aft
 
 ---
 
-## 7a. Website visits
+## 7a. Analytics
 
-**Website visits** in the menu shows how many people visited www.corexlr.com, counted by Cloudflare without cookies. Choose **Last 7 days** or **Last 30 days** at the top.
+**Analytics** in the menu shows how many people visited www.corexlr.com, counted by Cloudflare without cookies. Choose **Last 7 days** or **Last 30 days** at the top right; **Open in Cloudflare** shows the full detail.
 
-- **Visits**: one person's time on the site. **Pages viewed**: every page they opened.
+- **Visits**: one person's time on the site. **Pages viewed**: every page they opened. Under each number, the change from the period before (for example "Up 20% vs previous 7 days").
+- **Viewed on phones**: the share of pages opened on a phone.
 - **Visits per day**: point at a bar to see that day's number.
 - **Most viewed pages**, **Where visitors came from** (Google, Facebook, WhatsApp; "Direct or unknown" means they typed the address or the source was hidden), **Countries** and **Devices**.
 

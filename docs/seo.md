@@ -89,7 +89,7 @@ This counts visits, popular pages, where visitors come from and which devices th
 
 **Check:** open the website, click a few pages, then look at Cloudflare → **Web Analytics** after a few minutes. Visits appear there.
 
-**See the visits inside Corex Admin** (the **Website visits** page). Three more values, for the **`corex-admin`** project this time:
+**See the visits inside Corex Admin** (the **Analytics** page). Three more values, for the **`corex-admin`** project this time:
 
 6. **Account ID:** Cloudflare home page (the list of your domains) → on the right, under **Account details** or **API**, copy **Account ID**. (It is also the long code in the browser address after `dash.cloudflare.com/`.)
 7. **Site tag:** Cloudflare → **Analytics & Logs** → **Web Analytics** → click **www.corexlr.com**. In the browser address bar, copy the code after `siteTag~in=` (letters and numbers only).
@@ -100,7 +100,7 @@ This counts visits, popular pages, where visitors come from and which devices th
    - `CLOUDFLARE_API_TOKEN`: the token (**Sensitive on**: it is a secret; never paste it in chat or email)
 10. **Deployments** → **⋯** next to the top one → **Redeploy**.
 
-**Check:** sign in to admin.corexlr.com → **Website visits**. You see the number of visits, a chart per day, top pages, where visitors came from, countries and devices. If the page shows "Could not load the numbers from Cloudflare", the message under it says why (most often the token permission or a mistyped site tag).
+**Check:** sign in to admin.corexlr.com → **Analytics**. You see visits and pages viewed with the change from the previous period, a chart per day, top pages, where visitors came from, countries and devices. If the page shows "Could not load the numbers from Cloudflare", the message under it says why (most often the token permission or a mistyped site tag).
 
 ### 6. Send me your social media links
 
