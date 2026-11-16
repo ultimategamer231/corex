@@ -25,17 +25,19 @@ export function SiteHeader({ showWork }: { showWork: boolean }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const links: NavLink[] = [
+    { href: "/", label: "Home", match: "/" },
     { href: "/software", label: "Software", match: "/software" },
     ...(showWork ? [{ href: "/work", label: "Our work", match: "/work" }] : []),
     { href: "/pricing", label: "Pricing", match: "/pricing" },
     { href: "/about", label: "About", match: "/about" },
   ];
-  const isCurrent = (match: string) => pathname === match || pathname.startsWith(`${match}/`);
+  const isCurrent = (match: string) =>
+    match === "/" ? pathname === "/" : pathname === match || pathname.startsWith(`${match}/`);
   const inServices = pathname.startsWith("/services/");
 
   return (
-    <header className="relative z-40 border-b border-border bg-background">
-      <div className="mx-auto flex min-h-[76px] w-full max-w-[1200px] items-center justify-between gap-6 px-[clamp(16px,4vw,40px)]">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
+      <div className="mx-auto flex min-h-[76px] w-full max-w-[1200px] items-center justify-between gap-6 px-[clamp(16px,4vw,40px)] lg:justify-start">
         <Link
           href="/"
           aria-label={`${site.name} home`}
@@ -45,14 +47,20 @@ export function SiteHeader({ showWork }: { showWork: boolean }) {
           <CorexLogo />
         </Link>
 
-        <nav aria-label="Main" className="hidden items-center gap-1 nav:flex">
-          <Link
-            href={links[0]?.href ?? "/software"}
-            className={navLinkClass}
-            aria-current={isCurrent("/software") ? "page" : undefined}
-          >
-            Software
-          </Link>
+        <nav
+          aria-label="Main"
+          className="hidden items-center gap-1 lg:flex lg:border-l lg:border-border lg:pl-4"
+        >
+          {links.slice(0, 2).map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={navLinkClass}
+              aria-current={isCurrent(link.match) ? "page" : undefined}
+            >
+              {link.label}
+            </Link>
+          ))}
           <DropdownMenu>
             <DropdownMenuTrigger
               className={cn(navLinkClass, "gap-1", inServices && "bg-tint text-primary-dark")}
@@ -76,25 +84,21 @@ export function SiteHeader({ showWork }: { showWork: boolean }) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          {links.slice(1).map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={navLinkClass}
-              aria-current={isCurrent(link.match) ? "page" : undefined}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {[...links.slice(2), { href: "/contact", label: "Contact", match: "/contact" }].map(
+            (link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={navLinkClass}
+                aria-current={isCurrent(link.match) ? "page" : undefined}
+              >
+                {link.label}
+              </Link>
+            ),
+          )}
         </nav>
 
-        <div className="hidden items-center gap-2 nav:flex">
-          <Link
-            href="/contact"
-            className="inline-flex min-h-11 items-center px-3.5 text-[15px] font-semibold text-primary hover:underline"
-          >
-            Contact
-          </Link>
+        <div className="hidden items-center gap-2 lg:ml-auto lg:flex">
           <Button asChild variant="accent">
             <Link href="/software">Try a live demo</Link>
           </Button>
@@ -102,7 +106,7 @@ export function SiteHeader({ showWork }: { showWork: boolean }) {
 
         <button
           type="button"
-          className="inline-flex min-h-11 min-w-11 items-center gap-2 rounded-lg border-[1.5px] border-border-strong bg-background px-3.5 text-[15px] font-semibold text-ink nav:hidden"
+          className="inline-flex min-h-11 min-w-11 items-center gap-2 rounded-lg border-[1.5px] border-border-strong bg-background px-3.5 text-[15px] font-semibold text-ink lg:hidden"
           aria-expanded={open}
           aria-controls="mobile-menu"
           onClick={() => setOpen((v) => !v)}
@@ -120,16 +124,17 @@ export function SiteHeader({ showWork }: { showWork: boolean }) {
         <nav
           id="mobile-menu"
           aria-label="Main"
-          className="border-t border-border bg-background px-4 pt-2 pb-5 nav:hidden"
+          className="border-t border-border bg-background px-4 pt-2 pb-5 lg:hidden"
         >
           <ul className="flex flex-col">
             {[
+              { href: "/", label: "Home" },
               { href: "/software", label: "Software" },
               ...serviceOrder.map((slug) => ({
                 href: `/services/${slug}`,
                 label: services[slug].name,
               })),
-              ...links.slice(1).map(({ href, label }) => ({ href, label })),
+              ...links.slice(2).map(({ href, label }) => ({ href, label })),
               { href: "/contact", label: "Contact" },
             ].map((link) => (
               <li key={link.href}>

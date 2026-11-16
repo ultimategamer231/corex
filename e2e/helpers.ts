@@ -10,6 +10,16 @@ export async function setWidth(page: Page, width: number) {
 
 /** WCAG 2.2 AA scan; fails on any serious or critical violation. */
 export async function expectNoSeriousA11yViolations(page: Page) {
+  // Scan the settled page: entrance animations (a fade or slide that runs once) would
+  // otherwise be measured half-way. Looping animations such as spinners are skipped.
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => Number.isFinite(a.effect?.getComputedTiming().endTime ?? Infinity))
+        .map((a) => a.finished.catch(() => undefined)),
+    ),
+  );
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     .analyze();

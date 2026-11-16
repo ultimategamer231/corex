@@ -28,7 +28,7 @@ export function SetupFlow({ token, kind, name, username, email }: Props) {
     return (
       <>
         <div className="flex flex-col gap-1.5">
-          <h1 className="font-display text-[26px] font-bold">
+          <h1 className="font-display text-[clamp(28px,2.6vw,34px)] leading-tight font-extrabold tracking-[-0.02em]">
             {invite ? `Welcome, ${name}` : "Set up a new authenticator"}
           </h1>
           <p className="text-[15px] leading-relaxed text-muted">
@@ -74,7 +74,7 @@ export function SetupFlow({ token, kind, name, username, email }: Props) {
               <Input type="password" autoComplete="new-password" />
             </FormField>
           ) : null}
-          <SubmitButton variant="accent" size="lg" pendingLabel="Saving...">
+          <SubmitButton size="lg" pendingLabel="Saving...">
             Continue
           </SubmitButton>
         </ActionForm>
@@ -85,7 +85,9 @@ export function SetupFlow({ token, kind, name, username, email }: Props) {
   return (
     <>
       <div className="flex flex-col gap-1.5">
-        <h1 className="font-display text-[26px] font-bold">Add Corex Admin to your app</h1>
+        <h1 className="font-display text-[clamp(28px,2.6vw,34px)] leading-tight font-extrabold tracking-[-0.02em]">
+          Add Corex Admin to your app
+        </h1>
         <ol className="list-decimal space-y-1 pl-5 text-[15px] leading-relaxed text-ink-soft">
           <li>Install Google Authenticator or Microsoft Authenticator on your phone.</li>
           <li>In the app, add an account and scan this QR code.</li>
@@ -126,7 +128,7 @@ export function SetupFlow({ token, kind, name, username, email }: Props) {
             className="font-mono text-2xl tracking-[0.4em]"
           />
         </FormField>
-        <SubmitButton variant="accent" size="lg" pendingLabel="Checking...">
+        <SubmitButton size="lg" pendingLabel="Checking...">
           Finish set-up
         </SubmitButton>
       </ActionForm>

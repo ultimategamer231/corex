@@ -2,10 +2,14 @@ import { Button } from "@corex/ui/components/button";
 import {
   ArrowRight,
   Check,
-  Coins,
+  Code,
   Headphones,
   MessageCircle,
-  ShieldCheck,
+  Play,
+  Rocket,
+  Search,
+  Settings2,
+  Users,
   WifiOff,
 } from "lucide-react";
 import Link from "next/link";
@@ -16,12 +20,11 @@ import { CheckList } from "@/components/check-list";
 import { CtaBand } from "@/components/cta-band";
 import { Faq } from "@/components/faq";
 import { JsonLd } from "@/components/json-ld";
-import { Container, Section, SectionHeader } from "@/components/layout";
+import { Container, Eyebrow, Section, SectionHeader } from "@/components/layout";
 import { Reveal } from "@/components/reveal";
 import { home } from "@/content/home";
 import { plans } from "@/content/pricing";
 import { productOrder } from "@/content/products";
-import { serviceOrder, services } from "@/content/services";
 import { site } from "@/content/site";
 import { whatsappLink } from "@/lib/contact";
 import { pageMetadata, siteUrl } from "@/lib/seo";
@@ -33,18 +36,14 @@ export const metadata = pageMetadata({
   path: "/",
 });
 
-const whyIcons = {
-  offline: WifiOff,
-  currency: Coins,
-  support: Headphones,
-  data: ShieldCheck,
-} as const;
+const trustIcons = { demo: Play, local: WifiOff, support: Headphones } as const;
+const stepIcons = [Search, Settings2, Users, Rocket] as const;
 
 function ArrowLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 items-center gap-2 text-base font-bold text-primary hover:underline"
+      className="nudge inline-flex min-h-11 items-center gap-2 text-base font-bold whitespace-nowrap text-primary hover:underline"
     >
       {children}
       <ArrowRight className="size-[18px]" aria-hidden="true" />
@@ -74,34 +73,50 @@ export default function HomePage() {
       />
 
       {/* 1. Hero */}
-      <section className="py-[clamp(40px,7vw,96px)]">
-        <Container className="grid items-center gap-[clamp(40px,5vw,64px)] lg:grid-cols-2">
+      <section className="relative overflow-hidden bg-gradient-to-b from-background to-surface">
+        {/* Brand diagonals behind the preview (decorative, wide screens only). */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
+          <div className="shape-in absolute inset-y-0 right-0 w-[44%] bg-primary [clip-path:polygon(26%_0,100%_0,100%_100%,0_100%)]" />
+          <div className="shape-in absolute inset-y-0 right-[36%] w-[5%] bg-accent [clip-path:polygon(70%_0,100%_0,30%_100%,0_100%)]" />
+        </div>
+        <Container className="relative grid items-center gap-[clamp(40px,5vw,64px)] py-[clamp(40px,7vw,96px)] lg:grid-cols-[1.05fr_1fr]">
           <div className="flex flex-col gap-6">
-            <p className="inline-flex items-center gap-2 self-start rounded-full bg-tint px-3 py-1.5 text-[13px] font-semibold text-primary-dark">
-              <span className="size-2 rounded-full bg-primary" aria-hidden="true" />
-              {home.hero.badge}
-            </p>
-            <h1 className="text-[clamp(38px,5.2vw,64px)] leading-[1.05] font-extrabold tracking-[-0.03em]">
+            <div className="rise-in">
+              <Eyebrow>{home.hero.eyebrow}</Eyebrow>
+            </div>
+            <h1
+              className="rise-in text-[clamp(38px,5.2vw,62px)] leading-[1.04] font-extrabold tracking-[-0.03em]"
+              style={{ "--d": "80ms" } as React.CSSProperties}
+            >
               {home.hero.title}
             </h1>
-            <p className="max-w-[540px] text-[clamp(17px,1.5vw,19px)] leading-relaxed text-muted">
+            <p
+              className="rise-in max-w-[540px] text-[clamp(17px,1.5vw,19px)] leading-relaxed text-ink-soft"
+              style={{ "--d": "160ms" } as React.CSSProperties}
+            >
               {home.hero.lead}
             </p>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild variant="accent" size="lg">
+            <div
+              className="rise-in flex flex-wrap gap-3"
+              style={{ "--d": "240ms" } as React.CSSProperties}
+            >
+              <Button asChild size="lg" className="nudge">
                 <Link href="/software">
-                  Try a live demo
+                  Explore software
                   <ArrowRight aria-hidden="true" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <a href={whatsappLink("Hello Corex, I'd like to talk about your software")}>
-                  <MessageCircle aria-hidden="true" />
-                  Talk to us on WhatsApp
-                </a>
+                <Link href="#demos">
+                  <Play aria-hidden="true" />
+                  Try a live demo
+                </Link>
               </Button>
             </div>
-            <ul className="flex flex-wrap gap-x-5 gap-y-2 pt-2 text-sm font-medium text-muted">
+            <ul
+              className="rise-in flex flex-wrap gap-x-5 gap-y-2 pt-1 text-sm font-medium text-muted"
+              style={{ "--d": "320ms" } as React.CSSProperties}
+            >
               {home.hero.proof.map((item) => (
                 <li key={item} className="inline-flex items-center gap-1.5">
                   <Check className="size-4 text-primary" strokeWidth={2.4} aria-hidden="true" />
@@ -110,14 +125,47 @@ export default function HomePage() {
               ))}
             </ul>
           </div>
-          <div className="rounded-4xl bg-tint p-[clamp(12px,2vw,24px)]">
+          <div className="art-in rounded-3xl bg-tint p-3 shadow-[0_30px_60px_-30px_rgb(6_70_68/0.55)] lg:bg-background/70 lg:p-4">
             <AppPreview kind="school" />
           </div>
         </Container>
       </section>
 
-      {/* 2-3. Products and "See all systems" */}
-      <Section tone="surface" aria-labelledby="products-title">
+      {/* 2. Three reasons, as a strip under the hero */}
+      <section aria-labelledby="why-title" className="border-y border-border bg-background">
+        <Container>
+          <h2 id="why-title" className="sr-only">
+            Why Corex
+          </h2>
+          <ul className="grid divide-y divide-border md:grid-cols-3 md:divide-x md:divide-y-0">
+            {home.trust.map((item, i) => {
+              const Icon = trustIcons[item.icon as keyof typeof trustIcons];
+              return (
+                <Reveal
+                  as="li"
+                  key={item.title}
+                  delay={i * 0.06}
+                  className="flex gap-4 py-6 md:px-6 md:first:pl-0 md:last:pr-0"
+                >
+                  <span
+                    className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-tint text-primary"
+                    aria-hidden="true"
+                  >
+                    <Icon className="size-5" />
+                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    <h3 className="text-[17px] font-bold">{item.title}</h3>
+                    <p className="text-sm leading-relaxed text-muted">{item.text}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </ul>
+        </Container>
+      </section>
+
+      {/* 3. Our software, then "Try it" and "Built on request" */}
+      <Section aria-labelledby="products-title">
         <Container className="flex flex-col gap-10">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <SectionHeader
@@ -126,54 +174,95 @@ export default function HomePage() {
               title={home.products.title}
               lead={home.products.lead}
             />
-            <ArrowLink href="/software">See all systems</ArrowLink>
+            <ArrowLink href="/software">View all software</ArrowLink>
           </div>
-          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <ul id="demos" className="grid scroll-mt-24 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {productOrder.map((slug, i) => (
-              <Reveal as="li" key={slug} delay={i * 0.06}>
+              <Reveal as="li" key={slug} delay={i * 0.08}>
                 <ProductCard slug={slug} />
               </Reveal>
             ))}
           </ul>
+
+          <Reveal className="mt-6 grid items-center gap-8 rounded-3xl border border-border bg-surface p-[clamp(24px,3.5vw,40px)] lg:grid-cols-[1fr_2fr]">
+            <div className="flex flex-col gap-3">
+              <h2 className="text-[clamp(24px,2.4vw,30px)] leading-tight font-bold tracking-[-0.02em]">
+                {home.tryIt.title}
+              </h2>
+              <p className="leading-relaxed text-ink-soft">{home.tryIt.lead}</p>
+            </div>
+            <ol className="grid gap-6 sm:grid-cols-3">
+              {home.tryIt.steps.map((step, i) => (
+                <li key={step.title} className="flex flex-col gap-1.5">
+                  <span
+                    className="mb-1.5 inline-flex size-9 items-center justify-center rounded-lg bg-primary font-display text-sm font-extrabold text-white"
+                    aria-hidden="true"
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="font-bold">{step.title}</h3>
+                  <p className="text-sm leading-relaxed text-muted">{step.text}</p>
+                  {i === 2 ? (
+                    <a
+                      href={whatsappLink("Hello Corex, I'd like to talk about your software")}
+                      className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-sm font-bold text-primary hover:underline"
+                    >
+                      <MessageCircle className="size-4" aria-hidden="true" />
+                      Talk to us on WhatsApp
+                    </a>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
+          </Reveal>
+
+          <Reveal className="flex flex-col gap-3 rounded-2xl border border-border p-6 md:flex-row md:items-center md:gap-6">
+            <h2 className="flex items-center gap-2.5 text-lg font-bold whitespace-nowrap md:border-r md:border-border md:pr-6">
+              <Code className="size-5 text-primary" aria-hidden="true" />
+              {home.onRequest.title}
+            </h2>
+            <p className="grow leading-relaxed text-ink-soft">{home.onRequest.text}</p>
+            <ArrowLink href="/software/on-request">{home.onRequest.link}</ArrowLink>
+          </Reveal>
         </Container>
       </Section>
 
-      {/* 4. How it works */}
-      <Section aria-labelledby="steps-title">
-        <Container className="flex flex-col gap-10">
+      {/* 4. How we work */}
+      <Section tone="surface" aria-labelledby="steps-title">
+        <Container className="grid gap-10 lg:grid-cols-[1fr_3fr]">
           <SectionHeader
             titleId="steps-title"
             eyebrow={home.steps.eyebrow}
             title={home.steps.title}
+            lead={home.steps.lead}
           />
-          <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {home.steps.items.map((step, i) => (
-              <Reveal
-                as="li"
-                key={step.title}
-                delay={i * 0.06}
-                className="flex flex-col gap-3 rounded-2xl border border-border p-6"
-              >
-                <span
-                  className={
-                    i === 3
-                      ? "inline-flex size-10 items-center justify-center rounded-full bg-accent font-bold text-accent-foreground"
-                      : "inline-flex size-10 items-center justify-center rounded-full bg-primary font-bold text-white"
-                  }
-                  aria-hidden="true"
-                >
-                  {i + 1}
-                </span>
-                <h3 className="text-[19px] font-bold">{step.title}</h3>
-                <p className="text-[15px] leading-relaxed text-muted">{step.text}</p>
-              </Reveal>
-            ))}
+          <ol className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {home.steps.items.map((step, i) => {
+              const Icon = stepIcons[i] ?? Rocket;
+              return (
+                <Reveal as="li" key={step.title} delay={i * 0.08} className="flex flex-col gap-2">
+                  <span className="flex items-center gap-3" aria-hidden="true">
+                    <span className="inline-flex size-11 items-center justify-center rounded-xl bg-background text-primary ring-1 ring-border">
+                      <Icon className="size-5" />
+                    </span>
+                    {i < home.steps.items.length - 1 ? (
+                      <span className="hidden h-px grow bg-border lg:block" />
+                    ) : null}
+                  </span>
+                  <h3 className="mt-2 text-lg font-bold">
+                    <span className="sr-only">Step {i + 1}: </span>
+                    {step.title}
+                  </h3>
+                  <p className="text-[15px] leading-relaxed text-muted">{step.text}</p>
+                </Reveal>
+              );
+            })}
           </ol>
         </Container>
       </Section>
 
-      {/* 5. Plans */}
-      <Section tone="tint" aria-labelledby="plans-title">
+      {/* 5. Plans (stay on the home page until there are case studies and testimonials) */}
+      <Section aria-labelledby="plans-title">
         <Container className="flex flex-col gap-10">
           <SectionHeader
             titleId="plans-title"
@@ -185,11 +274,11 @@ export default function HomePage() {
             {[plans.managed, plans.handover].map((plan, i) => (
               <Reveal
                 key={plan.key}
-                delay={i * 0.06}
+                delay={i * 0.08}
                 className={
                   i === 0
-                    ? "flex flex-col gap-5 rounded-3xl border-2 border-primary bg-background p-[clamp(24px,3vw,36px)]"
-                    : "flex flex-col gap-5 rounded-3xl border border-border bg-background p-[clamp(24px,3vw,36px)]"
+                    ? "lift flex flex-col gap-5 rounded-3xl border-2 border-primary bg-background p-[clamp(24px,3vw,36px)]"
+                    : "lift flex flex-col gap-5 rounded-3xl border border-border bg-background p-[clamp(24px,3vw,36px)]"
                 }
               >
                 <div className="flex flex-col gap-2">
@@ -207,31 +296,7 @@ export default function HomePage() {
         </Container>
       </Section>
 
-      {/* 6. Why Corex */}
-      <Section aria-labelledby="why-title">
-        <Container className="flex flex-col gap-10">
-          <SectionHeader titleId="why-title" eyebrow={home.why.eyebrow} title={home.why.title} />
-          <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {home.why.items.map((item, i) => {
-              const Icon = whyIcons[item.icon as keyof typeof whyIcons];
-              return (
-                <Reveal as="li" key={item.title} delay={i * 0.06} className="flex flex-col gap-3">
-                  <span
-                    className="inline-flex size-12 items-center justify-center rounded-xl bg-tint text-primary"
-                    aria-hidden="true"
-                  >
-                    <Icon className="size-6" />
-                  </span>
-                  <h3 className="text-lg font-bold">{item.title}</h3>
-                  <p className="text-[15px] leading-relaxed text-muted">{item.text}</p>
-                </Reveal>
-              );
-            })}
-          </ul>
-        </Container>
-      </Section>
-
-      {/* 7. Our work (hidden when nothing is published, SPEC.md 6.5) */}
+      {/* 6. Our work (hidden when nothing is published, SPEC.md 6.5) */}
       {work.length > 0 ? (
         <Section tone="surface" aria-labelledby="work-title">
           <Container className="flex flex-col gap-10">
@@ -245,7 +310,7 @@ export default function HomePage() {
             </div>
             <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {work.map((entry) => (
-                <li key={entry.slug}>
+                <li key={entry.slug} className="lift rounded-2xl">
                   <WorkCard work={entry} />
                 </li>
               ))}
@@ -254,34 +319,7 @@ export default function HomePage() {
         </Section>
       ) : null}
 
-      {/* 8. Services strip */}
-      <Section aria-labelledby="services-title">
-        <Container className="flex flex-col gap-8">
-          <SectionHeader
-            titleId="services-title"
-            eyebrow={home.services.eyebrow}
-            title={home.services.title}
-          />
-          <ul className="grid gap-4 md:grid-cols-3">
-            {serviceOrder.map((slug) => (
-              <li key={slug}>
-                <Link
-                  href={`/services/${slug}`}
-                  className="flex h-full items-center justify-between gap-4 rounded-xl border border-border px-6 py-5 hover:border-primary"
-                >
-                  <span className="flex flex-col gap-1">
-                    <span className="font-display text-lg font-bold">{services[slug].name}</span>
-                    <span className="text-sm text-muted">{services[slug].summary}</span>
-                  </span>
-                  <ArrowRight className="size-5 shrink-0 text-primary" aria-hidden="true" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </Section>
-
-      {/* 9. FAQ */}
+      {/* 7. FAQ */}
       <Section tone="surface" aria-labelledby="faq-title" className="border-b-0">
         <div className="mx-auto flex w-full max-w-[860px] flex-col gap-8 px-[clamp(16px,4vw,40px)]">
           <SectionHeader titleId="faq-title" eyebrow={home.faq.eyebrow} title={home.faq.title} />
@@ -289,7 +327,7 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* 10. Final call to action (footer follows in the layout) */}
+      {/* 8. Final call to action (footer follows in the layout) */}
       <CtaBand
         title={home.finalCta.title}
         lead={home.finalCta.lead}

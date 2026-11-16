@@ -14,3 +14,55 @@
     transform: translateY(20px);
   }
 }
+
+/*
+ * Home page motion (kept small): the hero settles in once on load, cards and
+ * links respond to hover. Transform and opacity only; nothing moves when the
+ * visitor prefers reduced motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+  /* Movement only, no fade: the preview's text keeps full contrast throughout. */
+  @keyframes art-in {
+    from {
+      transform: translateY(28px) scale(0.98);
+    }
+  }
+  @keyframes shape-in {
+    from {
+      opacity: 0;
+      transform: translateX(48px);
+    }
+  }
+  .rise-in {
+    animation: rise-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--d, 0ms);
+  }
+  .art-in {
+    animation: art-in 800ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+  }
+  .shape-in {
+    animation: shape-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .lift {
+    transition:
+      transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 220ms ease,
+      border-color 220ms ease;
+  }
+  .lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px -18px rgb(6 70 68 / 0.35);
+  }
+  .nudge svg {
+    transition: transform 200ms ease;
+  }
+  .nudge:hover svg {
+    transform: translateX(3px);
+  }
+}

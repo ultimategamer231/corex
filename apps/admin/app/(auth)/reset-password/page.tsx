@@ -19,7 +19,9 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
   if (!link) {
     return (
       <>
-        <h1 className="font-display text-[26px] font-bold">This link is no longer valid</h1>
+        <h1 className="font-display text-[clamp(28px,2.6vw,34px)] leading-tight font-extrabold tracking-[-0.02em]">
+          This link is no longer valid
+        </h1>
         <p className="text-[15px] text-muted">
           Reset links work once and expire. Ask for a new one from the sign-in page or from another
           admin.
@@ -36,7 +38,9 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
   return (
     <>
       <div className="flex flex-col gap-1.5">
-        <h1 className="font-display text-[26px] font-bold">Choose a new password</h1>
+        <h1 className="font-display text-[clamp(28px,2.6vw,34px)] leading-tight font-extrabold tracking-[-0.02em]">
+          Choose a new password
+        </h1>
         <p className="text-[15px] text-muted">
           For {link.admin.name}. Use at least 12 characters. You will be signed out on every device.
         </p>
@@ -54,7 +58,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
         <FormField name="confirm" label="Repeat the new password" id="confirm" required>
           <Input type="password" autoComplete="new-password" />
         </FormField>
-        <SubmitButton variant="accent" size="lg" pendingLabel="Saving...">
+        <SubmitButton size="lg" pendingLabel="Saving...">
           Save new password
         </SubmitButton>
       </ActionForm>
