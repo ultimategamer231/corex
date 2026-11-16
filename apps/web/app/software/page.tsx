@@ -13,7 +13,7 @@ import { productOrder, products } from "@/content/products";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Software you can try today",
+  title: "School, Clinic and Finance Software with Live Demos",
   description:
     "School, Clinic and Financial Management systems with live demos, plus systems we build on request.",
   path: "/software",

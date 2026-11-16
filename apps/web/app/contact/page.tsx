@@ -20,7 +20,7 @@ import { formatPhone, telLink, whatsappLink } from "@/lib/contact";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Contact Corex",
+  title: "Contact Corex in Monrovia",
   description:
     "Contact Corex Digital Solutions in Monrovia by phone, WhatsApp or email, or request a quote for school, clinic or finance software.",
   path: "/contact",

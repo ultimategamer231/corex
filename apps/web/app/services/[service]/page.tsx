@@ -4,11 +4,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { JsonLd } from "@/components/json-ld";
 import { Container, Section, SectionHeader, SectionTitle } from "@/components/layout";
 import { Reveal } from "@/components/reveal";
 import { serviceOrder, services, type ServiceSlug } from "@/content/services";
 import { whatsappLink } from "@/lib/contact";
-import { pageMetadata } from "@/lib/seo";
+import { absoluteUrl, pageMetadata, schemaIds } from "@/lib/seo";
 
 type Props = { params: Promise<{ service: string }> };
 
@@ -25,7 +26,11 @@ function getService(slug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const s = getService((await params).service);
   return s
-    ? pageMetadata({ title: s.name, description: s.tagline, path: `/services/${s.slug}` })
+    ? pageMetadata({
+        title: `${s.name} in Liberia`,
+        description: s.tagline,
+        path: `/services/${s.slug}`,
+      })
     : {};
 }
 
@@ -35,6 +40,18 @@ export default async function ServicePage({ params }: Props) {
   const others = serviceOrder.filter((slug) => slug !== s.slug);
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: s.name,
+          description: s.tagline,
+          serviceType: s.name,
+          url: absoluteUrl(`/services/${s.slug}`),
+          areaServed: { "@type": "Country", name: "Liberia" },
+          provider: { "@id": schemaIds().organization },
+        }}
+      />
       <section className="pt-[clamp(32px,5vw,72px)] pb-[clamp(48px,6vw,88px)]">
         <Container className="grid items-start gap-[clamp(32px,5vw,64px)] lg:grid-cols-[1.2fr_1fr]">
           <div className="flex flex-col gap-5">

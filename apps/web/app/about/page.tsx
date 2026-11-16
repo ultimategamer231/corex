@@ -7,10 +7,11 @@ import { site } from "@/content/site";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "About Corex",
+  title: "About Corex Digital Solutions, Monrovia",
   description:
-    "Corex Digital Solutions builds management software for schools, clinics, businesses and NGOs in Liberia, led by founders Foday Malike Kabah and Emmanuel K. Sackie.",
+    "Corex builds management software for schools, clinics, businesses and NGOs in Liberia. Led by founders Foday Malike Kabah and Emmanuel K. Sackie.",
   path: "/about",
+  absoluteTitle: true,
 });
 
 function initials(name: string) {

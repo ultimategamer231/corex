@@ -19,21 +19,21 @@ import { ProductCard, WorkCard } from "@/components/cards";
 import { CheckList } from "@/components/check-list";
 import { CtaBand } from "@/components/cta-band";
 import { Faq } from "@/components/faq";
-import { JsonLd } from "@/components/json-ld";
 import { Container, Eyebrow, Section, SectionHeader } from "@/components/layout";
 import { Reveal } from "@/components/reveal";
 import { home } from "@/content/home";
 import { plans } from "@/content/pricing";
 import { productOrder } from "@/content/products";
-import { site } from "@/content/site";
 import { whatsappLink } from "@/lib/contact";
-import { pageMetadata, siteUrl } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo";
 import { allWork } from "@/lib/work";
 
 export const metadata = pageMetadata({
-  title: `${site.shortName}: ${site.tagline}`,
-  description: site.description,
+  title: "School, Clinic and Finance Software in Liberia | Corex Digital Solutions",
+  description:
+    "Software for schools, colleges, clinics, businesses and NGOs in Liberia. Try a live demo first, then we set it up, train your team and support you.",
   path: "/",
+  absoluteTitle: true,
 });
 
 const trustIcons = { demo: Play, local: WifiOff, support: Headphones } as const;
@@ -55,23 +55,6 @@ export default function HomePage() {
   const work = allWork().slice(0, 3);
   return (
     <>
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          name: site.name,
-          url: siteUrl(),
-          logo: `${siteUrl()}/brand/corex-logo.png`,
-          telephone: `+${site.whatsapp.primary}`,
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: site.address.street,
-            addressLocality: site.address.city,
-            addressCountry: "LR",
-          },
-        }}
-      />
-
       {/* 1. Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-background to-surface">
         {/* Brand diagonals behind the preview (decorative, wide screens only). */}
