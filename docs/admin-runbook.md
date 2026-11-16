@@ -2,7 +2,7 @@
 
 Plain steps for the owner.
 
-Setting it up (the domain, email, Vercel, Supabase, GitHub, your first admin account and backups) is in **`docs/go-live.md`**, with every value filled in for `corexlr.com`. This page covers using the admin afterwards.
+Setting it up (the domain, email, Vercel, Supabase, GitHub, your first admin account and backups) is in **`docs/go-live.md`**, with every value filled in for `corexlr.com`. The full step-by-step user guide for the team is **`docs/admin-guide.md`**. This page is the short owner checklist.
 
 ## Day to day
 
