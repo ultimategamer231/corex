@@ -199,6 +199,16 @@ The daily check runs by itself every morning. To run it at once (for example aft
 
 ---
 
+## 7a. Website visits
+
+**Website visits** in the menu shows how many people visited www.corexlr.com, counted by Cloudflare without cookies. Choose **Last 7 days** or **Last 30 days** at the top.
+
+- **Visits**: one person's time on the site. **Pages viewed**: every page they opened.
+- **Visits per day**: point at a bar to see that day's number.
+- **Most viewed pages**, **Where visitors came from** (Google, Facebook, WhatsApp; "Direct or unknown" means they typed the address or the source was hidden), **Countries** and **Devices**.
+
+Numbers refresh every 15 minutes. If the page says it is not connected yet, follow `docs/seo.md`, step 5.
+
 ## 8. Activity log
 
 **Activity log** lists every change made in the admin: who did it, what changed and when. That includes sign-ins, leads, clients, invoices, payments and settings.
