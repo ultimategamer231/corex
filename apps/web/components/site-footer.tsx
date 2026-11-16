@@ -1,14 +1,6 @@
 import { CorexLogo } from "@corex/ui/brand";
 import { Button } from "@corex/ui/components/button";
-import {
-  CircleArrowRight,
-  FileText,
-  Mail,
-  MapPin,
-  MessageCircle,
-  MonitorPlay,
-  Phone,
-} from "lucide-react";
+import { CircleArrowRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import Link from "next/link";
 import type * as React from "react";
 import { productOrder, products } from "@/content/products";
@@ -81,10 +73,7 @@ export function SiteFooter({ showWork }: { showWork: boolean }) {
             </p>
             <div className="flex flex-wrap gap-2.5">
               <Button asChild variant="accent" size="sm">
-                <Link href="/software">
-                  <MonitorPlay aria-hidden="true" />
-                  Try a live demo
-                </Link>
+                <Link href="/software">Try a live demo</Link>
               </Button>
               <Button
                 asChild
@@ -92,10 +81,7 @@ export function SiteFooter({ showWork }: { showWork: boolean }) {
                 size="sm"
                 className="border-on-dark bg-transparent text-white hover:bg-white/10 hover:text-white"
               >
-                <Link href="/contact">
-                  <FileText aria-hidden="true" />
-                  Get a quote
-                </Link>
+                <Link href="/contact">Get a quote</Link>
               </Button>
             </div>
           </div>
