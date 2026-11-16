@@ -144,7 +144,7 @@ test("draft case studies stay hidden in production", async ({ page }) => {
   expect((await page.goto("/work/sample-use-case-1"))?.status()).toBe(404);
   const sitemap = await (await page.request.get("/sitemap.xml")).text();
   expect(sitemap).not.toContain("/work");
-  expect(sitemap).not.toContain("/legal");
+  expect(sitemap).toContain("/legal/privacy");
 });
 
 test("unknown pages show the not found page", async ({ page }) => {

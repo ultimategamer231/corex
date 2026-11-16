@@ -100,7 +100,7 @@ Follow-ups appear on the Dashboard on the day they are due.
    - **Plan**: **Managed** (you host it and they pay a yearly renewal) or **Handover** (they get the system, with a warranty period);
    - for Managed, the yearly renewal amount;
    - **Signing date**;
-   - **Payment split (%)**: how the contract is paid in parts, for example 50, 30, 20 (it must add up to 100).
+   - **Payment split (%)**: how the contract is paid in parts, for example 70, 30 (it must add up to 100). The usual split is 70% when the client approves the mock-up and design, and 30% when they approve the finished system.
 3. Click **Convert to client**.
 
 Corex then creates, in one go, the client, its contacts, a contract (numbered `CT-YY-MM-NNN`), a deployment and, for Managed clients, a subscription. The lead is marked **Won**. A lead can be converted only once.

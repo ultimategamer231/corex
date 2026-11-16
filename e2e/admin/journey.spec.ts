@@ -85,6 +85,7 @@ test("website lead to client, discounted milestone invoice, PDF, part payment, r
   await page.waitForLoadState("networkidle");
   await form.getByLabel("City").fill("Gbarnga");
   await form.getByLabel("Contract amount").fill("2,000");
+  await form.getByLabel("Payment split (%)").fill("50/30/20");
   await form.getByLabel(/Yearly renewal/).fill("500");
   await form.getByLabel("Signing date").fill(daysAgo(380));
   await form.getByRole("button", { name: "Convert to client" }).click();

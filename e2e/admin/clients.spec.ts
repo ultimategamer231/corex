@@ -63,9 +63,10 @@ test("a lead converts once into a client with contract, deployment and subscript
   await expect(page.getByText("Setting up").first()).toBeVisible();
   await expect(page.getByText(/Contract CT-26-10-\d{3}/)).toBeVisible();
   const milestones = page.getByRole("list", { name: "Milestones" });
-  await expect(milestones.getByText("US$600.00")).toBeVisible();
+  // The default split is 70/30.
+  await expect(milestones.getByText("US$840.00")).toBeVisible();
   await expect(milestones.getByText("US$360.00")).toBeVisible();
-  await expect(milestones.getByText("US$240.00")).toBeVisible();
+  await expect(milestones.getByRole("listitem")).toHaveCount(2);
 
   await page.getByRole("link", { name: "Original lead" }).click();
   await expect(page.getByRole("link", { name: "Open client" })).toBeVisible();

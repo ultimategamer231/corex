@@ -121,9 +121,9 @@ export function ClientForm({ values }: { values: ClientFormValues }) {
             name="scheme"
             label="Payment split (%)"
             required
-            hint="Percentages that add up to 100, for example 50/30/20"
+            hint="Percentages that add up to 100, for example 70/30"
           >
-            <Input defaultValue="50/30/20" list="scheme-choices" autoComplete="off" />
+            <Input defaultValue="70/30" list="scheme-choices" autoComplete="off" />
           </FormField>
           {plan === "managed" ? (
             <FormField

@@ -58,7 +58,19 @@ This is what puts Corex on Google Maps and in "software company near me" results
 5. Add photos of your office and team, and your opening hours.
 6. Ask your first clients for a Google review. Reviews strongly help local ranking.
 
-### 5. Send me your social media links
+### 5. Turn on visitor analytics (Cloudflare Web Analytics)
+
+This counts visits, popular pages, where visitors come from and which devices they use. It uses no cookies, so the site needs no cookie pop-up. The Privacy policy already mentions it.
+
+1. Cloudflare → **Analytics & Logs** → **Web Analytics** → **Add a site**.
+2. Type `www.corexlr.com` and click **Done**. Cloudflare shows a short piece of code (a JS snippet).
+3. In that code, find `"token": "..."` and copy only the value between the quotes after `token`.
+4. Vercel → **`corex`** project → **Settings** → **Environment Variables** → **Add**: Key `NEXT_PUBLIC_CF_ANALYTICS_TOKEN`, Value: the token. Tick Production and Preview. It is not a secret (visitors' browsers see it), so leave **Sensitive** off. Save.
+5. **Deployments** → **⋯** next to the top one → **Redeploy**.
+
+**Check:** open the website, click a few pages, then look at Cloudflare → **Web Analytics** after a few minutes. Visits appear there.
+
+### 6. Send me your social media links
 
 When you have Facebook, LinkedIn, X or YouTube pages for Corex, send me the links. I will add them to the footer and to the company's structured data, which helps Google and AI tools connect them to Corex.
 
