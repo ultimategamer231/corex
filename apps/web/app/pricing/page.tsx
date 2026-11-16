@@ -19,7 +19,7 @@ import {
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Pricing",
+  title: "Pricing for School, Clinic and Finance Software",
   description:
     "Managed (we host it) or Handover (you host it). Starting prices in US dollars, add-ons and payment terms.",
   path: "/pricing",

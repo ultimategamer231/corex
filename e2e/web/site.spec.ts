@@ -64,6 +64,42 @@ test("every page has a unique title, description and canonical link", async ({ p
   expect(titles.size).toBe(routes.length);
 });
 
+test("every page carries the share image, valid structured data and a short description", async ({
+  page,
+}) => {
+  for (const route of routes) {
+    await page.goto(route.path);
+    await expect(page.locator('meta[property="og:image"]'), route.path).toHaveAttribute(
+      "content",
+      /opengraph-image/,
+    );
+    const description = await page.locator('meta[name="description"]').getAttribute("content");
+    expect(description?.length ?? 0, route.path).toBeLessThanOrEqual(160);
+    const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+    const types = blocks.flatMap((b) => {
+      const data = JSON.parse(b) as { "@type"?: unknown; "@graph"?: { "@type": unknown }[] };
+      return data["@graph"] ? data["@graph"].map((n) => n["@type"]) : [data["@type"]];
+    });
+    expect(JSON.stringify(types), route.path).toContain("Organization");
+  }
+});
+
+test("search engines and AI assistants get robots rules, a sitemap and llms.txt", async ({
+  request,
+}) => {
+  const robots = await (await request.get("/robots.txt")).text();
+  expect(robots).toContain("Sitemap:");
+  expect(robots).toContain("GPTBot");
+  expect(robots).not.toMatch(/Disallow: \/\s*$/m);
+  const llms = await request.get("/llms.txt");
+  expect(llms.headers()["content-type"]).toContain("text/plain");
+  const text = await llms.text();
+  expect(text).toContain("# Corex Digital Solutions");
+  expect(text).toContain("/software/school");
+  const image = await request.get("/opengraph-image");
+  expect(image.headers()["content-type"]).toBe("image/png");
+});
+
 test("links to WhatsApp and phone with the primary number", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("link", { name: "Talk to us on WhatsApp" })).toHaveAttribute(

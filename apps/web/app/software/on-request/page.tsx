@@ -9,7 +9,7 @@ import { whatsappLink } from "@/lib/contact";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Systems we build on request",
+  title: "Custom Software Development in Liberia",
   description:
     "Point of sale, church, pharmacy, hotel, property, payroll, NGO and more, built on the same tested foundation as our ready-made systems.",
   path: "/software/on-request",

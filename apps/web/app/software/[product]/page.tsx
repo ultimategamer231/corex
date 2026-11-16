@@ -18,7 +18,7 @@ import { productOrder, products, type ProductSlug } from "@/content/products";
 import { site } from "@/content/site";
 import { whatsappLink } from "@/lib/contact";
 import { demoHost, demoLoginUrl } from "@/lib/demo";
-import { pageMetadata, siteUrl } from "@/lib/seo";
+import { pageMetadata, schemaIds, siteUrl } from "@/lib/seo";
 
 type Props = { params: Promise<{ product: string }> };
 
@@ -35,7 +35,12 @@ function getProduct(slug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = getProduct((await params).product);
   if (!p) return {};
-  return pageMetadata({ title: p.name, description: p.tagline, path: `/software/${p.slug}` });
+  return pageMetadata({
+    title: `${p.name} System in Liberia`,
+    description:
+      p.tagline.length <= 125 ? `${p.tagline} Try a live demo before you pay.` : p.tagline,
+    path: `/software/${p.slug}`,
+  });
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -53,15 +58,20 @@ export default async function ProductPage({ params }: Props) {
           name: p.name,
           description: p.tagline,
           applicationCategory: "BusinessApplication",
-          operatingSystem: "Web",
+          applicationSubCategory: p.name,
+          operatingSystem: "Web browser (works offline for key tasks)",
+          image: `${siteUrl()}/opengraph-image`,
+          featureList: p.cardFeatures,
           url: `${siteUrl()}/software/${p.slug}`,
           offers: priceRows.map((row) => ({
             "@type": "Offer",
             name: `${row.productLabel}: Managed, first year`,
             price: row.managedFirstYear,
             priceCurrency: "USD",
+            availability: "https://schema.org/InStock",
+            url: `${siteUrl()}/pricing`,
           })),
-          provider: { "@type": "Organization", name: site.name },
+          provider: { "@id": schemaIds().organization, name: site.name },
         }}
       />
 
