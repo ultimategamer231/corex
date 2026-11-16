@@ -30,14 +30,14 @@ export const legalDocs: Record<LegalSlug, LegalDoc> = {
       {
         heading: "Who we are",
         body: [
-          `${site.name} ("Corex", "we", "us") is a software company based in ${site.address.city}, ${site.address.country}. We build, host and support business software for schools, clinics, businesses and NGOs.`,
+          `${site.name} ("Corex", "we", "us") is a software company based in ${site.address.city}, ${site.address.country}. We build, host and support the systems that schools, businesses, NGOs and other organizations use for their daily work.`,
           `To reach us, ${contactLine}.`,
         ],
       },
       {
         heading: "Our services",
         body: [
-          "We offer ready-built systems (School, Clinic and Financial Management), software built on request, websites, AI automation, IT consultancy and training. Each system is offered on one of two plans:",
+          "We offer ready-made systems with live demos, custom software built around your work, websites, AI automation, IT consultancy, training, and data migration and hosting. Each system is offered on one of two plans:",
           {
             list: [
               "Managed: we build, host and look after the system for a first-year fee, then a yearly renewal.",
@@ -116,7 +116,7 @@ export const legalDocs: Record<LegalSlug, LegalDoc> = {
           {
             list: [
               "Keep passwords and authenticator codes private, and remove access for staff who leave.",
-              "Make sure the information you enter is accurate and that you are allowed to collect it, including any consent needed from students, patients or parents.",
+              "Make sure the information you enter is accurate and that you are allowed to collect it, including any consent needed from students, parents, staff, members or customers.",
               "Use the software only for lawful purposes and only inside your own organization.",
               "Pay invoices on time.",
             ],
@@ -245,8 +245,8 @@ export const legalDocs: Record<LegalSlug, LegalDoc> = {
       {
         heading: "Data in client systems",
         body: [
-          "Schools, clinics, businesses and NGOs that use our software on the Managed plan own the data they put into it, such as student, patient, staff and financial records. They decide what is collected and why. Corex stores and processes that data only on their instructions, to run, support and back up their system.",
-          "Our staff look at client data only when needed to provide support or fix a problem, and keep it confidential. If you want to see, correct or delete information a school, clinic or business holds about you, please contact that organization. We will help them respond.",
+          "Schools, businesses, NGOs and other organizations that use our software on the Managed plan own the data they put into it, such as student, staff, member, borrower and financial records. They decide what is collected and why. Corex stores and processes that data only on their instructions, to run, support and back up their system. The same applies to WhatsApp assistants and other automations we run for a client.",
+          "Our staff look at client data only when needed to provide support or fix a problem, and keep it confidential. If you want to see, correct or delete information a school, business or other organization holds about you, please contact that organization. We will help them respond.",
         ],
       },
       {
