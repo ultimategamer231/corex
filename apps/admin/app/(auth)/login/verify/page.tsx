@@ -18,7 +18,9 @@ export default async function VerifyPage({ searchParams }: Props) {
     <>
       <SignInSteps step={2} />
       <div className="flex flex-col gap-1.5">
-        <h1 className="font-display text-[26px] font-bold">Enter your code</h1>
+        <h1 className="font-display text-[clamp(28px,2.6vw,34px)] leading-tight font-extrabold tracking-[-0.02em]">
+          Enter your code
+        </h1>
         <p className="text-[15px] leading-relaxed text-muted">
           Open your authenticator app (for example Google Authenticator) and enter the 6-digit code
           shown for Corex Admin.
@@ -44,7 +46,7 @@ export default async function VerifyPage({ searchParams }: Props) {
           <input type="checkbox" name="trust" className="size-5 accent-primary" />
           Trust this device for {trustedDeviceDays} days
         </label>
-        <SubmitButton variant="accent" size="lg" pendingLabel="Checking...">
+        <SubmitButton size="lg" pendingLabel="Checking...">
           Verify and sign in
         </SubmitButton>
       </ActionForm>

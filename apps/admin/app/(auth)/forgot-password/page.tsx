@@ -10,7 +10,9 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <div className="flex flex-col gap-1.5">
-        <h1 className="font-display text-[26px] font-bold">Reset your password</h1>
+        <h1 className="font-display text-[clamp(28px,2.6vw,34px)] leading-tight font-extrabold tracking-[-0.02em]">
+          Reset your password
+        </h1>
         <p className="text-[15px] leading-relaxed text-muted">
           Enter your email or username. If your account has an email address, we send it a link to
           choose a new password. Admins without an email address can ask another admin for a reset
@@ -21,7 +23,7 @@ export default function ForgotPasswordPage() {
         <FormField name="identifier" label="Email or username" id="identifier" required>
           <Input autoComplete="username" autoCapitalize="none" spellCheck={false} />
         </FormField>
-        <SubmitButton variant="accent" size="lg" pendingLabel="Sending...">
+        <SubmitButton size="lg" pendingLabel="Sending...">
           Send reset link
         </SubmitButton>
       </ActionForm>

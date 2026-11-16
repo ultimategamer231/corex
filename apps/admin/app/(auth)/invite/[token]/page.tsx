@@ -18,7 +18,9 @@ export default async function InvitePage({ params }: Props) {
   if (!link) {
     return (
       <>
-        <h1 className="font-display text-[26px] font-bold">This link is no longer valid</h1>
+        <h1 className="font-display text-[clamp(28px,2.6vw,34px)] leading-tight font-extrabold tracking-[-0.02em]">
+          This link is no longer valid
+        </h1>
         <p className="text-[15px] text-muted">
           Set-up links work once and expire after 72 hours. Ask an admin for a new one.
         </p>

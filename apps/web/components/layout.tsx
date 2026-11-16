@@ -30,12 +30,18 @@ export function Section({
   );
 }
 
-export function Eyebrow({ className, ...props }: React.ComponentProps<"p">) {
+export function Eyebrow({ className, children, ...props }: React.ComponentProps<"p">) {
   return (
     <p
-      className={cn("text-[13px] font-bold tracking-[0.08em] text-primary uppercase", className)}
+      className={cn(
+        "flex items-center gap-2.5 text-[13px] font-bold tracking-[0.08em] text-primary-dark uppercase",
+        className,
+      )}
       {...props}
-    />
+    >
+      <span className="h-[3px] w-7 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+      {children}
+    </p>
   );
 }
 

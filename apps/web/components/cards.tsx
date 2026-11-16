@@ -1,37 +1,48 @@
 import { Badge } from "@corex/ui/components/badge";
-import { Button } from "@corex/ui/components/button";
+import { ArrowRight, ChartColumn, GraduationCap, Stethoscope } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { products, type ProductSlug } from "@/content/products";
 import type { WorkMeta } from "@/lib/work";
 import { AppPreview } from "./app-preview";
-import { CheckList } from "./check-list";
+
+const productIcons = { school: GraduationCap, clinic: Stethoscope, finance: ChartColumn } as const;
 
 export function ProductCard({ slug }: { slug: ProductSlug }) {
   const p = products[slug];
+  const Icon = productIcons[slug];
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-background">
-      <div className="bg-tint px-4 pt-4">
+    <article className="lift flex h-full flex-col gap-5 rounded-2xl border border-border bg-background p-6 hover:border-primary/40">
+      <div className="flex items-center gap-3.5">
+        <span
+          className="inline-flex size-12 shrink-0 items-center justify-center rounded-xl bg-tint text-primary"
+          aria-hidden="true"
+        >
+          <Icon className="size-6" />
+        </span>
+        <div className="flex flex-col">
+          <h3 className="text-[20px] leading-tight font-bold">{p.name}</h3>
+          <p className="text-sm text-muted">{p.audience}</p>
+        </div>
+      </div>
+      <div className="overflow-hidden rounded-xl border border-border bg-tint px-3 pt-3">
         <AppPreview kind={slug} size="compact" />
       </div>
-      <div className="flex grow flex-col gap-4 p-6">
-        <div className="flex flex-col gap-1.5">
-          <h3 className="text-[22px] font-bold">{p.name}</h3>
-          <p className="text-sm font-medium text-muted">{p.audience}</p>
-        </div>
-        <CheckList items={p.cardFeatures} className="grow" />
-        <div className="flex flex-wrap gap-2.5">
-          <Button asChild variant="accent">
-            <Link href={`/software/${slug}#demo`}>
-              Try demo<span className="sr-only"> of {p.name}</span>
-            </Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href={`/software/${slug}`}>
-              Learn more<span className="sr-only"> about {p.name}</span>
-            </Link>
-          </Button>
-        </div>
+      <p className="grow text-[15px] leading-relaxed text-ink-soft">{p.tagline}</p>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+        <Link
+          href={`/software/${slug}#demo`}
+          className="nudge inline-flex min-h-11 items-center gap-1.5 font-bold text-primary hover:underline"
+        >
+          Try the demo<span className="sr-only"> of {p.name}</span>
+          <ArrowRight className="size-4" aria-hidden="true" />
+        </Link>
+        <Link
+          href={`/software/${slug}`}
+          className="inline-flex min-h-11 items-center font-semibold text-ink-soft hover:text-primary hover:underline"
+        >
+          Learn more<span className="sr-only"> about {p.name}</span>
+        </Link>
       </div>
     </article>
   );

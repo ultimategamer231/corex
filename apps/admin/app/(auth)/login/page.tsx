@@ -1,4 +1,5 @@
 import { Input } from "@corex/ui/components/input";
+import { Lock } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
@@ -23,9 +24,13 @@ export default async function LoginPage({ searchParams }: Props) {
   return (
     <>
       <SignInSteps step={1} />
-      <div className="flex flex-col gap-1.5">
-        <h1 className="font-display text-[26px] font-bold">Sign in</h1>
-        <p className="text-[15px] text-muted">Use the email or username you were invited with.</p>
+      <div className="flex flex-col gap-2">
+        <h1 className="font-display text-[clamp(30px,3vw,38px)] leading-tight font-extrabold tracking-[-0.02em]">
+          Welcome back.
+        </h1>
+        <p className="text-[16px] leading-relaxed text-ink-soft">
+          Sign in with the email or username your administrator gave you.
+        </p>
         {notice ? (
           <p
             role="status"
@@ -40,22 +45,26 @@ export default async function LoginPage({ searchParams }: Props) {
         <FormField name="identifier" label="Email or username" id="identifier" required>
           <Input autoComplete="username" autoCapitalize="none" spellCheck={false} />
         </FormField>
-        <FormField name="password" label="Password" id="password" required>
-          <Input type="password" autoComplete="current-password" />
-        </FormField>
-        <SubmitButton variant="accent" size="lg" pendingLabel="Checking...">
+        <div className="relative">
+          <FormField name="password" label="Password" id="password" required>
+            <Input type="password" autoComplete="current-password" />
+          </FormField>
+          <Link
+            href="/forgot-password"
+            className="absolute -top-3 right-0 inline-flex min-h-11 items-center text-[14px] font-bold text-primary underline-offset-2 hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
+        <SubmitButton size="lg" pendingLabel="Checking...">
           Continue
         </SubmitButton>
       </ActionForm>
-      <div className="flex flex-col gap-2 text-[14px] text-muted">
-        <Link
-          href="/forgot-password"
-          className="inline-flex min-h-11 items-center self-start font-semibold text-primary hover:underline"
-        >
-          Forgot password?
-        </Link>
-        <p>After 5 failed attempts, sign-in is paused for 15 minutes.</p>
-      </div>
+      <p className="flex gap-2.5 text-[14px] leading-relaxed text-muted">
+        <Lock className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+        Every sign-in also needs a code from your authenticator app. After 5 wrong passwords,
+        sign-in pauses for 15 minutes.
+      </p>
     </>
   );
 }

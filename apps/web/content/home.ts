@@ -1,36 +1,59 @@
 // Home page copy (SPEC.md 6.2), from the website mockup.
 export const home = {
   hero: {
-    badge: "Live demos for schools, clinics and businesses",
-    title: "Business software you can test before you pay",
-    lead: "Log in to a working demo with sample data. When it fits, we customize it for your organization, set it up and train your team.",
+    eyebrow: "Software for schools, clinics and businesses",
+    title: "Software that makes your work simpler.",
+    lead: "Management systems for schools, clinics and businesses in Liberia. Try a working demo with sample data, then we set it up for you and train your team.",
     proof: ["Works offline for key tasks", "USD and LRD", "You own your data"],
   },
+  trust: [
+    {
+      icon: "demo",
+      title: "Try before you pay",
+      text: "Log in to a working demo with sample data and a login for every role.",
+    },
+    {
+      icon: "local",
+      title: "Built for how you work here",
+      text: "Keeps working offline for key tasks, with USD and LRD built in.",
+    },
+    {
+      icon: "support",
+      title: "Setup and training",
+      text: "We move your data in, train your staff in Monrovia and answer on WhatsApp.",
+    },
+  ],
   products: {
     eyebrow: "Ready to try",
-    title: "Three systems with working demos",
-    lead: "Pick a role, log in with the published password and use the system the way your staff would.",
+    title: "Our software",
+    lead: "Three systems with working demos, for education, healthcare and business finance.",
+  },
+  tryIt: {
+    title: "Try it. See how it works.",
+    lead: "Open a live demo, test the real workflows and get a feel for the system before you decide.",
+    steps: [
+      { title: "Choose a system", text: "School, clinic or finance." },
+      { title: "Pick a role", text: "Log in as an admin, teacher, doctor or accountant." },
+      { title: "Talk to us", text: "Ask questions and get a clear quote." },
+    ],
+  },
+  onRequest: {
+    title: "Built on request",
+    text: "Need something different? We also build systems such as point of sale, pharmacy, church and hotel management.",
+    link: "Request a custom system",
   },
   steps: {
-    eyebrow: "How it works",
-    title: "From demo to go-live in four steps",
+    eyebrow: "How we work",
+    title: "From first call to go-live",
+    lead: "A simple, proven process.",
     items: [
+      { title: "Discover", text: "We learn how your organization works and what it needs." },
       {
-        title: "Try the demo",
-        text: "Log in as an admin, teacher, doctor or accountant and test the real workflows.",
+        title: "Configure",
+        text: "Your name, logo and settings, and your data moved in from Excel.",
       },
-      {
-        title: "Get a quote",
-        text: "Tell us what you need changed. We send a clear scope, price and timeline.",
-      },
-      {
-        title: "We customize and deploy",
-        text: "Your name, logo and settings, your own database, and your data moved in from Excel.",
-      },
-      {
-        title: "You go live",
-        text: "We train your staff and stay on call for support and updates.",
-      },
+      { title: "Train", text: "Hands-on training for your staff, on site in Monrovia." },
+      { title: "Launch", text: "You go live, and we stay on call for support and updates." },
     ],
   },
   plans: {
@@ -38,34 +61,7 @@ export const home = {
     title: "We host it, or you host it",
     lead: "Either way, your organization gets its own separate system and owns all of its data.",
   },
-  why: {
-    eyebrow: "Why Corex",
-    title: "Built for how organizations here actually work",
-    items: [
-      {
-        icon: "offline",
-        title: "Keeps working offline",
-        text: "Attendance, patient registration and expense entries save on the device and sync when the connection returns.",
-      },
-      {
-        icon: "currency",
-        title: "USD and LRD built in",
-        text: "Record payments in either currency. Exchange rates are saved with each transaction, so old reports never change.",
-      },
-      {
-        icon: "support",
-        title: "Local setup and support",
-        text: "We move your data in, train your staff on site in Monrovia, and answer on WhatsApp.",
-      },
-      {
-        icon: "data",
-        title: "Your data stays yours",
-        text: "Every client gets a separate system. Export everything whenever you want.",
-      },
-    ],
-  },
   work: { eyebrow: "Our work", title: "Projects we have delivered" },
-  services: { eyebrow: "Also from Corex", title: "Services around your software" },
   faq: {
     eyebrow: "Questions",
     title: "Frequently asked questions",
@@ -98,7 +94,7 @@ export const home = {
     ],
   },
   finalCta: {
-    title: "See it working before you decide",
-    lead: "Open a demo now, or tell us what your organization needs and we will send a quote.",
+    title: "See what Corex can do for your organization.",
+    lead: "Open a live demo, or tell us what you need and we will send a quote.",
   },
 };

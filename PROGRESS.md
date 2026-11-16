@@ -66,6 +66,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - **Domain** (2026-11-11) `corexlr.com` (Namecheap, DNS on Cloudflare): website at the root, `admin.` and `demo-*.` subdomains on Vercel; email: Zoho Mail (free plan) for people's mailboxes and the `hello@` and `billing@` groups, Resend for the apps' sending (`billing@` invoices, `website@` lead notifications); the two use separate DNS records. Code defaults and `.env.example` files use `corexlr.com`; one go-live guide `docs/go-live.md` replaces the setup steps in `docs/admin-runbook.md`.
 - **Keep-alive** (2026-11-14) GitHub ran no scheduled workflow from 8 to 14 November, so a free Supabase project paused. Second, independent keep-alive: `/api/keepalive` in the website, School, Clinic and Finance (`@corex/core/keepalive`) reads one row with the service role, at most once an hour per instance, public and answering only `{ ok }`; a daily Vercel cron in each `vercel.json` calls it. Restore steps in `docs/go-live.md` 5c. Tests: 5 unit, checked against the local stack.
 - **Go-live guide** (2026-11-15) `docs/go-live.md` rewritten for a first-time reader: a glossary, Part 0 (password manager, the two secrets, waking paused Supabase projects), creating the Cloudflare account, moving nameservers at Namecheap, every Zoho and Resend record, and enabling GitHub's scheduled workflows.
+- **Redesign** (2026-11-16, owner-approved mock-ups) Website homepage, About, Contact, header and footer, and the Corex Admin sign-in screens, after the owner's reference designs. Home and Contact in the menu, orange underline for the current page, Software and Services dropdowns, "Get a quote" beside "Try a live demo" (1280px and up); new dark footer with four link columns and contact details. Plans stay on the homepage until case studies and testimonials exist. Motion kept small (hero settles in once, scroll reveals, hover lift; none with reduced motion); the axe check waits for one-off animations. Office address is now Mechlin Street. About lists the founders and selected work (LCC E-Portal, AgroLite) from the owner's copy.
 
 ## Owner answers (2026-10-23, 2026-10-24)
 
@@ -82,7 +83,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - Leads storage: `corex_web` lives in its own Supabase project; the website server may use that project's service-role key (server-only). Rate limiting uses a Postgres table, not a new service.
 - The LCC records system is out of scope for the MVP and moves to version 2. The School app is built from SPEC.md alone.
 - Contacts: primary WhatsApp **+231 770 021 026**; also +231 775 178 905 and +231 777 352 002 (calls or WhatsApp).
-- Address: Carey & Johnson Street, Monrovia, Liberia.
+- Address: Mechlin Street, Monrovia, Liberia (changed 2026-11-16, owner).
 - Email: no real address yet. Use `info@cds.com` as a **placeholder** (see open questions).
 - Logo: the supplied image is the official logo (`apps/web/public/brand/corex-logo.png`); the mockup's SVG mark matches it and is used for crisp rendering.
 

@@ -17,7 +17,7 @@ export const site = {
   /** A Zoho Mail group address that reaches the team (docs/go-live.md, Part 2a). */
   email: { address: "hello@corexlr.com", isPlaceholder: false },
   address: {
-    street: "Carey & Johnson Street",
+    street: "Mechlin Street",
     city: "Monrovia",
     country: "Liberia",
   },
