@@ -20,6 +20,18 @@ export const planOptions = [
 ] as const;
 
 export const contactCopy = {
+  pageTitle: "Contact our team.",
+  pageLead:
+    "Ask about our software, arrange a demonstration, or tell us what your organization needs and we will send a quote.",
+  support: {
+    title: "Already using a Corex system?",
+    text: "Include your organization's name and the system you use when asking for support. Never share passwords or confidential records.",
+  },
+  privacyNote: "The details you send are used only to answer your request.",
+  explore: {
+    title: "Want to explore first?",
+    text: "Try a working version of the software with sample data before speaking to our team.",
+  },
   title: "Request a quote",
   lead: "Tell us about your organization and what you need. We reply with questions or a quote.",
   messageHint: "For example: number of students, staff or branches, and what you use today.",

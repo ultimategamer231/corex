@@ -82,7 +82,7 @@ Running log for the Corex MVP build. Read this first at the start of every sessi
 - Leads storage: `corex_web` lives in its own Supabase project; the website server may use that project's service-role key (server-only). Rate limiting uses a Postgres table, not a new service.
 - The LCC records system is out of scope for the MVP and moves to version 2. The School app is built from SPEC.md alone.
 - Contacts: primary WhatsApp **+231 770 021 026**; also +231 775 178 905 and +231 777 352 002 (calls or WhatsApp).
-- Address: Carey & Johnson Street, Monrovia, Liberia.
+- Address: Mechlin Street, Monrovia, Liberia (changed 2026-11-16, owner).
 - Email: no real address yet. Use `info@cds.com` as a **placeholder** (see open questions).
 - Logo: the supplied image is the official logo (`apps/web/public/brand/corex-logo.png`); the mockup's SVG mark matches it and is used for crisp rendering.
 

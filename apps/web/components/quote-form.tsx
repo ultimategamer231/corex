@@ -108,7 +108,7 @@ function QuoteFormRound({
     <form
       noValidate
       onSubmit={(e) => void handleSubmit(onValid)(e)}
-      className="flex flex-col gap-6 rounded-2xl border border-border bg-background p-[clamp(20px,3vw,32px)]"
+      className="flex flex-col gap-6"
       aria-describedby="form-required-note"
     >
       {state.status === "error" ? (
