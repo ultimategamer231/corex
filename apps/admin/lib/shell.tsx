@@ -4,6 +4,7 @@ import {
   History,
   LayoutDashboard,
   Building2,
+  ChartColumn,
   RefreshCw,
   Settings,
   UserPlus,
@@ -16,6 +17,7 @@ export const NAV: ShellNavItem[] = [
   { href: "/clients", label: "Clients", icon: <Building2 />, primary: true },
   { href: "/subscriptions", label: "Subscriptions", icon: <RefreshCw /> },
   { href: "/invoices", label: "Invoices and receipts", icon: <FileText />, primary: true },
+  { href: "/website", label: "Website visits", icon: <ChartColumn /> },
   { href: "/settings/team", label: "Settings", icon: <Settings /> },
   { href: "/activity", label: "Activity log", icon: <History /> },
 ];

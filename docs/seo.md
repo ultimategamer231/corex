@@ -30,15 +30,34 @@ Today the site says its main address is `https://corexlr.com`, but Vercel sends 
 
 ### 2. Register with Google (Google Search Console)
 
-This is how Google learns about your site quickly and how you see what people search for.
+This tells Google the site is yours, sends it the list of pages, and shows you what people search for before they click on Corex. It takes about 15 minutes.
 
-1. Go to **search.google.com/search-console** and sign in with a Google account the company keeps.
-2. Click **Add property**, choose **Domain** (the left box), type `corexlr.com`, and click **Continue**.
-3. Google shows a **TXT** record. Add it in Cloudflare (as in the go-live guide): **DNS** → **Records** → **Add record** → Type **TXT**, Name `@`, Content: the value Google shows. Save.
-4. Back in Google, click **Verify**. If it fails, wait 10 minutes and try again.
-5. On the left, click **Sitemaps**, type `sitemap.xml`, and click **Submit**.
+**A. Add the site**
 
-**Check:** after a few days, **Pages** shows your pages as indexed.
+1. On a computer, open **search.google.com/search-console**.
+2. Sign in with a Google account the company will keep (not a personal one you may lose). Click **Start now** if Google asks.
+3. A box **Select property type** opens. Use the left box, **Domain**. Type `corexlr.com` (no `www`, no `https://`). Click **Continue**.
+
+**B. Prove you own the domain**
+
+4. Google shows **Verify domain ownership via DNS record** and a long value that starts with `google-site-verification=`. Click **Copy**. Leave this tab open.
+5. In a new tab, open Cloudflare → click **corexlr.com** → **DNS** → **Records** → **Add record**.
+6. Fill in: **Type** `TXT`, **Name** `@`, **Content**: paste the value from Google, **TTL** Auto. Click **Save**. (Your Zoho and Resend TXT records stay; a domain can have several.)
+7. Go back to the Google tab and click **Verify**. You should see **Ownership verified**. If Google says it could not find the record, wait 10 minutes and click **Verify** again.
+
+**C. Send Google the page list**
+
+8. Click **Go to property**. In the left menu, click **Sitemaps**.
+9. Under **Add a new sitemap**, type the full address `https://www.corexlr.com/sitemap.xml` (with `www`) and click **Submit**. If Google says it **Couldn't fetch**, wait a day: that message is common at first and clears itself.
+
+**D. Ask Google to visit the main pages now (optional, speeds things up)**
+
+10. At the top, click the search bar **Inspect any URL**, paste `https://www.corexlr.com/` and press Enter.
+11. Click **Request indexing**. Repeat for `https://www.corexlr.com/software` and `https://www.corexlr.com/pricing`.
+
+**Check:** after 3 to 7 days, **Indexing** → **Pages** shows your pages under **Indexed**, and **Performance** starts showing searches, clicks and positions. Look at it once a week. Do not delete the TXT record later: Google checks it to keep you verified.
+
+To let a teammate see it: **Settings** → **Users and permissions** → **Add user** (choose **Full**, not **Owner**).
 
 ### 3. Register with Bing (Bing Webmaster Tools)
 
@@ -69,6 +88,19 @@ This counts visits, popular pages, where visitors come from and which devices th
 5. **Deployments** → **⋯** next to the top one → **Redeploy**.
 
 **Check:** open the website, click a few pages, then look at Cloudflare → **Web Analytics** after a few minutes. Visits appear there.
+
+**See the visits inside Corex Admin** (the **Website visits** page). Three more values, for the **`corex-admin`** project this time:
+
+6. **Account ID:** Cloudflare home page (the list of your domains) → on the right, under **Account details** or **API**, copy **Account ID**. (It is also the long code in the browser address after `dash.cloudflare.com/`.)
+7. **Site tag:** Cloudflare → **Analytics & Logs** → **Web Analytics** → click **www.corexlr.com**. In the browser address bar, copy the code after `siteTag~in=` (letters and numbers only).
+8. **API token:** click the person icon at the top right → **My Profile** → **API Tokens** → **Create Token** → at the bottom, **Create Custom Token** → **Get started**. Name it `Corex Admin analytics`. Under **Permissions** choose **Account** · **Account Analytics** · **Read**. Under **Account Resources** choose **Include** · your account. Click **Continue to summary** → **Create Token**, then **Copy**. Cloudflare shows it only once.
+9. Vercel → **`corex-admin`** project → **Settings** → **Environment Variables**. Add three, ticking Production and Preview:
+   - `CLOUDFLARE_ACCOUNT_ID`: the account ID (Sensitive off)
+   - `CLOUDFLARE_WEB_ANALYTICS_SITE_TAG`: the site tag (Sensitive off)
+   - `CLOUDFLARE_API_TOKEN`: the token (**Sensitive on**: it is a secret; never paste it in chat or email)
+10. **Deployments** → **⋯** next to the top one → **Redeploy**.
+
+**Check:** sign in to admin.corexlr.com → **Website visits**. You see the number of visits, a chart per day, top pages, where visitors came from, countries and devices. If the page shows "Could not load the numbers from Cloudflare", the message under it says why (most often the token permission or a mistyped site tag).
 
 ### 6. Send me your social media links
 
