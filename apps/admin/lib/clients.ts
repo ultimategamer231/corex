@@ -63,7 +63,7 @@ export function environmentLabel(environment: string): string {
 }
 
 /** Payment splits offered on forms; any other split can be typed as "40/40/20". */
-export const SCHEME_CHOICES = ["50/30/20", "50/50", "40/30/30", "100"] as const;
+export const SCHEME_CHOICES = ["70/30", "50/30/20", "50/50", "100"] as const;
 
 /** "50/30/20" → [50, 30, 20]; null unless whole percentages above 0 adding up to 100. */
 export function parseScheme(text: string): number[] | null {
@@ -281,7 +281,7 @@ export const newClientSchema = z
       ctx.addIssue({
         code: "custom",
         path: ["scheme"],
-        message: "Use whole percentages that add up to 100, for example 50/30/20",
+        message: "Use whole percentages that add up to 100, for example 70/30",
       });
     }
     const totalMinor = minorAmount(v.total, v.currency, ctx, "total");
@@ -376,7 +376,7 @@ export const contractSchema = z
       ctx.addIssue({
         code: "custom",
         path: ["scheme"],
-        message: "Use whole percentages that add up to 100, for example 50/30/20",
+        message: "Use whole percentages that add up to 100, for example 70/30",
       });
     }
     return {

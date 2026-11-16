@@ -2,6 +2,7 @@ import { fontVariables } from "@corex/ui/fonts";
 import { SkipLink } from "@corex/ui/shell";
 import type { Metadata, Viewport } from "next";
 import type * as React from "react";
+import { Analytics } from "@/components/analytics";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <SiteFooter showWork={showWork} />
+        <Analytics />
       </body>
     </html>
   );

@@ -1,11 +1,16 @@
 import { cn } from "@corex/ui/lib/utils";
-import { Info } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Container } from "@/components/layout";
-import { legalDocs, legalOrder, type LegalSlug } from "@/content/legal";
+import {
+  type LegalBlock,
+  legalDocs,
+  legalOrder,
+  legalUpdated,
+  type LegalSlug,
+} from "@/content/legal";
 import { pageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ doc: string }> };
@@ -24,15 +29,22 @@ function getDoc(slug: string) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const d = getDoc((await params).doc);
-  // Drafts stay out of search results and the sitemap.
   return d
-    ? pageMetadata({
-        title: d.title,
-        description: d.intro,
-        path: `/legal/${d.slug}`,
-        noIndex: true,
-      })
+    ? pageMetadata({ title: d.title, description: d.description, path: `/legal/${d.slug}` })
     : {};
+}
+
+function Block({ block }: { block: LegalBlock }) {
+  if (typeof block === "string") {
+    return <p className="leading-relaxed text-ink-soft">{block}</p>;
+  }
+  return (
+    <ul className="flex list-disc flex-col gap-1.5 pl-5 leading-relaxed text-ink-soft marker:text-primary">
+      {block.list.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  );
 }
 
 export default async function LegalPage({ params }: Props) {
@@ -47,16 +59,8 @@ export default async function LegalPage({ params }: Props) {
         <h1 className="text-[clamp(32px,4.4vw,52px)] leading-[1.08] font-extrabold tracking-[-0.03em]">
           {doc.title}
         </h1>
-        <p className="text-sm text-muted">Last updated: [date]</p>
-        <p
-          role="note"
-          className="flex items-start gap-3 rounded-xl border border-notice-border bg-notice-subtle px-5 py-4 text-[15px] leading-relaxed text-notice"
-        >
-          <Info className="mt-0.5 size-5 shrink-0 text-notice-icon" aria-hidden="true" />
-          <span>
-            <strong>Draft.</strong> This page is a placeholder. The final text will be supplied
-            after legal review.
-          </span>
+        <p className="text-sm text-muted">
+          Last updated: <time dateTime={legalUpdated.iso}>{legalUpdated.label}</time>
         </p>
         <nav aria-label="Legal documents" className="flex flex-wrap gap-2">
           {legalOrder.map((slug) => (
@@ -97,13 +101,14 @@ export default async function LegalPage({ params }: Props) {
             <p className="text-lg leading-relaxed text-ink-soft">{doc.intro}</p>
             {doc.sections.map((s, i) => (
               <section key={s.heading} id={`s${i + 1}`} className="scroll-mt-6">
-                <h2 className="mb-2 text-xl font-bold">
+                <h2 className="mb-3 text-xl font-bold">
                   {i + 1}. {s.heading}
                 </h2>
-                <p className="leading-relaxed text-ink-soft">{s.summary}</p>
-                <p className="mt-2 text-sm text-muted">
-                  [Final wording to be supplied by counsel.]
-                </p>
+                <div className="flex flex-col gap-3">
+                  {s.body.map((block, j) => (
+                    <Block key={j} block={block} />
+                  ))}
+                </div>
               </section>
             ))}
           </div>

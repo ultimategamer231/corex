@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
  * @typedef {object} CspOptions
  * @property {string[]} [connectSrc] Extra origins for fetch/XHR/WebSocket (for example the Supabase URL).
  * @property {string[]} [imgSrc] Extra image origins.
+ * @property {string[]} [scriptSrc] Extra script origins (for example a privacy-friendly analytics beacon).
  * @property {string} [supabaseUrl] Supabase project URL: allowed for API calls, realtime (wss) and Storage images such as the org logo.
  * @property {boolean} [dev] Development mode: allows eval for React Fast Refresh and skips upgrade-insecure-requests.
  */
@@ -22,6 +23,7 @@ import { fileURLToPath } from "node:url";
 export function contentSecurityPolicy({
   connectSrc = [],
   imgSrc = [],
+  scriptSrc = [],
   supabaseUrl,
   dev = false,
 } = {}) {
@@ -31,7 +33,7 @@ export function contentSecurityPolicy({
   /** @type {Record<string, string[]>} */
   const directives = {
     "default-src": ["'self'"],
-    "script-src": ["'self'", "'unsafe-inline'", ...(dev ? ["'unsafe-eval'"] : [])],
+    "script-src": ["'self'", "'unsafe-inline'", ...scriptSrc, ...(dev ? ["'unsafe-eval'"] : [])],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:", ...supabaseImg, ...imgSrc],
     "font-src": ["'self'"],

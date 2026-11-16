@@ -23,6 +23,12 @@ describe("securityHeaders", () => {
     expect(contentSecurityPolicy({ dev: true })).toContain("unsafe-eval");
   });
 
+  it("adds extra script origins such as an analytics beacon", () => {
+    expect(
+      contentSecurityPolicy({ scriptSrc: ["https://static.cloudflareinsights.com"] }),
+    ).toContain("script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com");
+  });
+
   it("adds extra connect origins such as the Supabase URL", () => {
     expect(contentSecurityPolicy({ connectSrc: ["https://xyz.supabase.co"] })).toContain(
       "connect-src 'self' https://xyz.supabase.co",
