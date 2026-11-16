@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   analyticsConfig,
+  change,
+  countryLabel,
+  pageLabel,
   parseStats,
   QUERY,
   queryVariables,
@@ -9,6 +12,7 @@ import {
 } from "./website-analytics";
 
 const now = new Date("2026-11-16T10:30:00Z");
+const config = { apiToken: "t", accountId: "acc", siteTag: "site" };
 
 describe("website analytics settings", () => {
   it("needs all three Cloudflare settings", () => {
@@ -31,16 +35,26 @@ describe("website analytics settings", () => {
 });
 
 describe("the Cloudflare request", () => {
-  it("covers whole days up to now, for this site, without bots", () => {
+  it("covers whole days up to now and the same length before, for this site, without bots", () => {
     expect(rangeDates(7, now)).toEqual({ start: "2026-11-10", end: "2026-11-16" });
-    expect(queryVariables({ apiToken: "t", accountId: "acc", siteTag: "site" }, 7, now)).toEqual({
+    expect(queryVariables(config, 7, now)).toEqual({
       accountTag: "acc",
       siteTag: "site",
       start: "2026-11-10T00:00:00Z",
       end: "2026-11-16T10:30:00.000Z",
+      prevStart: "2026-11-03T00:00:00.000Z",
+      prevEnd: "2026-11-09T23:59:59.000Z",
     });
     expect(QUERY).toContain("{ bot: 0 }");
     expect(QUERY).toContain("{ siteTag: $siteTag }");
+    // Breakdowns are ordered by page views, as Cloudflare's dashboard does.
+    expect(QUERY).not.toContain("sum_visits_DESC");
+  });
+
+  it("rounds the end of the range to 15 minutes so the cache is reused", () => {
+    expect(queryVariables(config, 7, new Date("2026-11-16T10:44:59Z")).end).toBe(
+      "2026-11-16T10:30:00.000Z",
+    );
   });
 });
 
@@ -51,16 +65,18 @@ describe("parseStats", () => {
         accounts: [
           {
             totals: [{ count: 30, sum: { visits: 12 } }],
+            previous: [{ count: 20, sum: { visits: 10 } }],
             days: [
               { count: 10, sum: { visits: 4 }, dimensions: { value: "2026-11-11" } },
               { count: 20, sum: { visits: 8 }, dimensions: { value: "2026-11-16" } },
             ],
             pages: [{ count: 18, sum: { visits: 9 }, dimensions: { value: "/" } }],
             referrers: [
-              { count: 5, sum: { visits: 3 }, dimensions: { value: "" } },
+              { count: 21, sum: { visits: 0 }, dimensions: { value: "www.corexlr.com" } },
               { count: 4, sum: { visits: 2 }, dimensions: { value: "www.google.com" } },
+              { count: 5, sum: { visits: 3 }, dimensions: { value: "" } },
             ],
-            countries: [{ count: 30, sum: { visits: 12 }, dimensions: { value: "Liberia" } }],
+            countries: [{ count: 30, sum: { visits: 12 }, dimensions: { value: "LR" } }],
             devices: [{ count: 25, sum: { visits: 10 }, dimensions: { value: "mobile" } }],
           },
         ],
@@ -73,17 +89,43 @@ describe("parseStats", () => {
     const stats = parseStats(answer, 7, now);
     expect(stats.visits).toBe(12);
     expect(stats.views).toBe(30);
+    expect(stats.previous).toEqual({ visits: 10, views: 20 });
     expect(stats.days).toHaveLength(7);
     expect(stats.days[0]).toEqual({ date: "2026-11-10", visits: 0, views: 0 });
     expect(stats.days[1]).toEqual({ date: "2026-11-11", visits: 4, views: 10 });
     expect(stats.days[6]).toEqual({ date: "2026-11-16", visits: 8, views: 20 });
-    expect(stats.referrers.map((r) => r.label)).toEqual(["Direct or unknown", "www.google.com"]);
+    expect(stats.pages[0]?.label).toBe("Home (/)");
+    expect(stats.countries[0]?.label).toBe("Liberia");
     expect(stats.devices[0]?.label).toBe("Phone");
+  });
+
+  it("lists sources by visits and leaves out clicks between the site's own pages", () => {
+    const stats = parseStats(answer, 7, now);
+    expect(stats.referrers.map((r) => [r.label, r.visits])).toEqual([
+      ["Direct or unknown", 3],
+      ["www.google.com", 2],
+    ]);
   });
 
   it("passes Cloudflare's error message on", () => {
     expect(() =>
       parseStats({ data: null, errors: [{ message: "not authorized" }] }, 7, now),
     ).toThrow("not authorized");
+  });
+});
+
+describe("labels and change", () => {
+  it("names countries and the main pages", () => {
+    expect(countryLabel("GH")).toBe("Ghana");
+    expect(countryLabel("Sierra Leone")).toBe("Sierra Leone");
+    expect(countryLabel("")).toBe("Unknown");
+    expect(pageLabel("/pricing")).toBe("Pricing (/pricing)");
+    expect(pageLabel("/services/training")).toBe("/services/training");
+  });
+
+  it("gives the change against the previous period, or nothing to compare", () => {
+    expect(change(12, 10)).toBe(20);
+    expect(change(5, 10)).toBe(-50);
+    expect(change(5, 0)).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-// Website visits for the admin's Website page, read from Cloudflare Web Analytics (the
+// Website analytics for the admin's Analytics page, read from Cloudflare Web Analytics (the
 // cookie-free beacon on corexlr.com) through Cloudflare's GraphQL Analytics API.
 // Server only: the API token never reaches the browser.
 
@@ -20,9 +20,10 @@ export function analyticsConfig(env: Record<string, string | undefined>): Analyt
 }
 
 export type Row = { label: string; visits: number; views: number };
-export type WebsiteStats = {
-  visits: number;
-  views: number;
+export type Totals = { visits: number; views: number };
+export type WebsiteStats = Totals & {
+  /** The same totals for the period just before, for the change shown on each stat. */
+  previous: Totals;
   /** One entry per day in the range, oldest first, zero-filled. */
   days: { date: string; visits: number; views: number }[];
   pages: Row[];
@@ -33,45 +34,57 @@ export type WebsiteStats = {
 
 const TOP = 8;
 
-/** Human page loads of this site in the range (Cloudflare marks bots with bot: 1). */
-const FILTER =
-  "{ AND: [{ datetime_geq: $start, datetime_leq: $end }, { bot: 0 }, { siteTag: $siteTag }] }";
+/** Human page loads of this site in a time range (Cloudflare marks bots with bot: 1). */
+const filter = (start: string, end: string) =>
+  `{ AND: [{ datetime_geq: ${start}, datetime_leq: ${end} }, { bot: 0 }, { siteTag: $siteTag }] }`;
+const CURRENT = filter("$start", "$end");
 
-function group(alias: string, dimension: string, orderBy: string, limit: number): string {
+/**
+ * One aliased group. Breakdowns are ordered by page views (count_DESC), as Cloudflare's own
+ * dashboard does; visits are a per-session figure and do not rank every dimension.
+ */
+function group(alias: string, dimension: string, orderBy: string, limit: number, f = CURRENT) {
   const dims = dimension ? ` dimensions { value: ${dimension} }` : "";
-  return `${alias}: rumPageloadEventsAdaptiveGroups(filter: ${FILTER}, limit: ${limit}${
+  return `${alias}: rumPageloadEventsAdaptiveGroups(filter: ${f}, limit: ${limit}${
     orderBy ? `, orderBy: [${orderBy}]` : ""
   }) { count sum { visits }${dims} }`;
 }
 
-/** One request for the totals, the daily series and the top lists. */
-export const QUERY = `query WebsiteStats($accountTag: string!, $siteTag: string!, $start: Time!, $end: Time!) {
+/** One request for the totals, the previous period, the daily series and the top lists. */
+export const QUERY = `query WebsiteStats($accountTag: string!, $siteTag: string!, $start: Time!, $end: Time!, $prevStart: Time!, $prevEnd: Time!) {
   viewer {
     accounts(filter: { accountTag: $accountTag }) {
       ${group("totals", "", "", 1)}
+      ${group("previous", "", "", 1, filter("$prevStart", "$prevEnd"))}
       ${group("days", "date", "date_ASC", 100)}
       ${group("pages", "requestPath", "count_DESC", TOP)}
-      ${group("referrers", "refererHost", "sum_visits_DESC", TOP)}
-      ${group("countries", "countryName", "sum_visits_DESC", TOP)}
-      ${group("devices", "deviceType", "sum_visits_DESC", TOP)}
+      ${group("referrers", "refererHost", "count_DESC", 25)}
+      ${group("countries", "countryName", "count_DESC", TOP)}
+      ${group("devices", "deviceType", "count_DESC", TOP)}
     }
   }
 }`;
 
+const DAY = 86_400_000;
+
 /** First and last day (YYYY-MM-DD, UTC) of a range ending today. */
 export function rangeDates(days: RangeDays, now: Date): { start: string; end: string } {
   const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  const start = new Date(end.getTime() - (days - 1) * 86_400_000);
+  const start = new Date(end.getTime() - (days - 1) * DAY);
   return { start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) };
 }
 
 export function queryVariables(config: AnalyticsConfig, days: RangeDays, now: Date) {
   const { start } = rangeDates(days, now);
+  const startMs = Date.parse(`${start}T00:00:00Z`);
   return {
     accountTag: config.accountId,
     siteTag: config.siteTag,
     start: `${start}T00:00:00Z`,
-    end: now.toISOString(),
+    // Rounded down to 15 minutes so the cached answer is reused until it is due a refresh.
+    end: new Date(Math.floor(now.getTime() / 900_000) * 900_000).toISOString(),
+    prevStart: new Date(startMs - days * DAY).toISOString(),
+    prevEnd: new Date(startMs - 1000).toISOString(),
   };
 }
 
@@ -86,6 +99,36 @@ function rows(groups: Group[] | undefined, label: (value: string) => string): Ro
 }
 
 const DEVICES: Record<string, string> = { desktop: "Computer", mobile: "Phone", tablet: "Tablet" };
+
+const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+
+/** "LR" → "Liberia"; names Cloudflare already spells out pass through. */
+export function countryLabel(value: string): string {
+  if (!value) return "Unknown";
+  if (/^[A-Za-z]{2}$/.test(value)) {
+    try {
+      return regionNames.of(value.toUpperCase()) ?? value;
+    } catch {
+      return value;
+    }
+  }
+  return value;
+}
+
+/** Friendly names for the website's main pages; other paths are shown as they are. */
+const PAGE_NAMES: Record<string, string> = {
+  "/": "Home",
+  "/software": "Software",
+  "/pricing": "Pricing",
+  "/about": "About",
+  "/contact": "Contact",
+};
+
+export function pageLabel(path: string): string {
+  const clean = path || "/";
+  const name = PAGE_NAMES[clean];
+  return name ? `${name} (${clean})` : clean;
+}
 
 /** Turns the API's answer into the page's numbers. Throws with Cloudflare's message on errors. */
 export function parseStats(json: unknown, days: RangeDays, now: Date): WebsiteStats {
@@ -107,26 +150,38 @@ export function parseStats(json: unknown, days: RangeDays, now: Date): WebsiteSt
   );
   const { start } = rangeDates(days, now);
   const series = Array.from({ length: days }, (_, i) => {
-    const date = new Date(Date.parse(`${start}T00:00:00Z`) + i * 86_400_000)
-      .toISOString()
-      .slice(0, 10);
+    const date = new Date(Date.parse(`${start}T00:00:00Z`) + i * DAY).toISOString().slice(0, 10);
     return { date, ...(byDay.get(date) ?? { visits: 0, views: 0 }) };
   });
-  const totals = account.totals?.[0];
+  const totals = (g: Group[] | undefined): Totals => ({
+    visits: g?.[0]?.sum?.visits ?? 0,
+    views: g?.[0]?.count ?? 0,
+  });
   return {
-    visits: totals?.sum?.visits ?? 0,
-    views: totals?.count ?? 0,
+    ...totals(account.totals),
+    previous: totals(account.previous),
     days: series,
-    pages: rows(account.pages, (v) => v || "/"),
-    referrers: rows(account.referrers, (v) => v || "Direct or unknown"),
-    countries: rows(account.countries, (v) => v || "Unknown"),
+    pages: rows(account.pages, pageLabel),
+    // A visit starts when someone arrives from elsewhere; rows with no visits are clicks
+    // between the website's own pages, so they are not a source.
+    referrers: rows(account.referrers, (v) => v || "Direct or unknown")
+      .filter((r) => r.visits > 0)
+      .sort((a, b) => b.visits - a.visits)
+      .slice(0, TOP),
+    countries: rows(account.countries, countryLabel),
     devices: rows(account.devices, (v) => DEVICES[v.toLowerCase()] ?? (v || "Unknown")),
   };
 }
 
+/** Change against the previous period as a whole percentage, or null when there is nothing to compare. */
+export function change(current: number, previous: number): number | null {
+  if (previous === 0) return null;
+  return Math.round(((current - previous) / previous) * 100);
+}
+
 const ENDPOINT = "https://api.cloudflare.com/client/v4/graphql";
 
-/** Visits for the range, cached for 15 minutes so the page stays fast. */
+/** Analytics for the range, cached for 15 minutes so the page stays fast. */
 export async function fetchWebsiteStats(
   config: AnalyticsConfig,
   days: RangeDays,
