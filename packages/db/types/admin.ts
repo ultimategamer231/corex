@@ -676,6 +676,54 @@ export type Database = {
         };
         Relationships: [];
       };
+      expenses: {
+        Row: {
+          amount_minor: number;
+          category: string;
+          client_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          currency: string;
+          description: string;
+          id: string;
+          spent_on: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_minor: number;
+          category: string;
+          client_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          currency: string;
+          description: string;
+          id?: string;
+          spent_on: string;
+          updated_at?: string;
+        };
+        Update: {
+          amount_minor?: number;
+          category?: string;
+          client_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          currency?: string;
+          description?: string;
+          id?: string;
+          spent_on?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "expenses_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       files: {
         Row: {
           bucket_path: string;
@@ -1536,6 +1584,63 @@ export type Database = {
           },
         ];
       };
+      support_tickets: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          created_by: string | null;
+          details: string | null;
+          id: string;
+          kind: string;
+          opened_on: string;
+          priority: string;
+          resolution: string | null;
+          resolved_on: string | null;
+          status: string;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          details?: string | null;
+          id?: string;
+          kind?: string;
+          opened_on?: string;
+          priority?: string;
+          resolution?: string | null;
+          resolved_on?: string | null;
+          status?: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          details?: string | null;
+          id?: string;
+          kind?: string;
+          opened_on?: string;
+          priority?: string;
+          resolution?: string | null;
+          resolved_on?: string | null;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       trusted_devices: {
         Row: {
           created_at: string;
@@ -1715,6 +1820,7 @@ export type Database = {
           percent: number;
         }[];
       };
+      money_report: { Args: { p_year: number }; Returns: Json };
       money_text: { Args: { p_currency: string; p_minor: number }; Returns: string };
       next_display_number: { Args: { p_kind: string; p_on: string }; Returns: string };
       next_document_number: { Args: { p_kind: string }; Returns: number };

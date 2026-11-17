@@ -19,6 +19,7 @@ export function FormDialog({
   triggerLabel,
   triggerVariant = "secondary",
   triggerIcon,
+  triggerName,
   title,
   description,
   submitLabel = "Save",
@@ -28,6 +29,8 @@ export function FormDialog({
   triggerLabel: string;
   triggerVariant?: ButtonProps["variant"];
   triggerIcon?: React.ReactNode;
+  /** A fuller name for screen readers when several triggers share a short label. */
+  triggerName?: string;
   title: string;
   description?: string;
   submitLabel?: string;
@@ -37,7 +40,7 @@ export function FormDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={triggerVariant} size="sm">
+        <Button variant={triggerVariant} size="sm" aria-label={triggerName}>
           {triggerIcon}
           {triggerLabel}
         </Button>

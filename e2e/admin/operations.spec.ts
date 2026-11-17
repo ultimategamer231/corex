@@ -252,3 +252,67 @@ test("system status lists down sites first with their uptime (audit round A3)", 
   await expect(rows.nth(2)).toContainText("Website");
   await expect(rows.nth(2)).toContainText("100%");
 });
+
+test("the money report shows income, expenses and what is left, per currency (audit round A4)", async ({
+  page,
+}) => {
+  await setWidth(page, 1440);
+  await open(page, "/money");
+  await expect(page.getByRole("heading", { level: 1, name: "Money report" })).toBeVisible();
+  const usd = page.getByRole("region", { name: "US dollars" });
+  await expect(usd.getByRole("term").filter({ hasText: "Spent" })).toBeVisible();
+  await expect(usd.getByRole("region", { name: "USD by month" })).toBeVisible();
+  const expenses = page.getByRole("region", { name: /^List of expenses in \d{4}$/ });
+  await expect(expenses).toContainText("Vercel Pro");
+
+  await page.getByRole("button", { name: "Add expense" }).click();
+  const dialog = page.getByRole("dialog", { name: "Add an expense" });
+  await dialog.getByLabel("Category").selectOption("software");
+  await dialog.getByLabel("What it was for").fill("Design tool, one month");
+  await dialog.getByLabel("Amount").fill("12.50");
+  await dialog.getByRole("button", { name: "Add expense" }).click();
+  await expect(dialog.getByText("Expense added.")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(expenses).toContainText("Design tool, one month");
+  await expect(usd).toContainText("Software");
+
+  await page.getByRole("button", { name: "Remove Design tool, one month" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Remove expense" }).click();
+  await expect(expenses).not.toContainText("Design tool, one month");
+});
+
+test("the support log records a client's issues and keeps resolved ones (audit round A5)", async ({
+  page,
+}) => {
+  await setWidth(page, 1440);
+  await open(page, "/support");
+  const list = page.getByRole("region", { name: "Support items" });
+  await expect(list).toContainText("Receipts print blank");
+  await expect(list).not.toContainText("Add a second cashier account");
+  await page.getByRole("link", { name: "All, with resolved" }).click();
+  await expect(list).toContainText("Add a second cashier account");
+
+  await page.getByRole("button", { name: "Add support item" }).click();
+  const add = page.getByRole("dialog", { name: "Add a support item" });
+  await add.getByLabel("Client").selectOption({ label: "Riverside Traders" });
+  await add.getByLabel("Short title").fill("Monthly report shows last year");
+  await add.getByRole("button", { name: "Add item" }).click();
+  await expect(add.getByText("Support item added.")).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("button", { name: "Update Monthly report shows last year" }).click();
+  const update = page.getByRole("dialog", { name: "Monthly report shows last year" });
+  await update.getByLabel("Status").selectOption("resolved");
+  await update.getByLabel("What was done").fill("Fixed the year filter");
+  await update.getByRole("button", { name: "Save" }).click();
+  await expect(update.getByText("Marked resolved.")).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  await list.getByRole("link", { name: "Riverside Traders" }).first().click();
+  await page
+    .getByRole("navigation", { name: "Client sections" })
+    .getByRole("link", { name: "Support" })
+    .click();
+  const client = page.getByRole("region", { name: "Support for this client" });
+  await expect(client).toContainText("Done: Fixed the year filter");
+});

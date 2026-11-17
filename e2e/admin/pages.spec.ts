@@ -27,6 +27,8 @@ const appPages = [
   "/settings/company",
   "/analytics",
   "/status",
+  "/money",
+  "/support",
 ];
 
 test("signed-out pages pass at every width", async ({ page }) => {
