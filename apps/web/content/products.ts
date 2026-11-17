@@ -1,4 +1,5 @@
 // The three ready-built systems (SPEC.md 6.1-6.3). Copy from the website mockup.
+import type { Shot } from "@/components/product-shot";
 import type { PriceRow } from "./pricing";
 
 export type ProductSlug = "school" | "clinic" | "finance";
@@ -33,8 +34,10 @@ export type Product = {
   editions?: { feature: string; college: string; highSchool: string }[];
   roles: { role: string; can: string }[];
   callout?: string;
-  /** Screens shown in the Screenshots section (SPEC.md 6.3). */
-  screens: { title: string; description: string }[];
+  /** Real screens from the demo for the page hero (computer and phone), in public/screens. */
+  shots: { desktop: Shot; phone: Shot };
+  /** Screens shown in the Screenshots section (SPEC.md 6.3), each a real demo screen. */
+  screens: { title: string; description: string; image: Shot }[];
   demos: Demo[];
   priceIds: PriceRow["id"][];
   faqs: { q: string; a: string }[];
@@ -169,18 +172,42 @@ export const products: Record<ProductSlug, Product> = {
         can: "Their children’s published grades, attendance and balance (High School).",
       },
     ],
+    shots: {
+      desktop: {
+        src: "/screens/school-dashboard.webp",
+        alt: "The registrar's dashboard in the College demo: 300 active students, students by program and course registrations to approve.",
+      },
+      phone: {
+        src: "/screens/school-dashboard-phone.webp",
+        alt: "The same dashboard on a phone.",
+      },
+    },
     screens: [
       {
         title: "Registrar dashboard",
-        description: "Enrollment, attendance today, fees collected and items waiting for approval.",
+        description:
+          "Enrollment, attendance today, students by program and items waiting for approval.",
+        image: {
+          src: "/screens/school-dashboard.webp",
+          alt: "The registrar's dashboard with students by program and course registrations to approve.",
+        },
       },
       {
-        title: "Grade approval",
-        description: "Submitted grades by class, approved and locked by the registrar.",
+        title: "Course registration",
+        description:
+          "Each student's course plan, approved or returned by the registrar, with seats taken.",
+        image: {
+          src: "/screens/school-registration.webp",
+          alt: "Course plans waiting for the registrar, with Approve and Reject buttons for each course.",
+        },
       },
       {
         title: "Fees and receipts",
         description: "Invoices, part payments and debtor balances in USD and LRD.",
+        image: {
+          src: "/screens/school-fees.webp",
+          alt: "The Fees page with amounts collected in LRD and USD and the button to issue term invoices.",
+        },
       },
     ],
     demos: [
@@ -316,15 +343,37 @@ export const products: Record<ProductSlug, Product> = {
     ],
     callout:
       "Clinical notes are visible only to doctors, and vitals only to doctors and nurses. Every time a patient record is opened, the system records who opened it and when.",
+    shots: {
+      desktop: {
+        src: "/screens/clinic-today.webp",
+        alt: "The Today page in the Clinic demo: patients seen, appointments, the queue and visits per day.",
+      },
+      phone: { src: "/screens/clinic-today-phone.webp", alt: "The same page on a phone." },
+    },
     screens: [
-      { title: "Today", description: "Patients seen, appointments and revenue for the day." },
+      {
+        title: "Today",
+        description: "Patients seen, appointments, the queue and visits over the last week.",
+        image: {
+          src: "/screens/clinic-today.webp",
+          alt: "The Today page with patients seen, appointments, the queue and a chart of visits per day.",
+        },
+      },
       {
         title: "Walk-in queue",
         description: "Each patient from arrival, to the nurse, to the doctor.",
+        image: {
+          src: "/screens/clinic-queue.webp",
+          alt: "The queue with each patient's arrival time and status, and a Send to nurse button.",
+        },
       },
       {
         title: "Billing",
-        description: "Invoices from visit services, part payments and receipts.",
+        description: "Bills from visit services, part payments and receipts.",
+        image: {
+          src: "/screens/clinic-billing.webp",
+          alt: "The Billing page with visits still to bill and the list of bills in USD and LRD.",
+        },
       },
     ],
     demos: [
@@ -431,10 +480,38 @@ export const products: Record<ProductSlug, Product> = {
       { role: "Accountant", can: "Transactions, invoices, payroll preparation and reports." },
       { role: "Staff", can: "Records income and expenses only. No payroll or exports." },
     ],
+    shots: {
+      desktop: {
+        src: "/screens/finance-overview.webp",
+        alt: "The Overview page in the Finance demo with bank, cash and mobile money balances.",
+      },
+      phone: { src: "/screens/finance-overview-phone.webp", alt: "The same page on a phone." },
+    },
     screens: [
-      { title: "Overview", description: "Income and expenses by month and your cash position." },
-      { title: "Overdue invoices", description: "Who owes you, and for how long." },
-      { title: "Payroll", description: "Monthly runs approved by the owner, with payslips." },
+      {
+        title: "Overview",
+        description: "Your bank, cash and mobile money balances, income and expenses.",
+        image: {
+          src: "/screens/finance-overview.webp",
+          alt: "The Overview page with account balances in USD and LRD.",
+        },
+      },
+      {
+        title: "Unpaid invoices",
+        description: "Who owes you, how much, and when it was due.",
+        image: {
+          src: "/screens/finance-invoices.webp",
+          alt: "The list of unpaid invoices with customer, due date, total and balance.",
+        },
+      },
+      {
+        title: "Payroll",
+        description: "Monthly runs approved by the owner, with payslips.",
+        image: {
+          src: "/screens/finance-payroll.webp",
+          alt: "Payroll runs by month, each marked paid, with the number of payslips and net pay.",
+        },
+      },
     ],
     demos: [
       {

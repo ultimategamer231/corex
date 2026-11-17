@@ -4,11 +4,11 @@ import { ArrowRight, Info, Lock } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AppPreview } from "@/components/app-preview";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CheckList } from "@/components/check-list";
 import { CtaBand } from "@/components/cta-band";
 import { Faq } from "@/components/faq";
+import { BrowserShot, ProductShot } from "@/components/product-shot";
 import { JsonLd } from "@/components/json-ld";
 import { Container, Section, SectionHeader } from "@/components/layout";
 import { Reveal } from "@/components/reveal";
@@ -110,7 +110,7 @@ export default async function ProductPage({ params }: Props) {
               </div>
             </div>
             <div className="rounded-4xl bg-tint p-[clamp(12px,2vw,24px)]">
-              <AppPreview kind={p.slug} />
+              <ProductShot desktop={p.shots.desktop} phone={p.shots.phone} />
             </div>
           </div>
         </Container>
@@ -235,12 +235,12 @@ export default async function ProductPage({ params }: Props) {
           <SectionHeader
             titleId="screens-title"
             title="Screens from the system"
-            lead="Illustrations with sample data. Log in to the demo to use the real screens."
+            lead="Real screens from the demo, with sample data. Log in to the demo to try them."
           />
           <ul className="grid gap-6 md:grid-cols-3">
             {p.screens.map((screen) => (
               <li key={screen.title} className="flex flex-col gap-3">
-                <AppPreview kind={p.slug} size="compact" />
+                <BrowserShot shot={screen.image} sizes="(min-width: 768px) 30vw, 92vw" />
                 <p className="font-display font-bold">{screen.title}</p>
                 <p className="text-sm leading-relaxed text-muted">{screen.description}</p>
               </li>
