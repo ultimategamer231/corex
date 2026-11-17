@@ -1723,6 +1723,7 @@ export type Database = {
         Returns: string;
       };
       product_label: { Args: { p_product: string }; Returns: string };
+      purge_stale_leads: { Args: { p_before?: string }; Returns: number };
       rate_limit_hits: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
       record_payment: {
         Args: {
@@ -1754,6 +1755,7 @@ export type Database = {
       refresh_invoice_status: { Args: { p_invoice_id: string }; Returns: string };
       remove_sample_data: { Args: Record<PropertyKey, never>; Returns: Json };
       require_billing_role: { Args: Record<PropertyKey, never>; Returns: undefined };
+      retention_purging: { Args: Record<PropertyKey, never>; Returns: boolean };
       save_invoice_draft: { Args: { p: Json; p_invoice_id: string }; Returns: string };
       status_overview: {
         Args: Record<PropertyKey, never>;

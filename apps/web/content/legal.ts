@@ -16,7 +16,7 @@ export type LegalDoc = {
 };
 
 /** Shown as "Last updated" on every legal page. Change it whenever the text changes. */
-export const legalUpdated = { iso: "2026-11-16", label: "16 November 2026" };
+export const legalUpdated = { iso: "2026-11-17", label: "17 November 2026" };
 
 const contactLine = `email ${site.email.address}, call or WhatsApp +${site.whatsapp.primary}, or visit us at ${site.address.street}, ${site.address.city}, ${site.address.country}`;
 
@@ -230,6 +230,7 @@ export const legalDocs: Record<LegalSlug, LegalDoc> = {
           {
             list: [
               "Quote requests that do not lead to a contract: deleted 1 year after our last contact.",
+              "Our internal activity log, which records changes to our records for security, keeps a copy of each request, including your contact details. Only Corex staff can see it, and it cannot be edited.",
               "Client records, contracts, invoices and receipts: kept as long as the law requires for business and tax records.",
               "Website visit counts: kept as summaries that do not identify you.",
             ],
