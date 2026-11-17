@@ -71,7 +71,7 @@ const SUMMARIES: Record<string, string> = {
   "school:bursar": "Issues fee invoices, records payments and prints receipts.",
   "school:student": "Sees report cards, attendance and the fee balance.",
   "school:parent": "Follows their child's marks, attendance and fees.",
-  "clinic:admin": "Sees everything: patients, billing, reports and settings.",
+  "clinic:admin": "Sees patients, appointments, reports and settings, and manages staff.",
   "clinic:doctor": "Opens visits, writes notes, diagnoses and prescriptions.",
   "clinic:nurse": "Records vital signs and prepares patients for the doctor.",
   "clinic:reception": "Registers patients, books appointments and runs the queue.",
