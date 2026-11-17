@@ -164,3 +164,37 @@ test("sends the security headers", async ({ request }) => {
   expect(headers["permissions-policy"]).toContain("camera=()");
   expect(headers["x-powered-by"]).toBeUndefined();
 });
+
+test("the phone menu keeps Software and Services closed until tapped", async ({ page }) => {
+  await setWidth(page, 390);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Menu" }).click();
+  const menu = page.getByRole("navigation", { name: "Main" });
+  await expect(menu.getByRole("link", { name: "Clinic Management" })).toBeHidden();
+  await menu.getByRole("button", { name: "Software" }).click();
+  await expect(menu.getByRole("link", { name: "Clinic Management" })).toBeVisible();
+  // Opening Services closes Software: one group at a time.
+  await menu.getByRole("button", { name: "Services" }).click();
+  await expect(menu.getByRole("link", { name: "Clinic Management" })).toBeHidden();
+  await expect(menu.getByRole("link", { name: "IT Consultancy" })).toBeVisible();
+  await expectNoSeriousA11yViolations(page);
+});
+
+test("desktop menus open when the mouse points at them", async ({ page }) => {
+  await setWidth(page, 1440);
+  await page.goto("/");
+  const nav = page.getByRole("banner").getByRole("navigation", { name: "Main" });
+  await nav.getByRole("button", { name: "Software" }).hover();
+  await expect(page.getByRole("menuitem", { name: /Clinic Management/ })).toBeVisible();
+  await nav.getByRole("button", { name: "Services" }).hover();
+  await expect(page.getByRole("menuitem", { name: /IT Consultancy/ })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: /Clinic Management/ })).toBeHidden();
+});
+
+test("the hero fits a 13 inch laptop screen without scrolling", async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 650 });
+  await page.goto("/");
+  const hero = page.locator("main section").first();
+  const box = await hero.boundingBox();
+  expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(650);
+});
