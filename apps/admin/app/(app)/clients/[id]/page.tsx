@@ -28,6 +28,7 @@ import { ClientStatusBadge } from "@/components/clients/status-badge";
 import { InvoiceStatusBadge } from "@/components/invoices/status-badge";
 import { ConfirmAction } from "@/components/confirm-action";
 import { FormDialog } from "@/components/form-dialog";
+import { AddSupportDialog, type SupportItem, SupportTable } from "@/components/support-list";
 import { changeLines } from "@/lib/activity";
 import {
   CLIENT_PLANS,
@@ -51,6 +52,7 @@ const TABS = [
   ["invoices", "Invoices"],
   ["contacts", "Contacts"],
   ["documents", "Documents"],
+  ["support", "Support"],
   ["activity", "Activity"],
 ] as const;
 type Tab = (typeof TABS)[number][0];
@@ -210,6 +212,7 @@ export default async function ClientPage({ params, searchParams }: Props) {
       {tab === "invoices" ? <ClientInvoices id={id} /> : null}
       {tab === "contacts" ? <Contacts id={id} /> : null}
       {tab === "documents" ? <Documents id={id} /> : null}
+      {tab === "support" ? <Support id={id} /> : null}
       {tab === "activity" ? <Activity id={id} /> : null}
     </div>
   );
@@ -908,6 +911,39 @@ function Detail({ term, children }: { term: string; children: React.ReactNode })
       <dt className="text-sm font-semibold text-muted">{term}</dt>
       <dd className="text-[15px] text-ink">{children}</dd>
     </div>
+  );
+}
+
+async function Support({ id }: { id: string }) {
+  const { supabase } = await getAdminSession();
+  const { data, error } = await supabase
+    .from("support_tickets")
+    .select(
+      "id, client_id, opened_on, kind, priority, title, details, status, resolved_on, resolution",
+    )
+    .eq("client_id", id)
+    .order("status")
+    .order("opened_on", { ascending: false });
+  if (error) throw new Error(error.message);
+  const items = (data ?? []) as SupportItem[];
+  const open = items.filter((t) => t.status !== "resolved").length;
+  return (
+    <section aria-labelledby="support-h" className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 id="support-h" className="font-display text-xl font-bold text-ink">
+            Support
+          </h2>
+          <p className="text-[15px] text-ink-soft">
+            {items.length === 0
+              ? "Nothing recorded yet."
+              : `${items.length} item${items.length === 1 ? "" : "s"}, ${open} open.`}
+          </p>
+        </div>
+        <AddSupportDialog clients={[]} clientId={id} />
+      </div>
+      {items.length > 0 ? <SupportTable items={items} label="Support for this client" /> : null}
+    </section>
   );
 }
 

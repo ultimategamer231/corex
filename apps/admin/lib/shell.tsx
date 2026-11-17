@@ -1,6 +1,8 @@
 import type { ShellNavItem } from "@corex/ui/shell";
 import {
   Activity,
+  LifeBuoy,
+  PiggyBank,
   FileText,
   History,
   LayoutDashboard,
@@ -18,6 +20,8 @@ export const NAV: ShellNavItem[] = [
   { href: "/clients", label: "Clients", icon: <Building2 />, primary: true },
   { href: "/subscriptions", label: "Subscriptions", icon: <RefreshCw /> },
   { href: "/invoices", label: "Invoices and receipts", icon: <FileText />, primary: true },
+  { href: "/support", label: "Support", icon: <LifeBuoy /> },
+  { href: "/money", label: "Money report", icon: <PiggyBank /> },
   { href: "/analytics", label: "Analytics", icon: <ChartColumn /> },
   { href: "/status", label: "System status", icon: <Activity /> },
   { href: "/settings/team", label: "Settings", icon: <Settings /> },

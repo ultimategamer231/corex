@@ -22,6 +22,7 @@ export function ConfirmAction({
   action,
   fields,
   triggerLabel,
+  triggerName,
   title,
   description,
   confirmLabel,
@@ -34,6 +35,8 @@ export function ConfirmAction({
   action: (previous: FormState, formData: FormData) => Promise<FormState>;
   fields: Record<string, string>;
   triggerLabel: string;
+  /** A fuller name for screen readers when several triggers share a short label. */
+  triggerName?: string;
   title: string;
   description: string;
   confirmLabel: string;
@@ -47,7 +50,7 @@ export function ConfirmAction({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={triggerVariant} size={triggerSize}>
+        <Button variant={triggerVariant} size={triggerSize} aria-label={triggerName}>
           {triggerLabel}
         </Button>
       </DialogTrigger>

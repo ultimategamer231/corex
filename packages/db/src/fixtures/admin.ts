@@ -101,6 +101,7 @@ export async function seedAdminFixture(
   await seedInvoices(sql, s);
   await seedPriceList(sql, s);
   await seedStatusChecks(sql, s);
+  await seedMoneyAndSupport(sql, s);
   return { schema: s, users };
 }
 
@@ -464,5 +465,22 @@ async function seedStatusChecks(sql: Db, s: string): Promise<void> {
      ('Clinic demo', 'https://demo-clinic.example.org', true, 200, 610, null, now() - interval '20 minutes'),
      ('Website', 'https://www.example.org', true, 200, 380, null, now() - interval '10 minutes'),
      ('Clinic demo', 'https://demo-clinic.example.org', false, 503, 900, 'The site answered with status 503', now() - interval '10 minutes')`,
+  );
+}
+
+/** Two of Corex's own expenses this month and two support items for Riverside Traders. */
+async function seedMoneyAndSupport(sql: Db, s: string): Promise<void> {
+  await sql.unsafe(
+    `insert into ${s}.expenses (spent_on, category, description, amount_minor, currency) values
+     (current_date, 'hosting', 'Vercel Pro', 2000, 'USD'),
+     (current_date, 'domains', 'corexlr.com renewal', 1500, 'USD')`,
+  );
+  await sql.unsafe(
+    `insert into ${s}.support_tickets (client_id, kind, priority, title, details, status, resolution)
+     select id, 'issue', 'high', 'Receipts print blank', 'Since the printer was changed', 'open', null
+     from ${s}.clients where name = 'Riverside Traders'
+     union all
+     select id, 'request', 'normal', 'Add a second cashier account', null, 'resolved', 'Account added'
+     from ${s}.clients where name = 'Riverside Traders'`,
   );
 }
