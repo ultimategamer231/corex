@@ -1,17 +1,23 @@
 import { Badge } from "@corex/ui/components/badge";
 import { buttonVariants } from "@corex/ui/components/button";
 import { PageHeader } from "@corex/ui/components/page-header";
+import { BarSeries } from "@corex/ui/components/dashboard";
 import { Stat } from "@corex/ui/components/stat";
+import { DemoChecklist } from "@corex/ui/shell";
+import { demoSteps } from "@corex/core/demo";
+import { CalendarDays, ListOrdered, Receipt, UserCheck, Wallet } from "lucide-react";
 import { CURRENCIES } from "@corex/core/money";
 import Link from "next/link";
 import { Section } from "@/components/section";
 import { appointmentStatus, dayBounds, loadClinicians, timeOf } from "@/lib/clinic";
+import { demoInstance, quoteUrl } from "@/lib/demo";
 import { money, personName, todayIso } from "@/lib/format";
 import { getSettings } from "@/lib/org";
 import { monthToDate } from "@/lib/period";
 import { rows, selectAll } from "@/lib/queries";
 import { CLINICIAN, FRONT_DESK, REPORTS } from "@/lib/roles";
 import { getSession, memberHas, type Session } from "@/lib/session";
+import { navFor } from "@/lib/shell";
 
 /** Today (SPEC.md 8.4): the day's work, plus money for the Admin and Cashier. */
 export default async function TodayPage() {
@@ -22,7 +28,28 @@ export default async function TodayPage() {
   const today = todayIso(tz);
   const bounds = dayBounds(today, tz);
   const { supabase } = session;
-  const [visits, appointments, waiting] = await Promise.all([
+  // The last seven days, oldest first, for the visits chart.
+  const week = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(`${today}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - 6 + i);
+    return d.toISOString().slice(0, 10);
+  });
+  const weekStart = dayBounds(week[0] ?? today, tz).start;
+  const demo = demoInstance();
+  const steps = demo
+    ? demoSteps(
+        demo,
+        navFor(member.roles).map((n) => n.href),
+      )
+    : [];
+  const [recent, visits, appointments, waiting] = await Promise.all([
+    supabase
+      .from("encounters")
+      .select("opened_at")
+      .gte("opened_at", weekStart)
+      .lt("opened_at", bounds.end)
+      .limit(5000)
+      .then(rows),
     supabase
       .from("encounters")
       .select("patient_id")
@@ -69,17 +96,53 @@ export default async function TodayPage() {
         <Section title="Patients" id="patients">
           <div className="grid gap-4 sm:grid-cols-3">
             <Stat
+              icon={<UserCheck />}
               label="Patients seen today"
               value={new Set(visits.map((v) => v.patient_id)).size}
             />
             <Stat
+              icon={<CalendarDays />}
               label="Appointments today"
               value={appointments.count ?? 0}
               detail="Not counting cancelled"
             />
-            <Stat label="In the queue" value={waiting.count ?? 0} detail="Waiting or being seen" />
+            <Stat
+              icon={<ListOrdered />}
+              label="In the queue"
+              value={waiting.count ?? 0}
+              detail="Waiting or being seen"
+            />
           </div>
         </Section>
+        <div className={steps.length > 0 ? "grid gap-4 lg:grid-cols-[1.6fr_1fr]" : "grid gap-4"}>
+          <BarSeries
+            id="visits-chart-title"
+            title="Visits per day"
+            caption="Last 7 days"
+            unit="Visits"
+            bars={week.map((day) => {
+              const next = dayBounds(day, tz);
+              const n = recent.filter(
+                (v) => v.opened_at >= next.start && v.opened_at < next.end,
+              ).length;
+              return {
+                label: new Date(`${day}T12:00:00Z`).toLocaleDateString("en-GB", {
+                  timeZone: "UTC",
+                  weekday: "short",
+                }),
+                value: n,
+                text: `${n} ${n === 1 ? "visit" : "visits"}`,
+              };
+            })}
+          />
+          {demo && steps.length > 0 ? (
+            <DemoChecklist
+              storageKey={`corex-demo-${demo.name}`}
+              steps={steps}
+              quoteUrl={quoteUrl(demo)}
+            />
+          ) : null}
+        </div>
         {showMoney ? <Money session={session} today={today} timezone={tz} /> : null}
         {frontDesk ? <TodayAppointments session={session} bounds={bounds} timezone={tz} /> : null}
       </div>
@@ -158,14 +221,17 @@ async function Money({
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Stat
+          icon={<Wallet />}
           label="Received today"
           value={<PerCurrency amount={(c) => sum((p) => p.received_at >= todayStart, c)} />}
         />
         <Stat
+          icon={<Wallet />}
           label="Received this month"
           value={<PerCurrency amount={(c) => sum(() => true, c)} />}
         />
         <Stat
+          icon={<Receipt />}
           label="Outstanding balances"
           value={<PerCurrency amount={owed} />}
           detail="Issued bills not yet paid"

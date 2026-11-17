@@ -1,10 +1,14 @@
 import { buttonVariants } from "@corex/ui/components/button";
 import { PageHeader } from "@corex/ui/components/page-header";
 import { Stat } from "@corex/ui/components/stat";
+import { DemoChecklist } from "@corex/ui/shell";
+import { demoSteps } from "@corex/core/demo";
+import { Banknote, Landmark, Smartphone } from "lucide-react";
 import { Table, TableScroll, Td, Th } from "@corex/ui/components/table";
 import Link from "next/link";
 import { CategoryChart, IncomeExpenseChart } from "@/components/charts";
 import { Section } from "@/components/section";
+import { demoInstance, quoteUrl } from "@/lib/demo";
 import { ACCOUNT_TYPES, loadAccounts, loadCategories, loadCounterparties } from "@/lib/finance";
 import { date, money, todayIso } from "@/lib/format";
 import { baseIncomeExpense, monthOf, monthsBetween } from "@/lib/ledger";
@@ -14,12 +18,47 @@ import { rows } from "@/lib/queries";
 import { entriesIn } from "@/lib/reports";
 import { MANAGER } from "@/lib/roles";
 import { getSession, memberHas, type Session } from "@/lib/session";
+import { navFor } from "@/lib/shell";
 
 export default async function OverviewPage() {
   const session = await getSession();
+  const demo = demoInstance();
+  const steps = demo
+    ? demoSteps(
+        demo,
+        navFor(session.member.roles).map((n) => n.href),
+      )
+    : [];
   return (
     <>
-      <PageHeader title="Overview" description={`Welcome, ${session.member.displayName}.`} />
+      <PageHeader
+        title="Overview"
+        description={`Welcome, ${session.member.displayName}.`}
+        actions={
+          <>
+            <Link
+              className={buttonVariants({ variant: "accent" })}
+              href="/transactions/new?type=income"
+            >
+              Record income
+            </Link>
+            <Link
+              className={buttonVariants({ variant: "secondary" })}
+              href="/transactions/new?type=expense"
+            >
+              Record expense
+            </Link>
+          </>
+        }
+      />
+      {demo && steps.length > 0 ? (
+        <DemoChecklist
+          className="mb-8"
+          storageKey={`corex-demo-${demo.name}`}
+          steps={steps}
+          quoteUrl={quoteUrl(demo)}
+        />
+      ) : null}
       {memberHas(session.member, MANAGER) ? (
         <ManagerOverview session={session} />
       ) : (
@@ -119,6 +158,15 @@ async function ManagerOverview({ session }: { session: Session }) {
             .map((a) => (
               <Stat
                 key={a.id}
+                icon={
+                  a.type === "bank" ? (
+                    <Landmark />
+                  ) : a.type === "mobile_money" ? (
+                    <Smartphone />
+                  ) : (
+                    <Banknote />
+                  )
+                }
                 label={a.name}
                 value={money(a.balance_minor, a.currency)}
                 detail={ACCOUNT_TYPES[a.type]}

@@ -1,4 +1,5 @@
-import { DemoBanner } from "@corex/ui/shell";
+import { demoSteps } from "@corex/core/demo";
+import { DemoBanner, DemoStepTracker } from "@corex/ui/shell";
 import type * as React from "react";
 import { signOut } from "../(auth)/actions";
 import { syncOutbox } from "./sync-actions";
@@ -14,6 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const { member } = await getSession();
   const settings = await getSettings();
   const demo = demoInstance();
+  const nav = navFor(member.roles, schoolEnv().edition);
   return (
     <OfflineShell
       userId={member.userId}
@@ -21,9 +23,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       signOut={signOut}
       banner={demo ? <DemoBanner quoteUrl={quoteUrl(demo)} /> : undefined}
       org={{ name: settings.orgName, logoUrl: null, corexBrand: Boolean(demo) }}
-      nav={navFor(member.roles, schoolEnv().edition)}
+      nav={nav}
       user={{ displayName: member.displayName, roleLabel: roleLabel(member.roles) }}
     >
+      {demo ? (
+        <DemoStepTracker
+          storageKey={`corex-demo-${demo.name}`}
+          steps={demoSteps(
+            demo,
+            nav.map((n) => n.href),
+          )}
+        />
+      ) : null}
       {children}
     </OfflineShell>
   );
