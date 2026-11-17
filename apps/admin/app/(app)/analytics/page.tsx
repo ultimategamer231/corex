@@ -16,11 +16,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type * as React from "react";
 import { getAdminSession } from "@/lib/session";
+import type { AdminDb } from "@/lib/supabase";
 import {
   analyticsConfig,
   change,
   fetchWebsiteStats,
   RANGES,
+  demoVisitsSince,
   rangeFrom,
   type RangeDays,
   type Row,
@@ -43,7 +45,7 @@ const dayLabel = (date: string, style: "short" | "long") =>
 
 /** Visits to www.corexlr.com from Cloudflare Web Analytics (docs/seo.md, step 5). */
 export default async function AnalyticsPage({ searchParams }: Props) {
-  await getAdminSession();
+  const { supabase } = await getAdminSession();
   const days = rangeFrom((await searchParams).days);
   const config = analyticsConfig(process.env);
 
@@ -101,7 +103,79 @@ export default async function AnalyticsPage({ searchParams }: Props) {
       ) : (
         <Report stats={stats} days={days} />
       )}
+
+      <DemoVisits supabase={supabase} />
     </div>
+  );
+}
+
+const DEMO_NAMES: Record<string, string> = {
+  college: "College demo",
+  highschool: "High School demo",
+  clinic: "Clinic demo",
+  finance: "Finance demo",
+};
+
+const roleName = (role: string) =>
+  role === "super_admin"
+    ? "Admin"
+    : role.charAt(0).toUpperCase() + role.slice(1).replace(/_/g, " ");
+
+/** Sign-ins on the public demos in the last 30 days, per demo and role (F3). */
+async function DemoVisits({ supabase }: { supabase: AdminDb }) {
+  const since = demoVisitsSince();
+  const { data, error } = await supabase
+    .from("demo_visits")
+    .select("day, demo, role, sign_ins")
+    .gte("day", since);
+  if (error) throw new Error(error.message);
+  const byDemo = new Map<string, { total: number; roles: Map<string, number> }>();
+  for (const v of data ?? []) {
+    const d = byDemo.get(v.demo) ?? { total: 0, roles: new Map<string, number>() };
+    d.total += v.sign_ins;
+    d.roles.set(v.role, (d.roles.get(v.role) ?? 0) + v.sign_ins);
+    byDemo.set(v.demo, d);
+  }
+  const demos = [...byDemo.entries()].sort((a, b) => b[1].total - a[1].total);
+  return (
+    <section
+      aria-labelledby="demo-visits-h"
+      className="overflow-hidden rounded-xl border border-border bg-background"
+    >
+      <div className="border-b border-border-subtle px-5 py-4">
+        <h2 id="demo-visits-h" className="font-display text-lg font-bold text-ink">
+          Demo visits, last 30 days
+        </h2>
+        <p className="text-sm text-muted">
+          Sign-ins on the public demos, by role. Only the count is kept, nothing about the visitor.
+        </p>
+      </div>
+      {demos.length === 0 ? (
+        <p className="px-5 py-6 text-ink-soft">
+          No demo sign-ins recorded yet. Each demo reports them once DEMO_VISITS_URL and
+          DEMO_VISITS_SECRET are set (apps/admin/README.md).
+        </p>
+      ) : (
+        <ul className="divide-y divide-border-subtle">
+          {demos.map(([demo, d]) => (
+            <li
+              key={demo}
+              className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-5 py-3"
+            >
+              <span className="font-semibold text-ink">
+                {DEMO_NAMES[demo] ?? demo}: {number(d.total)} sign-in{d.total === 1 ? "" : "s"}
+              </span>
+              <span className="text-sm text-ink-soft">
+                {[...d.roles.entries()]
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([role, n]) => `${roleName(role)} ${number(n)}`)
+                  .join(" · ")}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

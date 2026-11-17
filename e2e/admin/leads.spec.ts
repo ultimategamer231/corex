@@ -116,21 +116,43 @@ test("stage changes need a reason for Lost and every entry stays on the timeline
   await expect(timeline.getByText("Stage changed from Lost to Contacted.")).toBeVisible();
 });
 
-test("a quote is kept in the currency it was given and noted on the timeline", async ({ page }) => {
+test("a quote lists its items, gets a number and a PDF, and fills the WhatsApp messages", async ({
+  page,
+}) => {
   await openLead(page, "Saint Luke", "Saint Luke's Clinic");
   const quote = page.getByRole("form", { name: "Quote" });
-  await quote.getByLabel("Amount").fill("0");
+  await quote.getByLabel("Item 1").fill("Clinic Management");
+  await quote.getByLabel("Price 1").fill("0");
   await quote.getByRole("button", { name: "Save quote" }).click();
-  await expect(quote.getByText("Enter an amount above zero")).toBeVisible();
+  await expect(quote.getByText("Add at least one item with an amount above zero")).toBeVisible();
   await quote.getByLabel("Currency").selectOption("LRD");
-  await quote.getByLabel("Amount").fill("150,000");
+  await quote.getByLabel("Price 1").fill("150,000");
+  await quote.getByLabel("Item 2").fill("Staff training day");
+  await quote.getByLabel("Qty 2").fill("2");
+  await quote.getByLabel("Price 2").fill("5,000");
   await quote.getByLabel("What it covers").fill("Clinic Management, Managed plan");
   await quote.getByRole("button", { name: "Save quote" }).click();
   await expect(
     page
       .getByRole("list", { name: "Timeline" })
-      .getByText("Quote prepared: L$150,000.00. Clinic Management, Managed plan."),
+      .getByText("Quote prepared: L$160,000.00. Clinic Management, Managed plan."),
   ).toBeVisible();
+  await expect(page.getByText(/^Quote QT-\d{2}-\d{2}-\d{3}$/)).toBeVisible();
+  await expect(page.getByRole("list", { name: "Quote items" })).toContainText(
+    "2 × Staff training day",
+  );
+
+  const href = await page.getByRole("link", { name: "Download quote PDF" }).getAttribute("href");
+  const pdf = await page.request.get(href ?? "");
+  expect(pdf.headers()["content-type"]).toBe("application/pdf");
+  expect(pdf.headers()["content-disposition"]).toContain("QT-");
+
+  const messages = page.getByRole("list", { name: "Ready messages" });
+  await messages.getByText("Send the quote").click();
+  await expect(messages).toContainText("L$160,000.00, valid until");
+  await expect(messages).toContainText("70% when you approve the mock-up and design");
+  const open = messages.getByRole("link", { name: "Open in WhatsApp: Send the demo" });
+  expect(await open.getAttribute("href")).toMatch(/^https:\/\/wa\.me\/\d+\?text=Hello%20/);
 });
 
 test("the board moves a lead to another stage", async ({ page }) => {

@@ -13,16 +13,18 @@ const FAILED_PER_HOUR = 10;
  */
 export function cronRoute(
   label: string,
-  run: (context: RequestContext) => Promise<Record<string, unknown>>,
+  run: (context: RequestContext, request: Request) => Promise<Record<string, unknown>>,
+  secretName: "CRON_SECRET" | "DEMO_VISITS_SECRET" = "CRON_SECRET",
 ) {
   return async function handle(request: Request): Promise<Response> {
     await connection();
     const given = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? null;
-    if (!process.env.CRON_SECRET) {
-      return Response.json({ ok: false, error: "CRON_SECRET is not set" }, { status: 503 });
+    const secret = process.env[secretName];
+    if (!secret) {
+      return Response.json({ ok: false, error: `${secretName} is not set` }, { status: 503 });
     }
     const context = contextFrom(request.headers);
-    if (!secretMatches(given, process.env.CRON_SECRET)) {
+    if (!secretMatches(given, secret)) {
       const { data: allowed } = await getServiceSupabase(context).rpc("hit_rate_limit", {
         p_key: `cron:${context.ip ?? "unknown"}`,
         p_limit: FAILED_PER_HOUR,
@@ -33,7 +35,7 @@ export function cronRoute(
         : Response.json({ ok: false, error: "Not allowed" }, { status: 401 });
     }
     try {
-      return Response.json({ ok: true, ...(await run(context)) });
+      return Response.json({ ok: true, ...(await run(context, request)) });
     } catch (error) {
       const message = error instanceof Error ? error.message : `The ${label} failed`;
       return Response.json({ ok: false, error: message }, { status: 500 });

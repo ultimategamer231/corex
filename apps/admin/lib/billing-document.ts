@@ -168,33 +168,66 @@ export type QuoteInput = {
   sentOn: string | null;
   note: string | null;
   product: string;
+  /** The quote's items; without them the quote is one line named after the product. */
+  lines?: { description: string; quantity: number; unit_amount_minor: number }[] | null;
+  number?: string | null;
 };
 
-/** A lead's quote (the mockup's "Download quote PDF"), same layout titled QUOTE. */
+/** Days a quote stays valid. */
+export const QUOTE_VALID_DAYS = 30;
+
+/** Payment terms on every quote (owner, 2026-11-14): 70% then 30%. */
+export const QUOTE_PAYMENT_TERMS =
+  "Payment: 70% when you approve the mock-up and design, 30% when you approve the finished system.";
+
+/** The day a quote stops being valid, written out ("17 December 2026"). */
+export function quoteValidUntil(sentOn: string | null, now = new Date()): string {
+  const issued = (sentOn ?? now.toISOString()).slice(0, 10);
+  return fullDay(
+    new Date(Date.parse(`${issued}T00:00:00Z`) + QUOTE_VALID_DAYS * 86_400_000).toISOString(),
+  );
+}
+
+/** A lead's quote: its items, number, date, valid-until date and the payment terms. */
 export function quoteDocument(
   q: QuoteInput,
   billing: BillingSettings,
   now = new Date(),
 ): BillingDocData {
+  const issued = q.sentOn ?? now.toISOString().slice(0, 10);
+  const lines = q.lines?.length
+    ? q.lines.map((l) => ({
+        title: l.description,
+        details: null,
+        quantity: String(l.quantity),
+        unit: money(l.unit_amount_minor, q.currency),
+        amount: money(BigInt(l.quantity) * BigInt(l.unit_amount_minor), q.currency),
+      }))
+    : [
+        {
+          title: q.product,
+          details: q.note,
+          quantity: "1",
+          unit: money(q.amountMinor, q.currency),
+          amount: money(q.amountMinor, q.currency),
+        },
+      ];
   return {
     kind: "quote",
     company: { name: billing.company.name, lines: companyLines(billing) },
-    number: `For ${q.organization}`,
+    number: q.number ?? `For ${q.organization}`,
     watermark: null,
-    meta: [{ label: "Date", value: fullDay(q.sentOn ?? now.toISOString()) }],
-    billTo: { name: q.organization, lines: [q.contact] },
-    lines: [
-      {
-        title: q.product,
-        details: q.note,
-        quantity: "1",
-        unit: money(q.amountMinor, q.currency),
-        amount: money(q.amountMinor, q.currency),
-      },
+    meta: [
+      { label: "Date", value: fullDay(issued) },
+      { label: "Valid until", value: quoteValidUntil(q.sentOn, now) },
     ],
+    billTo: { name: q.organization, lines: [q.contact] },
+    lines,
     totals: [],
     grand: { label: "TOTAL", value: money(q.amountMinor, q.currency), tone: "primary" },
-    note: "This quote is valid for 30 days.",
+    note: [q.lines?.length && q.note ? q.note : null, QUOTE_PAYMENT_TERMS]
+      .filter(Boolean)
+      .join("\n\n"),
     ...footer(billing, billing.termsDays),
     generatedAt: formatDateTime(now),
   };

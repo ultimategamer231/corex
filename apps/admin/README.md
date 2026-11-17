@@ -64,3 +64,5 @@ The admin is installable (Install app in Chrome or Edge, Add to Home Screen on a
 One project, Root Directory `apps/admin`, with the settings in `.env.example`. Going live on `admin.corexlr.com`, step by step: `docs/go-live.md`; day-to-day use: `docs/admin-guide.md` (user guide) and `docs/admin-runbook.md` (owner checklist). Backups and restore of `corex_web`: `docs/restore.md`.
 
 Money report (`/money`) shows payments received and Corex's own expenses by month, per currency, with what is left; add hosting, domains and other costs there. Support (`/support`, and a Support tab on each client) records each client's issues, requests and questions; items are resolved, never deleted.
+
+Demo visits on the Analytics page come from the demos: set `DEMO_VISITS_SECRET` here (32 or more random characters) and, in each demo's Vercel project, `DEMO_VISITS_URL` (this admin's address plus `/api/demo-visit`) and the same `DEMO_VISITS_SECRET`. Only the demo, the role and a daily count are kept.

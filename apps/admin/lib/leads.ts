@@ -218,12 +218,25 @@ export const leadStatusSchema = z
     message: "Say why this lead was lost",
   });
 
-/** A quote: amount in the chosen currency, kept as minor units (CORE-04). */
+/** Rows offered by the quote form; empty rows are skipped. */
+export const QUOTE_ROWS = 4;
+
+const asList = (v: unknown) =>
+  v === undefined ? [] : (Array.isArray(v) ? v : [v]).map((x) => String(x ?? ""));
+
+export type QuoteLine = { description: string; quantity: number; unit_amount_minor: number };
+
+/**
+ * A quote's lines (A1): item, quantity and unit price. The total is their sum, worked
+ * out again by the database. At least one line, and the total above zero.
+ */
 export const quoteSchema = z
   .object({
     leadId: uuid("a lead"),
     currency: z.enum(CURRENCIES, { error: "Choose a currency" }),
-    amount: requiredText("an amount", 20),
+    lineDescription: z.preprocess(asList, z.array(z.string())),
+    lineQuantity: z.preprocess(asList, z.array(z.string())),
+    linePrice: z.preprocess(asList, z.array(z.string())),
     sentOn: z
       .union([isoDate("a date"), z.literal("")])
       .optional()
@@ -231,18 +244,53 @@ export const quoteSchema = z
     note: optionalText.pipe(z.string().max(500, "Use at most 500 characters").nullable()),
   })
   .transform((v, ctx) => {
-    try {
-      const money = parseMajor(v.amount, v.currency);
-      if (money.amountMinor <= 0n) throw new MoneyError("not positive");
-      return { ...v, amountMinor: money.amountMinor };
-    } catch {
+    const lines: QuoteLine[] = [];
+    v.lineDescription.forEach((raw, i) => {
+      const description = raw.trim();
+      const price = (v.linePrice[i] ?? "").trim();
+      const qtyText = (v.lineQuantity[i] ?? "").trim() || "1";
+      if (!description && !price) return;
+      if (!description || description.length > 200) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["lineDescription"],
+          message: `Describe item ${i + 1}`,
+        });
+        return;
+      }
+      const quantity = Number(qtyText);
+      if (!Number.isInteger(quantity) || quantity < 1 || quantity > 1000) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["lineQuantity"],
+          message: `Enter a whole quantity for item ${i + 1}`,
+        });
+        return;
+      }
+      try {
+        const minor = parseMajor(price, v.currency).amountMinor;
+        if (minor < 0n || minor > BigInt(Number.MAX_SAFE_INTEGER)) throw new MoneyError("range");
+        lines.push({ description, quantity, unit_amount_minor: Number(minor) });
+      } catch {
+        ctx.addIssue({
+          code: "custom",
+          path: ["linePrice"],
+          message: `Enter a price for item ${i + 1}, for example 4,000.00`,
+        });
+      }
+    });
+    const total = lines.reduce(
+      (sum, l) => sum + BigInt(l.quantity) * BigInt(l.unit_amount_minor),
+      0n,
+    );
+    if (!ctx.issues?.length && total <= 0n) {
       ctx.addIssue({
         code: "custom",
-        path: ["amount"],
-        message: "Enter an amount above zero, for example 4,000.00",
+        path: ["lineDescription"],
+        message: "Add at least one item with an amount above zero",
       });
-      return z.NEVER;
     }
+    return { leadId: v.leadId, currency: v.currency, sentOn: v.sentOn, note: v.note, lines, total };
   });
 
 export const activitySchema = z.object({

@@ -71,16 +71,43 @@ describe("LEAD-04: status", () => {
 });
 
 describe("quotes", () => {
-  it("are kept as minor units and must be above zero", () => {
-    expect(quoteSchema.parse({ leadId, currency: "USD", amount: "4,000" }).amountMinor).toBe(
-      400000n,
-    );
-    expect(quoteSchema.parse({ leadId, currency: "LRD", amount: "12500.5" }).amountMinor).toBe(
-      1250050n,
-    );
-    for (const amount of ["0", "-5", "12.345", "abc"]) {
-      expect(quoteSchema.safeParse({ leadId, currency: "USD", amount }).success).toBe(false);
-    }
+  const quote = (rows: [string, string, string][], currency = "USD") =>
+    quoteSchema.safeParse({
+      leadId,
+      currency,
+      lineDescription: rows.map((r) => r[0]),
+      lineQuantity: rows.map((r) => r[1]),
+      linePrice: rows.map((r) => r[2]),
+    });
+
+  it("keeps items in minor units, skips empty rows and totals them", () => {
+    const parsed = quote([
+      ["Clinic Management", "1", "4,000"],
+      ["Training day", "2", "150.50"],
+      ["", "1", ""],
+    ]);
+    expect(parsed.success && parsed.data.lines).toEqual([
+      { description: "Clinic Management", quantity: 1, unit_amount_minor: 400000 },
+      { description: "Training day", quantity: 2, unit_amount_minor: 15050 },
+    ]);
+    expect(parsed.success && parsed.data.total).toBe(430100n);
+    // A single row arrives as plain text, not a list.
+    const one = quoteSchema.safeParse({
+      leadId,
+      currency: "LRD",
+      lineDescription: "Setup",
+      lineQuantity: "1",
+      linePrice: "12500.5",
+    });
+    expect(one.success && one.data.total).toBe(1250050n);
+  });
+
+  it("needs a description, a whole quantity, a price and a total above zero", () => {
+    expect(quote([["", "1", "100"]]).success).toBe(false);
+    expect(quote([["Setup", "1.5", "100"]]).success).toBe(false);
+    expect(quote([["Setup", "1", "abc"]]).success).toBe(false);
+    expect(quote([["Setup", "1", "0"]]).success).toBe(false);
+    expect(quote([["", "1", ""]]).success).toBe(false);
   });
 });
 

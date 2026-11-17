@@ -1,10 +1,12 @@
 "use server";
 
+import { demoRoleFor, reportDemoVisit } from "@corex/core/demo";
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { formObject } from "@/lib/action";
-import { DEMO_DISABLED } from "@/lib/demo";
+import { DEMO_DISABLED, demoInstance } from "@/lib/demo";
 import { clinicEnv } from "@/lib/env";
 import type { FormState } from "@/lib/form-state";
 import { getAdminSupabase, getSupabase } from "@/lib/supabase";
@@ -67,6 +69,10 @@ export async function signIn(_previous: FormState, formData: FormData): Promise<
     await supabase.auth.signOut();
     return { status: "error", message: "This account does not have access to this organization." };
   }
+  // Public demos count sign-ins per demo and role in Corex Admin (no visitor details).
+  const demo = demoInstance();
+  const role = demo ? demoRoleFor(demo, parsed.data.email) : null;
+  if (demo && role) after(() => reportDemoVisit(demo.name, role));
   redirect(safeNext(parsed.data.next));
 }
 
