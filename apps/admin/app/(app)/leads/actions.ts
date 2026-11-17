@@ -129,13 +129,16 @@ export async function moveLead(_previous: FormState, formData: FormData): Promis
 /** Records the quote sent to a lead; the timeline gets a Quote entry. */
 export async function saveQuote(_previous: FormState, formData: FormData): Promise<FormState> {
   return runAction(formData, { schema: quoteSchema, revalidate: LEADS }, async (data, session) => {
-    const amount = Number(data.amountMinor);
-    if (!Number.isSafeInteger(amount)) throw new ActionError("This amount is too large.");
+    if (data.total > BigInt(Number.MAX_SAFE_INTEGER)) {
+      throw new ActionError("This amount is too large.");
+    }
     const updated = must(
       await session.supabase
         .from("leads")
         .update({
-          quote_amount_minor: amount,
+          // The database works the total out again from the lines.
+          quote_amount_minor: Number(data.total),
+          quote_lines: data.lines,
           quote_currency: data.currency,
           quote_sent_on: data.sentOn,
           quote_note: data.note,

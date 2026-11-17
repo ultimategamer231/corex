@@ -56,7 +56,10 @@ const apps: App[] = [
     name: "admin",
     port: 3008,
     testDir: "e2e/admin",
-    env: { CRON_SECRET: "e2e-only-cron-secret-not-for-real-use-000" },
+    env: {
+      CRON_SECRET: "e2e-only-cron-secret-not-for-real-use-000",
+      DEMO_VISITS_SECRET: "e2e-only-demo-visits-secret-not-for-real-0",
+    },
   },
   // The Finance build as its public demo on the seeded demo_finance schema.
   {

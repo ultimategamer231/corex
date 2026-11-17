@@ -316,3 +316,25 @@ test("the support log records a client's issues and keeps resolved ones (audit r
   const client = page.getByRole("region", { name: "Support for this client" });
   await expect(client).toContainText("Done: Fixed the year filter");
 });
+
+test("demo sign-ins reported with the secret are counted on Analytics (audit round F3)", async ({
+  page,
+}) => {
+  const wrong = await page.request.post("/api/demo-visit", {
+    headers: { Authorization: `Bearer wrong-${"x".repeat(40)}` },
+    data: { demo: "college", role: "registrar" },
+  });
+  expect(wrong.status()).toBe(401);
+  for (const role of ["registrar", "registrar", "bursar"]) {
+    const ok = await page.request.post("/api/demo-visit", {
+      headers: { Authorization: "Bearer e2e-only-demo-visits-secret-not-for-real-0" },
+      data: { demo: "college", role },
+    });
+    expect(ok.status()).toBe(200);
+  }
+  await setWidth(page, 1440);
+  await open(page, "/analytics");
+  const visits = page.getByRole("region", { name: "Demo visits, last 30 days" });
+  await expect(visits).toContainText("College demo: 3 sign-ins");
+  await expect(visits).toContainText("Registrar 2 · Bursar 1");
+});

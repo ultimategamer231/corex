@@ -2,7 +2,7 @@ import { renderBillingPdf } from "@corex/pdf";
 import { z } from "zod";
 import { quoteDocument } from "@/lib/billing-document";
 import { billingSettings } from "@/lib/invoice-document-data";
-import { productLabel } from "@/lib/leads";
+import { productLabel, type QuoteLine } from "@/lib/leads";
 import { pdfResponse } from "@/lib/pdf-response";
 import { AdminAuthError, requireAdmin } from "@/lib/session";
 
@@ -22,7 +22,7 @@ export async function GET(_request: Request, { params }: Context) {
   const { data: lead } = await session.supabase
     .from("leads")
     .select(
-      "organization, name, product, quote_amount_minor, quote_currency, quote_sent_on, quote_note",
+      "organization, name, product, quote_amount_minor, quote_currency, quote_sent_on, quote_note, quote_lines, quote_number",
     )
     .eq("id", id)
     .maybeSingle();
@@ -38,8 +38,13 @@ export async function GET(_request: Request, { params }: Context) {
       sentOn: lead.quote_sent_on,
       note: lead.quote_note,
       product: productLabel(lead.product),
+      lines: (lead.quote_lines as QuoteLine[] | null) ?? null,
+      number: lead.quote_number,
     },
     await billingSettings(session.supabase),
   );
-  return pdfResponse(await renderBillingPdf(doc), `Quote ${lead.organization}.pdf`);
+  return pdfResponse(
+    await renderBillingPdf(doc),
+    `${lead.quote_number ? `${lead.quote_number} ` : "Quote "}${lead.organization}.pdf`,
+  );
 }

@@ -74,6 +74,11 @@ export function rangeDates(days: RangeDays, now: Date): { start: string; end: st
   return { start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) };
 }
 
+/** First day of the last 30 days, for the demo visits on the Analytics page. */
+export function demoVisitsSince(now = new Date()): string {
+  return rangeDates(30, now).start;
+}
+
 export function queryVariables(config: AnalyticsConfig, days: RangeDays, now: Date) {
   const { start } = rangeDates(days, now);
   const startMs = Date.parse(`${start}T00:00:00Z`);

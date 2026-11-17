@@ -7,13 +7,14 @@ import {
   planLabel,
   productLabel,
   type Stage,
+  type QuoteLine,
   STAGE_KEYS,
   stageLabel,
 } from "./leads";
 import type { AdminDb } from "./supabase";
 
 export const LEAD_COLUMNS =
-  "id, name, organization, country, product, plan_interest, phone, email, message, consent, source_page, source, stage, assigned_admin_id, follow_up_on, next_step, lost_reason, quote_amount_minor, quote_currency, quote_sent_on, quote_note, converted_client_id, stage_changed_at, created_at";
+  "id, name, organization, country, product, plan_interest, phone, email, message, consent, source_page, source, stage, assigned_admin_id, follow_up_on, next_step, lost_reason, quote_amount_minor, quote_currency, quote_sent_on, quote_note, quote_lines, quote_number, converted_client_id, stage_changed_at, created_at";
 
 export type LeadRow = {
   id: string;
@@ -37,6 +38,8 @@ export type LeadRow = {
   quote_currency: string | null;
   quote_sent_on: string | null;
   quote_note: string | null;
+  quote_lines: QuoteLine[] | null;
+  quote_number: string | null;
   converted_client_id: string | null;
   stage_changed_at: string | null;
   created_at: string;

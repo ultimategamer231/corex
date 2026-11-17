@@ -251,3 +251,37 @@ export const DEMOS: Record<DemoName, DemoInstance> = {
     ],
   },
 };
+
+/** The role a demo account signs in as (for example "registrar"), or null for others. */
+export function demoRoleFor(demo: DemoInstance, email: string): string | null {
+  const e = email.trim().toLowerCase();
+  return [...demo.accounts, ...demo.staff].find((a) => a.email === e)?.role ?? null;
+}
+
+/**
+ * Tells Corex Admin that someone signed in to a demo (audit round F3), so the admin can
+ * count demo visits per day, demo and role. Sends only the demo and the role, never the
+ * address or anything about the visitor. Does nothing until DEMO_VISITS_URL and
+ * DEMO_VISITS_SECRET are set, and never fails the sign-in.
+ */
+export async function reportDemoVisit(
+  demo: DemoName,
+  role: string,
+  env: Record<string, string | undefined> = process.env,
+  fetcher: typeof fetch = fetch,
+): Promise<boolean> {
+  const url = env.DEMO_VISITS_URL?.trim();
+  const secret = env.DEMO_VISITS_SECRET?.trim();
+  if (!url?.startsWith("https://") || !secret) return false;
+  try {
+    const response = await fetcher(url, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ demo, role }),
+      signal: AbortSignal.timeout(3000),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}

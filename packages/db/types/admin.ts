@@ -513,6 +513,28 @@ export type Database = {
           },
         ];
       };
+      demo_visits: {
+        Row: {
+          day: string;
+          demo: string;
+          role: string;
+          sign_ins: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          day: string;
+          demo: string;
+          role: string;
+          sign_ins?: number;
+        };
+        Update: {
+          day?: string;
+          demo?: string;
+          role?: string;
+          sign_ins?: number;
+        };
+        Relationships: [];
+      };
       deployments: {
         Row: {
           app_url: string | null;
@@ -1107,7 +1129,9 @@ export type Database = {
           product: string | null;
           quote_amount_minor: number | null;
           quote_currency: string | null;
+          quote_lines: Json | null;
           quote_note: string | null;
+          quote_number: string | null;
           quote_sent_on: string | null;
           source: string;
           source_page: string | null;
@@ -1138,7 +1162,9 @@ export type Database = {
           product?: string | null;
           quote_amount_minor?: number | null;
           quote_currency?: string | null;
+          quote_lines?: Json | null;
           quote_note?: string | null;
+          quote_number?: string | null;
           quote_sent_on?: string | null;
           source?: string;
           source_page?: string | null;
@@ -1168,7 +1194,9 @@ export type Database = {
           product?: string | null;
           quote_amount_minor?: number | null;
           quote_currency?: string | null;
+          quote_lines?: Json | null;
           quote_note?: string | null;
+          quote_number?: string | null;
           quote_sent_on?: string | null;
           source?: string;
           source_page?: string | null;
@@ -1830,7 +1858,9 @@ export type Database = {
       };
       product_label: { Args: { p_product: string }; Returns: string };
       purge_stale_leads: { Args: { p_before?: string }; Returns: number };
+      quote_lines_total: { Args: { p_lines: Json }; Returns: number };
       rate_limit_hits: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
+      record_demo_visit: { Args: { p_demo: string; p_role: string }; Returns: undefined };
       record_payment: {
         Args: {
           p_amount_minor: number;

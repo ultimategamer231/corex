@@ -2,8 +2,15 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 /** Pages reachable without signing in; /i/ is the client view of one invoice (LINK-02). */
-// /api/cron/ checks its own secret (CRON_SECRET) instead of a session.
-const PUBLIC_PATHS = ["/forgot-password", "/reset-password", "/invite/", "/i/", "/api/cron/"];
+// /api/cron/ and /api/demo-visit check their own secret instead of a session.
+const PUBLIC_PATHS = [
+  "/forgot-password",
+  "/reset-password",
+  "/invite/",
+  "/i/",
+  "/api/cron/",
+  "/api/demo-visit",
+];
 
 function isPublic(path: string): boolean {
   return path === "/login" || PUBLIC_PATHS.some((p) => path === p || path.startsWith(p));

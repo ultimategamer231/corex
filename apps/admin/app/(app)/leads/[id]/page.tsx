@@ -26,7 +26,10 @@ import {
   quoteText,
   teamMembers,
 } from "@/lib/leads-data";
+import { majorText } from "@/lib/invoices";
 import { getAdminSession } from "@/lib/session";
+import { leadTemplates, withText } from "@/lib/whatsapp-templates";
+import { quoteValidUntil } from "@/lib/billing-document";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -74,6 +77,20 @@ export default async function LeadPage({ params }: Props) {
   const whatsapp = whatsappLink(lead.phone, lead.country);
   const website = lead.source === "website";
   const quote = quoteText(lead);
+  const { admin } = await getAdminSession();
+  const templates = leadTemplates(
+    {
+      name: lead.name,
+      organization: lead.organization,
+      product: lead.product,
+      quoteText: quote,
+      quoteNumber: lead.quote_number,
+      quoteValidUntil:
+        lead.quote_amount_minor !== null ? quoteValidUntil(lead.quote_sent_on) : null,
+    },
+    admin.name,
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || undefined,
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -255,6 +272,24 @@ export default async function LeadPage({ params }: Props) {
                     Download quote PDF
                   </a>
                   <p className="font-display text-2xl font-bold text-ink">{quote}</p>
+                  {lead.quote_number ? (
+                    <p className="text-sm text-muted">Quote {lead.quote_number}</p>
+                  ) : null}
+                  {lead.quote_lines ? (
+                    <ul aria-label="Quote items" className="mt-1 flex flex-col gap-1 text-[15px]">
+                      {lead.quote_lines.map((l, i) => (
+                        <li key={i} className="flex justify-between gap-3">
+                          <span className="text-ink">
+                            {l.quantity > 1 ? `${l.quantity} × ` : ""}
+                            {l.description}
+                          </span>
+                          <span className="whitespace-nowrap text-ink-soft">
+                            {majorText(BigInt(l.quantity) * BigInt(l.unit_amount_minor))}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                   {lead.quote_note ? (
                     <p className="text-[15px] text-ink-soft">{lead.quote_note}</p>
                   ) : null}
@@ -264,11 +299,68 @@ export default async function LeadPage({ params }: Props) {
               )}
               <QuoteForm
                 leadId={lead.id}
-                amount={quote ? quote.replace(/^(US\$|L\$)/, "") : ""}
+                lines={
+                  lead.quote_lines
+                    ? lead.quote_lines.map((l) => ({
+                        description: l.description,
+                        quantity: String(l.quantity),
+                        price: majorText(l.unit_amount_minor),
+                      }))
+                    : lead.quote_amount_minor !== null
+                      ? [
+                          {
+                            description: productLabel(lead.product),
+                            quantity: "1",
+                            price: majorText(lead.quote_amount_minor),
+                          },
+                        ]
+                      : []
+                }
                 currency={lead.quote_currency}
                 sentOn={lead.quote_sent_on}
                 note={lead.quote_note}
               />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>WhatsApp messages</CardTitle>
+              <p className="text-sm text-muted">
+                {whatsapp
+                  ? "Opens WhatsApp with the message typed in. Check it, then send."
+                  : "Copy a message; this lead has no phone number WhatsApp can use."}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ul aria-label="Ready messages" className="flex flex-col gap-3">
+                {templates.map((t) => (
+                  <li key={t.key} className="rounded-lg border border-border p-3">
+                    <details>
+                      <summary className="flex min-h-11 cursor-pointer items-center font-semibold text-ink">
+                        {t.label}
+                      </summary>
+                      <p className="mt-2 text-[15px] whitespace-pre-line text-ink-soft">{t.text}</p>
+                    </details>
+                    {whatsapp ? (
+                      <a
+                        href={withText(whatsapp, t.text)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={buttonVariants({
+                          variant: "secondary",
+                          size: "sm",
+                          className: "mt-2",
+                        })}
+                        aria-label={`Open in WhatsApp: ${t.label}`}
+                      >
+                        <MessageCircle aria-hidden="true" />
+                        Open in WhatsApp
+                      </a>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
         </div>
