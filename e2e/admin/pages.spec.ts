@@ -26,6 +26,7 @@ const appPages = [
   "/leads",
   "/settings/company",
   "/analytics",
+  "/status",
 ];
 
 test("signed-out pages pass at every width", async ({ page }) => {
@@ -68,4 +69,23 @@ test.describe("signed in", () => {
       }
     }
   });
+});
+
+test("the admin can be installed: its manifest and icons load without signing in", async ({
+  request,
+}) => {
+  const manifest = await request.get("/manifest.webmanifest");
+  expect(manifest.status()).toBe(200);
+  const body = (await manifest.json()) as {
+    name: string;
+    display: string;
+    icons: { src: string }[];
+  };
+  expect(body.name).toBe("Corex Admin");
+  expect(body.display).toBe("standalone");
+  for (const icon of body.icons) {
+    const response = await request.get(icon.src);
+    expect(response.status(), icon.src).toBe(200);
+    expect(response.headers()["content-type"]).toBe("image/png");
+  }
 });

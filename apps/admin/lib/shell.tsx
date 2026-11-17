@@ -1,5 +1,6 @@
 import type { ShellNavItem } from "@corex/ui/shell";
 import {
+  Activity,
   FileText,
   History,
   LayoutDashboard,
@@ -18,6 +19,7 @@ export const NAV: ShellNavItem[] = [
   { href: "/subscriptions", label: "Subscriptions", icon: <RefreshCw /> },
   { href: "/invoices", label: "Invoices and receipts", icon: <FileText />, primary: true },
   { href: "/analytics", label: "Analytics", icon: <ChartColumn /> },
+  { href: "/status", label: "System status", icon: <Activity /> },
   { href: "/settings/team", label: "Settings", icon: <Settings /> },
   { href: "/activity", label: "Activity log", icon: <History /> },
 ];

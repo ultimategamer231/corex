@@ -100,6 +100,7 @@ export async function seedAdminFixture(
   await seedBillingSettings(sql, s);
   await seedInvoices(sql, s);
   await seedPriceList(sql, s);
+  await seedStatusChecks(sql, s);
   return { schema: s, users };
 }
 
@@ -453,4 +454,15 @@ export async function removeAdminSample(
     `select ${s}.remove_sample_data() as r`,
   );
   return row?.r ?? {};
+}
+
+/** Two rounds of status checks: the website up, a demo that went down 10 minutes ago. */
+async function seedStatusChecks(sql: Db, s: string): Promise<void> {
+  await sql.unsafe(
+    `insert into ${s}.status_checks (target, url, ok, status_code, response_ms, error, checked_at) values
+     ('Website', 'https://www.example.org', true, 200, 420, null, now() - interval '20 minutes'),
+     ('Clinic demo', 'https://demo-clinic.example.org', true, 200, 610, null, now() - interval '20 minutes'),
+     ('Website', 'https://www.example.org', true, 200, 380, null, now() - interval '10 minutes'),
+     ('Clinic demo', 'https://demo-clinic.example.org', false, 503, 900, 'The site answered with status 503', now() - interval '10 minutes')`,
+  );
 }

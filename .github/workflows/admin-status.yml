@@ -1,0 +1,39 @@
+name: Admin status check
+
+# Audit round A3: every 10 minutes, ask Corex Admin to check the website, the demos and
+# each live client system, save the results and email the team when one goes down or
+# comes back (apps/admin/lib/status-check.ts). GitHub may start scheduled runs a few
+# minutes late. Also runnable by hand.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: admin-status
+  cancel-in-progress: true
+
+jobs:
+  run:
+    name: Run the status check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ADMIN_URL: ${{ vars.ADMIN_URL }}
+      CRON_SECRET: ${{ secrets.ADMIN_CRON_SECRET }}
+    steps:
+      # Until the admin is deployed (apps/admin/README.md), the job reports that and passes.
+      - name: Call the admin
+        run: |
+          if [ -z "$ADMIN_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::notice::ADMIN_URL or ADMIN_CRON_SECRET is not set; the status check did not run. See apps/admin/README.md."
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error --max-time 90 \
+            --retry 1 --retry-delay 20 --retry-all-errors \
+            -X POST -H "Authorization: Bearer $CRON_SECRET" \
+            "${ADMIN_URL%/}/api/cron/status"
+          echo

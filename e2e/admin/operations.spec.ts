@@ -54,7 +54,11 @@ test("the dashboard shows the figures, what needs attention, pipeline, collectio
   await expect(page.getByRole("region", { name: "Renewals" })).toContainText("Riverside Traders");
   await expect(
     page.getByRole("region", { name: "Recent activity" }).getByRole("listitem"),
-  ).toHaveCount(6);
+  ).toHaveCount(5);
+  // A site that is down shows above the figures (audit round A3).
+  await expect(
+    page.getByRole("link", { name: "Clinic demo is down. Open System status." }),
+  ).toBeVisible();
 });
 
 test("subscriptions list renewals with their status, reminders and warranties (SPEC-ADMIN.md 10)", async ({
@@ -232,4 +236,19 @@ test("dashboard, subscriptions and the new settings pass at every width", async 
   await page.getByRole("combobox", { name: "Search" }).fill("Riverside");
   await expect(page.getByRole("option").first()).toBeVisible();
   await expectNoSeriousA11yViolations(page);
+});
+
+test("system status lists down sites first with their uptime (audit round A3)", async ({
+  page,
+}) => {
+  await setWidth(page, 1440);
+  await open(page, "/status");
+  await expect(page.getByRole("heading", { level: 1, name: "System status" })).toBeVisible();
+  await expect(page.getByText("1 of 2 sites down. Checked every 10 minutes.")).toBeVisible();
+  const rows = page.getByRole("region", { name: "Sites and their status" }).getByRole("row");
+  await expect(rows.nth(1)).toContainText("Clinic demo");
+  await expect(rows.nth(1)).toContainText("Down");
+  await expect(rows.nth(1)).toContainText("50%");
+  await expect(rows.nth(2)).toContainText("Website");
+  await expect(rows.nth(2)).toContainText("100%");
 });

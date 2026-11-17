@@ -1,7 +1,16 @@
 import { Badge } from "@corex/ui/components/badge";
 import { buttonVariants } from "@corex/ui/components/button";
 import { cn } from "@corex/ui/lib/utils";
-import { ChevronRight, Plus } from "lucide-react";
+import {
+  ChevronRight,
+  CircleAlert,
+  FileClock,
+  Plus,
+  TrendingUp,
+  UserPlus,
+  Wallet,
+} from "lucide-react";
+import type * as React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { money } from "@/lib/clients";
@@ -49,13 +58,15 @@ const STAGE_COLORS: Record<string, string> = {
 /** SPEC-ADMIN.md 7 (Main.dc.html, DashboardMobile.dc.html). */
 export default async function DashboardPage() {
   const { supabase } = await getAdminSession();
-  const [figures, attention, subscriptions, activity] = await Promise.all([
+  const [figures, attention, subscriptions, activity, status] = await Promise.all([
     dashboardFigures(supabase),
     attentionItems(supabase),
     subscriptionRows(supabase),
-    recentActivity(supabase),
+    recentActivity(supabase, 5),
+    supabase.rpc("status_overview"),
   ]);
   const { new_leads: leads, pipeline, outstanding, collected } = figures;
+  const downSites = (status.data ?? []).filter((s) => !s.ok);
   const owed = mainAndRest(outstanding.by_currency);
   const got = mainAndRest(collected.by_currency);
   const month = Number(figures.today.slice(5, 7)) - 1;
@@ -86,9 +97,22 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {downSites.length > 0 ? (
+        <Link
+          href="/status"
+          className="flex min-h-11 items-center gap-3 rounded-xl border border-danger bg-background px-5 py-3 font-semibold text-danger hover:underline"
+        >
+          <CircleAlert aria-hidden="true" className="size-5 shrink-0" />
+          {downSites.length === 1
+            ? `${downSites[0]?.target} is down. Open System status.`
+            : `${downSites.length} sites are down. Open System status.`}
+        </Link>
+      ) : null}
+
       <section aria-label="Figures" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Figure
           href="/leads?stage=new"
+          icon={<UserPlus />}
           label="New leads, last 7 days"
           value={String(leads.count)}
           detail={
@@ -98,6 +122,7 @@ export default async function DashboardPage() {
         />
         <Figure
           href="/leads"
+          icon={<TrendingUp />}
           label="Open pipeline"
           value={plural(pipeline.open, "lead")}
           detail={
@@ -108,6 +133,7 @@ export default async function DashboardPage() {
         />
         <Figure
           href={outstanding.overdue > 0 ? "/invoices?status=overdue" : "/invoices"}
+          icon={<FileClock />}
           label="Outstanding"
           value={owed.main}
           detail={[
@@ -122,6 +148,7 @@ export default async function DashboardPage() {
         />
         <Figure
           href="/invoices?tab=receipts"
+          icon={<Wallet />}
           label={`Collected in ${collected.year}`}
           value={got.main}
           detail={got.rest ?? "Payments recorded this year"}
@@ -291,7 +318,7 @@ export default async function DashboardPage() {
         className="overflow-hidden rounded-xl border border-border bg-background"
       >
         <div className="flex items-center justify-between border-b border-border-subtle px-5 py-2">
-          <h2 id="activity-h" className="font-display text-lg font-bold text-ink">
+          <h2 id="activity-h" className="font-display text-base font-bold text-ink-soft">
             Recent activity
           </h2>
           <Link
@@ -306,9 +333,9 @@ export default async function DashboardPage() {
         ) : (
           <ol className="px-5 py-2">
             {activity.map((a) => (
-              <li key={a.seq} className="flex flex-wrap justify-between gap-x-4 gap-y-1 py-2.5">
-                <span className="text-[15px] text-ink">{a.summary}</span>
-                <span className="text-sm whitespace-nowrap text-muted">
+              <li key={a.seq} className="flex flex-wrap justify-between gap-x-4 gap-y-0.5 py-1.5">
+                <span className="text-sm text-ink-soft">{a.summary}</span>
+                <span className="text-[13px] whitespace-nowrap text-muted">
                   {formatDateTime(a.created_at)}
                 </span>
               </li>
@@ -322,12 +349,14 @@ export default async function DashboardPage() {
 
 function Figure({
   href,
+  icon,
   label,
   value,
   detail,
   tone,
 }: {
   href: string;
+  icon: React.ReactElement;
   label: string;
   value: string;
   detail: string;
@@ -338,7 +367,15 @@ function Figure({
       href={href}
       className="flex flex-col gap-2 rounded-xl border border-border bg-background p-5 hover:border-primary"
     >
-      <span className="text-sm font-semibold text-muted">{label}</span>
+      <span className="flex items-center gap-2.5 text-sm font-semibold text-muted">
+        <span
+          aria-hidden="true"
+          className="grid size-9 shrink-0 place-items-center rounded-lg bg-tint text-primary [&_svg]:size-[18px]"
+        >
+          {icon}
+        </span>
+        {label}
+      </span>
       <span className="font-display text-[28px] leading-tight font-bold break-words text-ink">
         {value}
       </span>
