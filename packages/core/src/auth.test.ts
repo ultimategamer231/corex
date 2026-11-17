@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { type AuthClient, AuthError, isSessionExpired, requireMember } from "./auth";
+import {
+  type AuthClient,
+  AuthError,
+  isSessionExpired,
+  requireMember,
+  safeRedirectPath,
+} from "./auth";
 
 function fakeClient(
   user: { id: string; email?: string; last_sign_in_at?: string } | null,
@@ -64,5 +70,30 @@ describe("isSessionExpired", () => {
     expect(isSessionExpired("not a date", 8, now)).toBe(true);
     expect(isSessionExpired("2026-10-24T04:00:01Z", 8, now)).toBe(false);
     expect(isSessionExpired("2026-10-24T03:59:59Z", 8, now)).toBe(true);
+  });
+});
+
+describe("safeRedirectPath (security scan, 2026-11-17)", () => {
+  it("keeps paths on this site with their query", () => {
+    expect(safeRedirectPath("/students?status=active#top")).toBe("/students?status=active#top");
+    expect(safeRedirectPath("/fees/../reports")).toBe("/reports");
+  });
+
+  it("refuses anything a browser would read as another website", () => {
+    for (const next of [
+      "//evil.example",
+      "/\\evil.example",
+      "/\\/evil.example",
+      "/\t/evil.example",
+      "/\n/evil.example",
+      "https://evil.example",
+      "evil.example",
+      "",
+      null,
+      undefined,
+    ]) {
+      expect(safeRedirectPath(next), String(next)).toBe("/");
+    }
+    expect(safeRedirectPath("//evil.example", "/dashboard")).toBe("/dashboard");
   });
 });

@@ -7,7 +7,7 @@ import {
   setWidth,
   widths,
 } from "../helpers";
-import { signInAs } from "./helpers";
+import { emailFor, PASSWORD, signInAs } from "./helpers";
 
 /** A section that exists in every app's navigation. */
 const section = { path: "/reports", label: "Reports" };
@@ -117,4 +117,19 @@ test.describe("app shell", () => {
     expect(headers["strict-transport-security"]).toContain("max-age=");
     expect(headers["x-content-type-options"]).toBe("nosniff");
   });
+});
+
+test("a sign-in link cannot send the person to another website (security scan)", async ({
+  page,
+}) => {
+  await page.goto("/login?next=%2F%5Cevil.example%2Fphish");
+  await page.waitForLoadState("networkidle");
+  await page.getByLabel("Email").fill(emailFor("receptionist"));
+  await page.getByLabel("Password").fill(PASSWORD);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Today" })).toBeVisible({
+    timeout: 15_000,
+  });
+  expect(new URL(page.url()).hostname).toBe("localhost");
+  expect(page.url()).not.toContain("evil.example");
 });

@@ -99,3 +99,23 @@ export async function requireMember(
     lastSignInAt,
   };
 }
+
+const SAME_SITE = "https://same-site.invalid";
+
+/**
+ * Where to go after signing in: a path on this site only (security scan, 2026-11-17).
+ * Browsers read `/\other-site` and paths with tabs or line breaks as another website,
+ * so the path is read the way a browser would and refused unless it stays here.
+ */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/"): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || /[\\\u0000-\u001f]/.test(next)) {
+    return fallback;
+  }
+  try {
+    const url = new URL(next, SAME_SITE);
+    if (url.origin !== SAME_SITE) return fallback;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return fallback;
+  }
+}

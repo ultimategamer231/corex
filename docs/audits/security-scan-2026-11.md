@@ -44,7 +44,7 @@ the invite command never prints the link when it runs inside GitHub Actions (it 
 with a clear message instead). On a computer it still prints the link as before. No
 other workflow prints a link, password or key; the demo password is public by design.
 
-### 3. Redirect after sign-in (needs your OK)
+### 3. Redirect after sign-in (fixed, owner approved)
 
 The sign-in pages of School, Clinic, Finance and Admin return the person to the page they
 asked for (`/login?next=/students`). The check refuses `//other-site`, but browsers read
@@ -53,9 +53,11 @@ asked for (`/login?next=/students`). The check refuses `//other-site`, but brows
 sends them to `evil.example`, which could imitate a Corex page and ask for the password
 again. It needs someone to click a crafted link and sign in.
 
-Proposed fix (small, one shared function): accept only paths that stay on the same site
-after the browser's own reading of them, and fall back to the dashboard otherwise. The
-sign-in itself does not change. Because it touches sign-in, it waits for the owner.
+Fix (approved by the owner, 17 November 2026): one shared check, `safeRedirectPath` in
+`@corex/core/auth`, reads the path the way a browser does and accepts it only if it stays
+on the same site; anything else goes to the dashboard. School, Clinic, Finance and Admin
+use it. Sign-in itself did not change. Unit tests cover the tricks above, and an
+end-to-end test signs in through such a link and lands on the dashboard.
 
 ### 4. Inline scripts in the security policy (recommendation)
 
@@ -104,7 +106,6 @@ uses them. Update when Serwist moves to the patched versions.
 
 ## For the owner
 
-1. Say yes or no to the sign-in redirect fix (finding 3).
-2. Delete the unused Cloudflare API token made while testing analytics (Cloudflare →
+1. Delete the unused Cloudflare API token made while testing analytics (Cloudflare →
    My Profile → API Tokens), so only the token the admin uses remains.
-3. Keep the APK signing key and its passwords private (`docs/apk.md`, step 2).
+2. Keep the APK signing key and its passwords private (`docs/apk.md`, step 2).
