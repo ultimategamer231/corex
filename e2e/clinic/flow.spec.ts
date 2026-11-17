@@ -35,7 +35,7 @@ async function register(page: Page) {
 async function book(page: Page, search: string, choose: RegExp, time: string) {
   await open(page, "/appointments/new");
   await page.getByRole("searchbox", { name: "Find a patient" }).fill(search);
-  await page.getByRole("button", { name: "Search" }).click();
+  await page.getByRole("button", { name: "Search", exact: true }).click();
   await page.getByRole("link", { name: choose }).first().click();
   const form = page.getByRole("form", { name: "Book appointment" });
   await expect(form).toBeVisible();

@@ -1,5 +1,6 @@
 import { Badge } from "@corex/ui/components/badge";
 import { Button, buttonVariants } from "@corex/ui/components/button";
+import { CardList, CardListItem } from "@corex/ui/components/card-list";
 import { EmptyState } from "@corex/ui/components/empty-state";
 import { Input } from "@corex/ui/components/input";
 import { Label } from "@corex/ui/components/label";
@@ -110,7 +111,30 @@ export default async function StudentsPage({ searchParams }: Props) {
         />
       ) : (
         <div className="flex flex-col gap-4">
-          <TableScroll label="Students">
+          <CardList label="Students">
+            {data.map((s) => (
+              <CardListItem
+                key={s.id}
+                title={
+                  <Link
+                    href={`/students/${s.id}`}
+                    className="inline-flex min-h-11 items-center font-semibold text-primary hover:underline"
+                  >
+                    {personName(s)}
+                  </Link>
+                }
+                badge={
+                  <Badge variant={s.status === "active" ? "brand" : "neutral"}>{s.status}</Badge>
+                }
+              >
+                <span className="font-mono">{s.student_number}</span>
+                <span>
+                  {s.program_enrollments.find((e) => e.status === "active")?.programs?.code ?? "-"}
+                </span>
+              </CardListItem>
+            ))}
+          </CardList>
+          <TableScroll label="Students" className="hidden md:block">
             <Table>
               <thead>
                 <tr>

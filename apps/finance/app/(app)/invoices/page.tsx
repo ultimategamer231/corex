@@ -1,5 +1,6 @@
 import { Badge } from "@corex/ui/components/badge";
 import { Button, buttonVariants } from "@corex/ui/components/button";
+import { CardList, CardListItem } from "@corex/ui/components/card-list";
 import { EmptyState } from "@corex/ui/components/empty-state";
 import { Label } from "@corex/ui/components/label";
 import { PageHeader } from "@corex/ui/components/page-header";
@@ -84,7 +85,36 @@ export default async function InvoicesPage({ searchParams }: Props) {
         />
       ) : (
         <>
-          <TableScroll label="Invoices">
+          <CardList label="Invoices">
+            {invoices.map((i) => {
+              const b = byId.get(i.id);
+              const total = Number(b?.total_minor ?? 0);
+              const s = invoiceStatus(i.status);
+              return (
+                <CardListItem
+                  key={i.id}
+                  title={
+                    <Link
+                      className="inline-flex min-h-11 min-w-11 items-center font-semibold text-primary underline"
+                      href={`/invoices/${i.id}`}
+                    >
+                      {i.number ? `No. ${i.number}` : "Draft"}
+                    </Link>
+                  }
+                  badge={<Badge variant={s.variant}>{s.label}</Badge>}
+                >
+                  <span className="font-semibold text-ink">{names.get(i.party_id)}</span>
+                  <span>Due {date(i.due_date, settings.timezone)}</span>
+                  <span>
+                    {i.status === "void"
+                      ? money(total, i.currency)
+                      : `Balance ${money(total - Number(b?.paid_minor ?? 0), i.currency)}`}
+                  </span>
+                </CardListItem>
+              );
+            })}
+          </CardList>
+          <TableScroll label="Invoices" className="hidden md:block">
             <Table>
               <thead>
                 <tr>

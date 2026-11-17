@@ -3,6 +3,7 @@ export { BottomNav } from "./bottom-nav";
 export { DemoBanner, type DemoBannerProps } from "./demo-banner";
 export { DemoChecklist, DemoStepTracker, type DemoStep } from "./demo-checklist";
 export { DemoSignIn, type DemoSignInProps } from "./demo-sign-in";
+export { GlobalSearch, type GlobalSearchProps, type SearchHit } from "./global-search";
 export { bottomBarItems, initials, isNavItemActive } from "./nav-utils";
 export { OnlineStatus } from "./online-status";
 export { SidebarNav } from "./sidebar-nav";

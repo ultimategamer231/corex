@@ -1,5 +1,6 @@
 import { Badge } from "@corex/ui/components/badge";
 import { Button, buttonVariants } from "@corex/ui/components/button";
+import { CardList, CardListItem } from "@corex/ui/components/card-list";
 import { EmptyState } from "@corex/ui/components/empty-state";
 import { Input } from "@corex/ui/components/input";
 import { Label } from "@corex/ui/components/label";
@@ -76,7 +77,37 @@ export default async function PatientsPage({ searchParams }: Props) {
         />
       ) : (
         <>
-          <TableScroll label="Patients">
+          <CardList label="Patients">
+            {patients.map((p) => (
+              <CardListItem
+                key={p.id}
+                title={
+                  <Link
+                    className="inline-flex min-h-11 min-w-11 items-center font-semibold text-primary underline"
+                    href={`/patients/${p.id}`}
+                  >
+                    {personName(p)}
+                  </Link>
+                }
+                badge={
+                  p.has_allergies ? (
+                    <Badge variant="danger">Allergies</Badge>
+                  ) : p.possible_duplicate_of ? (
+                    <Badge variant="warning">Possible duplicate</Badge>
+                  ) : null
+                }
+              >
+                <span>{p.patient_number}</span>
+                <span>
+                  {[p.sex ? SEX[p.sex as keyof typeof SEX] : null, ageText(p.date_of_birth, today)]
+                    .filter(Boolean)
+                    .join(", ") || "-"}
+                </span>
+                {p.phone ? <span>{p.phone}</span> : null}
+              </CardListItem>
+            ))}
+          </CardList>
+          <TableScroll label="Patients" className="hidden md:block">
             <Table>
               <thead>
                 <tr>

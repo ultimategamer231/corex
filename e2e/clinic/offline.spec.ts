@@ -73,7 +73,7 @@ test("vitals recorded offline at intake sync to the patient", async ({ page, con
   await open(page, "/queue");
   // Add a walk-in as the nurse so the test has its own queue entry.
   await page.getByRole("searchbox", { name: "Find a patient" }).fill("Kamara");
-  await page.getByRole("button", { name: "Search" }).click();
+  await page.getByRole("button", { name: "Search", exact: true }).click();
   await page.getByRole("link", { name: /^Choose Kebeh Kamara$/ }).click();
   await page.getByRole("button", { name: /to the queue$/ }).click();
   await expect(page.getByText(/Added to the queue|already in the queue/)).toBeVisible();
