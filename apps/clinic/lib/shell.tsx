@@ -14,12 +14,32 @@ type Item = ShellNavItem & { roles?: readonly Role[] };
 
 const ITEMS: Item[] = [
   { href: "/", label: "Today", icon: <LayoutDashboard />, primary: true, exact: true },
-  { href: "/patients", label: "Patients", icon: <Users />, primary: true },
-  { href: "/appointments", label: "Appointments", icon: <CalendarDays />, primary: true },
-  { href: "/queue", label: "Queue", icon: <ListOrdered />, primary: true, roles: FRONT_DESK },
-  { href: "/billing", label: "Billing", icon: <Receipt />, primary: true, roles: BILLING },
-  { href: "/reports", label: "Reports", icon: <FileBarChart />, roles: REPORTS },
-  { href: "/settings", label: "Settings", icon: <Settings />, roles: ADMIN },
+  { href: "/patients", group: "Front desk", label: "Patients", icon: <Users />, primary: true },
+  {
+    href: "/appointments",
+    group: "Front desk",
+    label: "Appointments",
+    icon: <CalendarDays />,
+    primary: true,
+  },
+  {
+    href: "/queue",
+    group: "Front desk",
+    label: "Queue",
+    icon: <ListOrdered />,
+    primary: true,
+    roles: FRONT_DESK,
+  },
+  {
+    href: "/billing",
+    group: "Money",
+    label: "Billing",
+    icon: <Receipt />,
+    primary: true,
+    roles: BILLING,
+  },
+  { href: "/reports", group: "Money", label: "Reports", icon: <FileBarChart />, roles: REPORTS },
+  { href: "/settings", group: "Clinic", label: "Settings", icon: <Settings />, roles: ADMIN },
 ];
 
 /** Navigation for the member's roles (SPEC.md 8.1, 8.4); at most four in the bottom bar. */

@@ -9,6 +9,8 @@ export type ShellNavItem = {
   primary?: boolean;
   /** Active only on an exact path match (use for the dashboard root). */
   exact?: boolean;
+  /** Heading this item sits under in the sidebar, for example "Money". */
+  group?: string;
 };
 
 export type ShellOrg = {
@@ -16,6 +18,8 @@ export type ShellOrg = {
   name: string;
   /** Public URL of the logo from `settings.logo_path`, if any. */
   logoUrl?: string | null;
+  /** Show the Corex logo beside the name (public demos, which have no logo of their own). */
+  corexBrand?: boolean;
 };
 
 export type ShellUser = {

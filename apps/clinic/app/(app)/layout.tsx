@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       sync={syncOutbox}
       signOut={signOut}
       banner={demo ? <DemoBanner quoteUrl={quoteUrl(demo)} /> : undefined}
-      org={{ name: settings.orgName, logoUrl: null }}
+      org={{ name: settings.orgName, logoUrl: null, corexBrand: Boolean(demo) }}
       nav={navFor(member.roles)}
       user={{ displayName: member.displayName, roleLabel: roleLabel(member.roles) }}
     >

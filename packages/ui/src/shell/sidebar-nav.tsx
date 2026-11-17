@@ -25,10 +25,21 @@ export function SidebarNav({ items, pathname, collapsed, onToggleCollapsed }: Si
     >
       <nav aria-label="Main" className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 pt-4">
         <ul className="flex flex-col gap-1">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const active = isNavItemActive(item, pathname);
+            const heading =
+              item.group && item.group !== items[index - 1]?.group ? item.group : null;
             return (
               <li key={item.href}>
+                {heading ? (
+                  collapsed ? (
+                    <span aria-hidden="true" className="mx-3 my-2 block h-px bg-white/15" />
+                  ) : (
+                    <p className="px-3 pt-4 pb-1 text-[11px] font-bold tracking-[0.12em] text-on-dark-muted uppercase">
+                      {heading}
+                    </p>
+                  )
+                ) : null}
                 <Link
                   href={item.href}
                   aria-current={active ? "page" : undefined}

@@ -15,13 +15,33 @@ type Item = ShellNavItem & { roles?: readonly Role[] };
 
 const ITEMS: Item[] = [
   { href: "/", label: "Overview", icon: <LayoutDashboard />, primary: true, exact: true },
-  { href: "/transactions", label: "Transactions", icon: <ArrowLeftRight />, primary: true },
-  { href: "/invoices", label: "Invoices", icon: <FileText />, primary: true, roles: MANAGER },
-  { href: "/accounts", label: "Accounts", icon: <Landmark />, primary: true, roles: MANAGER },
-  { href: "/counterparties", label: "Customers and vendors", icon: <BookUser /> },
-  { href: "/payroll", label: "Payroll", icon: <Users />, roles: MANAGER },
-  { href: "/reports", label: "Reports", icon: <FileBarChart />, roles: MANAGER },
-  { href: "/settings", label: "Settings", icon: <Settings />, roles: MANAGER },
+  {
+    href: "/transactions",
+    group: "Daily work",
+    label: "Transactions",
+    icon: <ArrowLeftRight />,
+    primary: true,
+  },
+  {
+    href: "/invoices",
+    group: "Daily work",
+    label: "Invoices",
+    icon: <FileText />,
+    primary: true,
+    roles: MANAGER,
+  },
+  {
+    href: "/accounts",
+    group: "Books",
+    label: "Accounts",
+    icon: <Landmark />,
+    primary: true,
+    roles: MANAGER,
+  },
+  { href: "/counterparties", group: "Books", label: "Customers and vendors", icon: <BookUser /> },
+  { href: "/payroll", group: "Books", label: "Payroll", icon: <Users />, roles: MANAGER },
+  { href: "/reports", group: "Business", label: "Reports", icon: <FileBarChart />, roles: MANAGER },
+  { href: "/settings", group: "Business", label: "Settings", icon: <Settings />, roles: MANAGER },
 ];
 
 /** Navigation for the member's roles (SPEC.md 9.1, 9.4); Staff see only what they use. */
