@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { RevealObserver } from "@/components/reveal-observer";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { WhatsAppButton } from "@/components/whatsapp-button";
 import { site } from "@/content/site";
 import { siteUrl } from "@/lib/seo";
 import { siteGraph } from "@/lib/structured-data";
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <SiteFooter showWork={showWork} />
+        <WhatsAppButton />
         <Analytics />
       </body>
     </html>

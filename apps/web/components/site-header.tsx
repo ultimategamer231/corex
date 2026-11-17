@@ -13,7 +13,8 @@ import { cn } from "@corex/ui/lib/utils";
 import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import type * as React from "react";
+import { useEffect, useRef, useState } from "react";
 import { productOrder, products } from "@/content/products";
 import { serviceOrder, services } from "@/content/services";
 import { site } from "@/content/site";
@@ -35,17 +36,42 @@ function NavMenu({
   items: { href: string; name: string; summary: string }[];
   footer?: { href: string; label: string };
 }) {
+  // Opens when a mouse points at it (and still on click, tap or keyboard). A short delay
+  // before closing lets the pointer cross the gap between the label and the list.
+  const [open, setOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const hover = {
+    onPointerEnter: (event: React.PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      clearTimeout(closeTimer.current);
+      setOpen(true);
+    },
+    onPointerLeave: (event: React.PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      closeTimer.current = setTimeout(() => setOpen(false), 140);
+    },
+  };
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className={cn(navLinkClass, "gap-1")} data-active={active}>
+    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
+      <DropdownMenuTrigger className={cn(navLinkClass, "gap-1")} data-active={active} {...hover}>
         {label}
-        <ChevronDown className="size-4 text-accent-hover" aria-hidden="true" />
+        <ChevronDown
+          className={cn("size-4 text-accent-hover transition-transform", open && "rotate-180")}
+          aria-hidden="true"
+        />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-76">
+      <DropdownMenuContent
+        align="start"
+        className="w-76"
+        {...hover}
+        onCloseAutoFocus={(event) => event.preventDefault()}
+      >
         {items.map((item) => (
           <DropdownMenuItem
             key={item.href}
             asChild
+            onSelect={() => setOpen(false)}
             className="flex-col items-start justify-center gap-0.5 py-2.5"
           >
             <Link href={item.href}>
@@ -69,10 +95,97 @@ function NavMenu({
   );
 }
 
+const mobileRow =
+  "flex min-h-13 w-full items-center justify-between border-b border-surface-muted text-left text-[17px] font-semibold text-ink";
+
+function MobileLink({
+  href,
+  label,
+  current,
+  onClick,
+}: {
+  href: string;
+  label: string;
+  current: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        onClick={onClick}
+        aria-current={current ? "page" : undefined}
+        className={cn(mobileRow, "aria-[current=page]:text-primary")}
+      >
+        {label}
+      </Link>
+    </li>
+  );
+}
+
+function MobileGroup({
+  id,
+  label,
+  open,
+  onToggle,
+  items,
+  pathname,
+  onNavigate,
+}: {
+  id: string;
+  label: string;
+  open: boolean;
+  onToggle: () => void;
+  items: { href: string; label: string }[];
+  pathname: string;
+  onNavigate: () => void;
+}) {
+  return (
+    <li className={cn(open && "-mx-4 bg-surface px-4")}>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={`mobile-${id}`}
+        onClick={onToggle}
+        className={cn(mobileRow, open && "border-transparent")}
+      >
+        {label}
+        <ChevronDown
+          className={cn(
+            "size-5 text-muted transition-transform",
+            open && "rotate-180 text-accent-hover",
+          )}
+          aria-hidden="true"
+        />
+      </button>
+      <ul id={`mobile-${id}`} hidden={!open} className="border-b border-surface-muted pb-2 pl-4">
+        {items.map((item) => (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              onClick={onNavigate}
+              aria-current={pathname === item.href ? "page" : undefined}
+              className="flex min-h-12 items-center text-[16px] font-medium text-ink-soft aria-[current=page]:text-primary"
+            >
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </li>
+  );
+}
+
 export function SiteHeader({ showWork }: { showWork: boolean }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // Phone menu: Software and Services stay closed until tapped; one is open at a time.
+  const [section, setSection] = useState<"software" | "services" | null>(null);
+  const close = () => {
+    setOpen(false);
+    setSection(null);
+  };
 
   // A soft shadow once the page scrolls under the header.
   useEffect(() => {
@@ -191,49 +304,49 @@ export function SiteHeader({ showWork }: { showWork: boolean }) {
         <nav
           id="mobile-menu"
           aria-label="Main"
-          className="max-h-[calc(100dvh-76px)] overflow-y-auto border-t border-border bg-background px-4 pt-2 pb-5 lg:hidden"
+          className="h-[calc(100dvh-76px)] overflow-y-auto border-t border-border bg-background px-4 pt-2 pb-5 lg:hidden"
         >
           <ul className="flex flex-col">
-            {[
-              { href: "/", label: "Home" },
-              { href: "/software", label: "Software" },
-              ...softwareItems.map(({ href, name }) => ({ href, label: name, sub: true })),
-              { href: "", label: "Services" },
-              ...serviceItems.map(({ href, name }) => ({ href, label: name, sub: true })),
-              ...links.map(({ href, label }) => ({ href, label })),
-            ].map((link) =>
-              link.href === "" ? (
-                <li
-                  key={link.label}
-                  className="flex min-h-13 items-center border-b border-surface-muted text-[17px] font-semibold text-ink"
-                >
-                  {link.label}
-                </li>
-              ) : (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    aria-current={pathname === link.href ? "page" : undefined}
-                    className={cn(
-                      "flex min-h-13 items-center border-b border-surface-muted text-[17px] font-semibold text-ink aria-[current=page]:text-primary",
-                      "sub" in link && link.sub && "pl-4 text-[16px] font-medium text-ink-soft",
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ),
-            )}
+            <MobileLink href="/" label="Home" current={pathname === "/"} onClick={close} />
+            <MobileGroup
+              id="software"
+              label="Software"
+              open={section === "software"}
+              onToggle={() => setSection((v) => (v === "software" ? null : "software"))}
+              items={[
+                ...softwareItems.map(({ href, name }) => ({ href, label: name })),
+                { href: "/software", label: "See all software" },
+              ]}
+              pathname={pathname}
+              onNavigate={close}
+            />
+            <MobileGroup
+              id="services"
+              label="Services"
+              open={section === "services"}
+              onToggle={() => setSection((v) => (v === "services" ? null : "services"))}
+              items={serviceItems.map(({ href, name }) => ({ href, label: name }))}
+              pathname={pathname}
+              onNavigate={close}
+            />
+            {links.map((link) => (
+              <MobileLink
+                key={link.href}
+                href={link.href}
+                label={link.label}
+                current={pathname === link.href}
+                onClick={close}
+              />
+            ))}
           </ul>
           <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
             <Button asChild variant="accent" size="lg">
-              <Link href="/software" onClick={() => setOpen(false)}>
+              <Link href="/software" onClick={close}>
                 Try a live demo
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/contact" onClick={() => setOpen(false)}>
+              <Link href="/contact" onClick={close}>
                 Get a quote
               </Link>
             </Button>

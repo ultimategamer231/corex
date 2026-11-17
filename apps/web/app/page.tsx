@@ -62,13 +62,14 @@ export default function HomePage() {
           <div className="shape-in absolute inset-y-0 right-0 w-[44%] bg-primary [clip-path:polygon(26%_0,100%_0,100%_100%,0_100%)]" />
           <div className="shape-in absolute inset-y-0 right-[36%] w-[5%] bg-accent [clip-path:polygon(70%_0,100%_0,30%_100%,0_100%)]" />
         </div>
-        <Container className="relative grid items-center gap-[clamp(40px,5vw,64px)] py-[clamp(40px,7vw,96px)] lg:grid-cols-[1.05fr_1fr]">
-          <div className="flex flex-col gap-6">
+        {/* On short laptop screens the hero tightens so all of it shows without scrolling. */}
+        <Container className="relative grid items-center gap-[clamp(40px,5vw,64px)] py-[clamp(40px,7vw,96px)] lg:grid-cols-[1.05fr_1fr] lg:[@media(max-height:840px)]:gap-10 lg:[@media(max-height:840px)]:py-6">
+          <div className="flex flex-col gap-6 lg:[@media(max-height:840px)]:gap-4">
             <div className="rise-in">
               <Eyebrow>{home.hero.eyebrow}</Eyebrow>
             </div>
             <h1
-              className="rise-in text-[clamp(38px,5.2vw,62px)] leading-[1.04] font-extrabold tracking-[-0.03em]"
+              className="rise-in text-[clamp(38px,5.2vw,62px)] leading-[1.04] font-extrabold tracking-[-0.03em] lg:[@media(max-height:840px)]:text-[48px]"
               style={{ "--d": "80ms" } as React.CSSProperties}
             >
               {home.hero.title}
@@ -108,7 +109,7 @@ export default function HomePage() {
               ))}
             </ul>
           </div>
-          <div className="art-in rounded-3xl bg-tint p-3 shadow-[0_30px_60px_-30px_rgb(6_70_68/0.55)] lg:bg-background/70 lg:p-4">
+          <div className="art-in rounded-3xl bg-tint p-3 shadow-[0_30px_60px_-30px_rgb(6_70_68/0.55)] lg:bg-background/70 lg:p-4 lg:[@media(max-height:840px)]:[zoom:0.84]">
             <AppPreview kind="school" />
           </div>
         </Container>
