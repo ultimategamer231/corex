@@ -51,11 +51,18 @@ run(async () => {
       adminUrl: options["admin-url"],
     });
     const emailed = options.email ? await emailLink(options.email, options.name, link) : false;
-    console.log(
-      emailed
-        ? `Set-up link emailed to ${options.email}. It works once, for 72 hours.`
-        : `Set-up link (works once, for 72 hours):\n${link}`,
-    );
+    if (emailed) {
+      console.log(`Set-up link emailed to ${options.email}. It works once, for 72 hours.`);
+    } else if (process.env.GITHUB_ACTIONS === "true") {
+      // GitHub Actions logs of a public repository can be read by anyone, so the link
+      // is never printed there (security scan, 2026-11-17).
+      console.log(
+        "::error::The set-up link could not be emailed and is not shown in this log. Check RESEND_API_KEY and EMAIL_FROM. The account exists; ask Corex support to send a new set-up link, or run pnpm admin:invite from your own computer.",
+      );
+      process.exitCode = 1;
+    } else {
+      console.log(`Set-up link (works once, for 72 hours):\n${link}`);
+    }
   } finally {
     await sql.end();
   }

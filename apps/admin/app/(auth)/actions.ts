@@ -1,5 +1,6 @@
 "use server";
 
+import { safeRedirectPath } from "@corex/core/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -36,9 +37,8 @@ function passwordProblem(error: { code?: string; message: string }): string {
 
 /** Only same-site paths are followed after sign-in. */
 function safeNext(next: string | undefined): string {
-  return next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/login")
-    ? next
-    : "/";
+  const path = safeRedirectPath(next);
+  return path.startsWith("/login") ? "/" : path;
 }
 
 type AdminRow = {

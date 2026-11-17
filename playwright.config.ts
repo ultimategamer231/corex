@@ -38,7 +38,14 @@ const apps: App[] = [
     port: 3005,
     testDir: "e2e/school-demo",
     app: "school",
-    env: { DEMO_MODE: "true", DB_SCHEMA: "demo_college" },
+    env: {
+      DEMO_MODE: "true",
+      DB_SCHEMA: "demo_college",
+      // Test values only: the Android app link file (docs/apk.md).
+      ANDROID_PACKAGE_NAME: "com.corexlr.demo_college",
+      ANDROID_SHA256_FINGERPRINTS:
+        "AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99",
+    },
   },
   { name: "clinic", port: 3002, testDir: "e2e/clinic" },
   // The Clinic build as its public demo on the seeded demo_clinic schema.

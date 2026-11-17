@@ -1,5 +1,6 @@
 "use server";
 
+import { safeRedirectPath } from "@corex/core/auth";
 import { demoRoleFor, reportDemoVisit } from "@corex/core/demo";
 import { headers } from "next/headers";
 import { after } from "next/server";
@@ -40,7 +41,7 @@ async function demoLoginAllowed(): Promise<boolean> {
 
 /** Only same-site paths are followed after sign-in. */
 function safeNext(next: string | undefined): string {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  return safeRedirectPath(next);
 }
 
 export async function signIn(_previous: FormState, formData: FormData): Promise<FormState> {
