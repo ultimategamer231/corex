@@ -33,7 +33,30 @@ export type DemoInstance = {
   staff: DemoAccount[];
   /** Sign-in page copy: a short lead and a few things worth trying. */
   pitch: { tag: string; lead: string; tries: string[] };
+  /** "Things to try" on the dashboard; a step ticks when one of its pages is opened. */
+  steps: DemoStep[];
 };
+
+export type DemoStep = {
+  id: string;
+  label: string;
+  /** Where the step starts; also the menu entry a role needs to see the step. */
+  href: string;
+  /** Regular expression (as text) for the pages that complete the step. */
+  match: string;
+};
+
+const step = (id: string, label: string, href: string, match: string): DemoStep => ({
+  id,
+  label,
+  href,
+  match,
+});
+
+/** The steps this visitor's menu can reach. */
+export function demoSteps(demo: DemoInstance, navHrefs: readonly string[]): DemoStep[] {
+  return demo.steps.filter((s) => navHrefs.includes(s.href));
+}
 
 /** What each published demo role can do, keyed by "<demo domain>:<slug>". */
 const SUMMARIES: Record<string, string> = {
@@ -106,6 +129,15 @@ export const DEMOS: Record<DemoName, DemoInstance> = {
         "Take attendance without internet",
       ],
     },
+    steps: [
+      step("student", "Open a student's record", "/students", "^/students/[^/]+"),
+      step("registration", "Review course registrations", "/registration", "^/registration"),
+      step("attendance", "Open an attendance register", "/attendance", "^/attendance"),
+      step("grades", "Open a class grade sheet", "/grades", "^/grades/.+"),
+      step("fees", "See who owes fees", "/fees", "^/fees"),
+      step("reports", "Open the reports", "/reports", "^/reports"),
+      step("planning", "Plan your courses", "/planning", "^/planning"),
+    ],
   },
   highschool: {
     name: "highschool",
@@ -141,6 +173,13 @@ export const DEMOS: Record<DemoName, DemoInstance> = {
         "Promote a class to the next grade",
       ],
     },
+    steps: [
+      step("student", "Open a student's record", "/students", "^/students/[^/]+"),
+      step("attendance", "Open an attendance register", "/attendance", "^/attendance"),
+      step("grades", "Open a class mark sheet", "/grades", "^/grades"),
+      step("fees", "See who owes fees", "/fees", "^/fees"),
+      step("reports", "Open the reports", "/reports", "^/reports"),
+    ],
   },
   clinic: {
     name: "clinic",
@@ -174,6 +213,13 @@ export const DEMOS: Record<DemoName, DemoInstance> = {
         "Keep working when the internet drops",
       ],
     },
+    steps: [
+      step("patient", "Open a patient's record", "/patients", "^/patients/[^/]+"),
+      step("appointments", "See today's appointments", "/appointments", "^/appointments"),
+      step("queue", "Open the waiting queue", "/queue", "^/queue"),
+      step("billing", "Open billing", "/billing", "^/billing"),
+      step("reports", "Open the reports", "/reports", "^/reports"),
+    ],
   },
   finance: {
     name: "finance",
@@ -196,5 +242,12 @@ export const DEMOS: Record<DemoName, DemoInstance> = {
         "See profit and loss for any period",
       ],
     },
+    steps: [
+      step("transactions", "See money in and out", "/transactions", "^/transactions"),
+      step("invoice", "Open an invoice", "/invoices", "^/invoices/[^/]+"),
+      step("accounts", "Check the account balances", "/accounts", "^/accounts"),
+      step("payroll", "Open payroll", "/payroll", "^/payroll"),
+      step("reports", "Open the reports", "/reports", "^/reports"),
+    ],
   },
 };

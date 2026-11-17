@@ -1,6 +1,7 @@
 export { AppShell, type AppShellProps } from "./app-shell";
 export { BottomNav } from "./bottom-nav";
 export { DemoBanner, type DemoBannerProps } from "./demo-banner";
+export { DemoChecklist, DemoStepTracker, type DemoStep } from "./demo-checklist";
 export { DemoSignIn, type DemoSignInProps } from "./demo-sign-in";
 export { bottomBarItems, initials, isNavItemActive } from "./nav-utils";
 export { OnlineStatus } from "./online-status";

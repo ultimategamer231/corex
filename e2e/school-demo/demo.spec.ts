@@ -47,6 +47,24 @@ test("?role= preselects the credentials", async ({ page }) => {
 
 test("a visitor cannot edit a sample student but can add their own", async ({ page }) => {
   await logInAs(page, "Registrar");
+  // The dashboard checklist ticks a step once its page is opened. The Registrar's menu
+  // reaches five of the steps (fees belong to the Bursar).
+  const steps = page.getByRole("region", { name: "Things to try in this demo" });
+  await expect(steps).toContainText("0 of 5 done");
+  await steps.getByRole("link", { name: "Open a student's record" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Students" })).toBeVisible();
+  await page.getByRole("table").getByRole("link").first().click();
+  await expect(page).toHaveURL(/\/students\/[0-9a-f-]{36}/);
+  await open(page, "/");
+  await expect(steps).toContainText("1 of 5 done");
+  await expect(steps.getByRole("link", { name: /Open a student's record \(done\)/ })).toBeVisible();
+  for (const width of widths) {
+    await setWidth(page, width);
+    await open(page, "/");
+    await expectNoSeriousA11yViolations(page);
+    await expectNoHorizontalOverflow(page);
+    await expectTouchTargets(page);
+  }
   await expect(page.getByRole("complementary", { name: "Demo notice" })).toBeVisible();
   await open(page, "/students");
   await page.getByRole("table").getByRole("link").first().click();
