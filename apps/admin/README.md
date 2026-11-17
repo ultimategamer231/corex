@@ -55,6 +55,10 @@ pnpm admin:unseed [--schema corex_web] [--project web]                       # r
 
 Every morning at 07:00 Monrovia time the GitHub workflow `Admin daily check` calls `POST /api/cron/daily` with `Authorization: Bearer <CRON_SECRET>`. It prepares renewal invoices 30 days before (drafts while `CLIENT_EMAIL_ENABLED=false`), records reminders 14 and 3 days before due, and counts grace periods, pause flags and ending warranties. Running it twice in a day changes nothing; each run is in the activity log. Set `CRON_SECRET` in the Vercel project, the same value as the GitHub secret `ADMIN_CRON_SECRET`, and the GitHub variable `ADMIN_URL`. Until then the workflow passes without calling anything. Settings → Renewals can also run it by hand.
 
+Every 10 minutes the GitHub workflow `Admin status check` calls `POST /api/cron/status` with the same secret. It checks the website, the four demos (or the list in `STATUS_CHECK_URLS`) and each client system that is live or in staging and has an app address, keeps 30 days of results, and emails active admins when a site goes down or comes back. Only public `https://` addresses are checked, redirects are not followed, and an answer below 500 counts as up. System status shows the results and has a Check now button; the dashboard shows a red line while a site is down.
+
+The admin is installable (Install app in Chrome or Edge, Add to Home Screen on a phone). It has no service worker, so nothing is kept on the device.
+
 ## Deploy (Vercel)
 
 One project, Root Directory `apps/admin`, with the settings in `.env.example`. Going live on `admin.corexlr.com`, step by step: `docs/go-live.md`; day-to-day use: `docs/admin-guide.md` (user guide) and `docs/admin-runbook.md` (owner checklist). Backups and restore of `corex_web`: `docs/restore.md`.

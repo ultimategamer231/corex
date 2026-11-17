@@ -34,6 +34,16 @@ export async function runDailyJob(
   const { data, error } = await service.rpc("daily_job", { p_email: email, p_trigger: trigger });
   if (error) throw new Error(error.message);
   const result = data as unknown as JobResult;
+  // Quote requests with no contact for a year are deleted (Privacy Policy, F5).
+  const purged = await service.rpc("purge_stale_leads", {});
+  if (purged.error) throw new Error(purged.error.message);
+  if (purged.data) {
+    result.summary = { ...result.summary, stale_leads_deleted: purged.data };
+    await service
+      .from("job_runs")
+      .update({ summary: result.summary as never })
+      .eq("id", result.run_id);
+  }
   const emails = { sent: 0, failed: 0, noAddress: 0 };
   if (!email) return { runId: result.run_id, summary: result.summary, emails };
 

@@ -490,15 +490,19 @@ async function Overview({ id }: { id: string }) {
                   {deployment.app_url ? (
                     <span className="break-all">{deployment.app_url}</span>
                   ) : (
-                    "Not set"
+                    <Missing hint="Add it with Edit deployment, so System status checks this system." />
                   )}
                 </Detail>
                 <Detail term="Database">
                   {[deployment.supabase_project_ref, deployment.schema_name]
                     .filter(Boolean)
-                    .join(" · ") || "Not set"}
+                    .join(" · ") || (
+                    <Missing hint="Add the project and schema with Edit deployment, for backups and support." />
+                  )}
                 </Detail>
-                <Detail term="Hosting">{deployment.hosting ?? "Not set"}</Detail>
+                <Detail term="Hosting">
+                  {deployment.hosting ?? <Missing hint="Where it runs, for example Vercel." />}
+                </Detail>
                 <Detail term="Target go-live">{formatDay(deployment.target_go_live)}</Detail>
                 <Detail term="Went live">{formatDay(deployment.went_live_on)}</Detail>
                 {contract?.plan === "handover" ? (
@@ -588,9 +592,11 @@ async function Overview({ id }: { id: string }) {
               </Detail>
               <Detail term="Hosting cost">
                 {deployment?.hosting_cost_minor_per_month != null &&
-                deployment.hosting_cost_currency
-                  ? `${money(deployment.hosting_cost_minor_per_month, deployment.hosting_cost_currency)} / month`
-                  : "Not set"}
+                deployment.hosting_cost_currency ? (
+                  `${money(deployment.hosting_cost_minor_per_month, deployment.hosting_cost_currency)} / month`
+                ) : (
+                  <Missing hint="Add it with Edit deployment, so you know what this client costs to run." />
+                )}
               </Detail>
             </dl>
           ) : (
@@ -883,6 +889,16 @@ async function Activity({ id }: { id: string }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+/** An empty detail: says so, and what to do about it. */
+function Missing({ hint }: { hint: string }) {
+  return (
+    <span className="flex flex-col">
+      <span className="text-muted">Not set</span>
+      <span className="text-sm text-ink-soft">{hint}</span>
+    </span>
   );
 }
 

@@ -1427,6 +1427,51 @@ export type Database = {
         };
         Relationships: [];
       };
+      status_checks: {
+        Row: {
+          checked_at: string;
+          deployment_id: string | null;
+          error: string | null;
+          id: number;
+          ok: boolean;
+          response_ms: number | null;
+          status_code: number | null;
+          target: string;
+          url: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          checked_at?: string;
+          deployment_id?: string | null;
+          error?: string | null;
+          id?: never;
+          ok: boolean;
+          response_ms?: number | null;
+          status_code?: number | null;
+          target: string;
+          url: string;
+        };
+        Update: {
+          checked_at?: string;
+          deployment_id?: string | null;
+          error?: string | null;
+          id?: never;
+          ok?: boolean;
+          response_ms?: number | null;
+          status_code?: number | null;
+          target?: string;
+          url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "status_checks_deployment_id_fkey";
+            columns: ["deployment_id"];
+            isOneToOne: false;
+            referencedRelation: "deployments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       subscriptions: {
         Row: {
           client_id: string;
@@ -1678,6 +1723,7 @@ export type Database = {
         Returns: string;
       };
       product_label: { Args: { p_product: string }; Returns: string };
+      purge_stale_leads: { Args: { p_before?: string }; Returns: number };
       rate_limit_hits: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
       record_payment: {
         Args: {
@@ -1696,10 +1742,37 @@ export type Database = {
           receipt_number: number;
         }[];
       };
+      record_status_checks: {
+        Args: { p_checks: Json };
+        Returns: {
+          error: string;
+          ok: boolean;
+          target: string;
+          url: string;
+          was_ok: boolean;
+        }[];
+      };
       refresh_invoice_status: { Args: { p_invoice_id: string }; Returns: string };
       remove_sample_data: { Args: Record<PropertyKey, never>; Returns: Json };
       require_billing_role: { Args: Record<PropertyKey, never>; Returns: undefined };
+      retention_purging: { Args: Record<PropertyKey, never>; Returns: boolean };
       save_invoice_draft: { Args: { p: Json; p_invoice_id: string }; Returns: string };
+      status_overview: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          checked_at: string;
+          deployment_id: string;
+          down_since: string;
+          error: string;
+          ok: boolean;
+          response_ms: number;
+          status_code: number;
+          target: string;
+          up_24h: number;
+          up_7d: number;
+          url: string;
+        }[];
+      };
       subscription_overview: {
         Args: { p_today?: string };
         Returns: {

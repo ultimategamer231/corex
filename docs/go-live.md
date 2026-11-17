@@ -362,7 +362,7 @@ Go to **github.com**, sign in as **ultimategamer231**, and open the `corex` repo
 
 1. Click **Actions** (top).
 2. If a yellow or grey notice says workflows are disabled, click the button in it to **enable** them.
-3. On the left, click **Demo reset**. If it says "This scheduled workflow is disabled", click **Enable workflow**. Do the same for **Website database**, **Admin daily check** and **Nightly backup**.
+3. On the left, click **Demo reset**. If it says "This scheduled workflow is disabled", click **Enable workflow**. Do the same for **Website database**, **Admin daily check**, **Admin status check** and **Nightly backup**.
 
 ### 6b. Add the settings
 
