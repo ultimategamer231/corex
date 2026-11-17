@@ -124,6 +124,14 @@ test("an invoice is issued and partly paid into an account", async ({ page }) =>
     (await page.getByRole("link", { name: "Invoice PDF" }).getAttribute("href")) ?? "",
   );
   expect(pdf.headers()["content-type"]).toBe("application/pdf");
+
+  // Phones show the invoice list as cards instead of the table.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, "/invoices");
+  const cards = page.getByRole("list", { name: "Invoices" });
+  await expect(cards.getByRole("listitem").first()).toContainText("Kollie Supermarket");
+  await expect(cards.getByRole("listitem").first()).toContainText("Part paid");
+  await expect(page.getByRole("region", { name: "Invoices" })).toBeHidden();
 });
 
 test("payroll is prepared, approved by the Owner and marked paid", async ({ page }) => {

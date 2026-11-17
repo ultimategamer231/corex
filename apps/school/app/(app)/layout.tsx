@@ -1,7 +1,8 @@
 import { demoSteps } from "@corex/core/demo";
-import { DemoBanner, DemoStepTracker } from "@corex/ui/shell";
+import { DemoBanner, DemoStepTracker, GlobalSearch } from "@corex/ui/shell";
 import type * as React from "react";
 import { signOut } from "../(auth)/actions";
+import { searchAll } from "./search-actions";
 import { syncOutbox } from "./sync-actions";
 import { OfflineShell } from "@/components/offline-shell";
 import { demoInstance, quoteUrl } from "@/lib/demo";
@@ -24,6 +25,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       banner={demo ? <DemoBanner quoteUrl={quoteUrl(demo)} /> : undefined}
       org={{ name: settings.orgName, logoUrl: null, corexBrand: Boolean(demo) }}
       nav={nav}
+      topBarActions={
+        <GlobalSearch
+          search={searchAll}
+          groups={[
+            ["student", "Students"],
+            ["page", "Pages"],
+          ]}
+          description="Students by name or number, and pages."
+          placeholder="Name, student number or page"
+        />
+      }
       user={{ displayName: member.displayName, roleLabel: roleLabel(member.roles) }}
     >
       {demo ? (
