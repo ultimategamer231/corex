@@ -45,7 +45,8 @@ jobs:
       - name: Check configuration
         run: |
           missing=""
-          for v in DATABASE_URL_WEB SUPABASE_URL_WEB SUPABASE_SERVICE_ROLE_KEY_WEB ADMIN_URL; do
+          # The set-up link is emailed, never printed: this repository's logs are public.
+          for v in DATABASE_URL_WEB SUPABASE_URL_WEB SUPABASE_SERVICE_ROLE_KEY_WEB ADMIN_URL RESEND_API_KEY EMAIL_FROM; do
             if [ -z "${!v}" ]; then missing="$missing $v"; fi
           done
           if [ -n "$missing" ]; then
