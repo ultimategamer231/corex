@@ -28,11 +28,29 @@ export default async function LoginPage({ searchParams }: Props) {
     <div className="flex flex-col gap-6">
       {/* The session ended: records and pages kept on this device are removed (SPEC.md 10.2). */}
       {reason === "signed-out" ? <ClearDevice /> : null}
-      <OrgHeading />
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold">Sign in</h1>
-        {notice ? <p className="text-[15px] text-ink-soft">{notice}</p> : null}
-      </div>
+      {demo ? (
+        <>
+          <DemoLogins
+            accounts={demo.accounts}
+            password={DEMO_PASSWORD}
+            emailId="email"
+            passwordId="password"
+            selected={preselected?.slug}
+          />
+          {notice ? <p className="text-[15px] text-ink-soft">{notice}</p> : null}
+          <p className="flex items-center gap-3 text-sm text-muted before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+            or sign in with an email and password
+          </p>
+        </>
+      ) : (
+        <>
+          <OrgHeading />
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-bold">Sign in</h1>
+            {notice ? <p className="text-[15px] text-ink-soft">{notice}</p> : null}
+          </div>
+        </>
+      )}
       <ActionForm action={signIn} resetOnSuccess={false} aria-label="Sign in">
         <input type="hidden" name="next" value={next ?? ""} />
         <FormField name="email" label="Email" id="email" required>
@@ -45,19 +63,11 @@ export default async function LoginPage({ searchParams }: Props) {
             defaultValue={preselected ? DEMO_PASSWORD : undefined}
           />
         </FormField>
-        <SubmitButton variant="accent" size="lg" pendingLabel="Signing in...">
+        <SubmitButton variant={demo ? "primary" : "accent"} size="lg" pendingLabel="Signing in...">
           Sign in
         </SubmitButton>
       </ActionForm>
-      {demo ? (
-        <DemoLogins
-          accounts={demo.accounts}
-          password={DEMO_PASSWORD}
-          emailId="email"
-          passwordId="password"
-          selected={preselected?.slug}
-        />
-      ) : (
+      {demo ? null : (
         <Link
           href="/forgot-password"
           className="inline-flex min-h-11 items-center self-start font-semibold text-primary hover:underline"

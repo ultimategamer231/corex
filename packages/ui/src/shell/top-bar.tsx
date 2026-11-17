@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type * as React from "react";
+import { CorexLogo } from "../brand";
 import { initials } from "./nav-utils";
 import type { ShellOrg } from "./types";
 
@@ -14,7 +15,12 @@ export function TopBar({ org, children }: TopBarProps) {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border-subtle bg-background px-4 md:px-6">
       <div className="flex min-w-0 items-center gap-2.5">
-        {org.logoUrl ? (
+        {org.corexBrand ? (
+          <>
+            <CorexLogo tagline={false} className="shrink-0 [&_svg]:size-8" />
+            <span aria-hidden="true" className="h-7 w-px shrink-0 bg-border" />
+          </>
+        ) : org.logoUrl ? (
           <Image
             src={org.logoUrl}
             alt=""
