@@ -29,3 +29,11 @@ onlyBuiltDependencies:
 # Patched versions of transitive dependencies flagged by `pnpm audit`.
 overrides:
   zod: 4.6.7
+
+# Advisories with no fixed release yet, reached only by tooling that never runs in the
+# apps (accepted by the owner on 18 November 2026; docs/audits/security-scan-2026-11.md,
+# finding 6). Remove each entry as soon as a fixed version is published.
+auditConfig:
+  ignoreGhsas:
+    # picomatch ReDoS: used by ESLint and Vitest to match our own file patterns.
+    - GHSA-fc5q-39xc-vjpf
