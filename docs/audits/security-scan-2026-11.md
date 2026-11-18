@@ -13,13 +13,14 @@ the GitHub workflows print. Only critical and important items are listed in deta
 
 ## Summary
 
-| #   | Finding                                              | Severity  | Status                          |
-| --- | ---------------------------------------------------- | --------- | ------------------------------- |
-| 1   | Next.js 16.4.3 had a published vulnerability         | Important | Fixed (16.4.6, PR #44)          |
-| 2   | Admin invite link could appear in public GitHub logs | Important | Fixed (this PR)                 |
-| 3   | Redirect after sign-in can lead to another website   | Important | Waiting for the owner (sign-in) |
-| 4   | Scripts allowed inline in the security policy        | Medium    | Recommendation                  |
-| 5   | Two moderate advisories in a build-only dependency   | Low       | Accepted, watched               |
+| #   | Finding                                              | Severity  | Status                         |
+| --- | ---------------------------------------------------- | --------- | ------------------------------ |
+| 1   | Next.js 16.4.3 had a published vulnerability         | Important | Fixed (16.4.6, PR #44)         |
+| 2   | Admin invite link could appear in public GitHub logs | Important | Fixed (this PR)                |
+| 3   | Redirect after sign-in can lead to another website   | Important | Fixed (owner approved)         |
+| 4   | Scripts allowed inline in the security policy        | Medium    | Recommendation                 |
+| 5   | Two moderate advisories in a build-only dependency   | Low       | Accepted, watched              |
+| 6   | High advisory in lint and test tooling, no fix yet   | Low       | Accepted by the owner, watched |
 
 Nothing critical was found: no secrets in the repository, no table readable or writable
 without the right role, and every public endpoint checks a secret, a signed link or a
@@ -75,6 +76,17 @@ users wrote.
 only through `@serwist/build`, which runs while building the offline service worker. They
 need a crafted file pattern, which only our own build supplies. Nothing in production
 uses them. Update when Serwist moves to the patched versions.
+
+### 6. picomatch advisory in lint and test tooling (accepted, 18 November 2026)
+
+A high advisory for `picomatch` ([GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf),
+a slow pattern that can tie up the process) was published for every version up to 4.0.7,
+the latest release; no fixed version exists. It is reached only through ESLint
+(`eslint-config-next`) and Vitest, which match our own file patterns while checking and
+testing the code. No app runs it and no client input reaches it. The owner accepted it
+on 18 November 2026, so `pnpm-workspace.yaml` lists this one advisory under
+`auditConfig.ignoreGhsas` and the CI audit still stops on any other high advisory.
+Remove the entry and update as soon as a fixed `picomatch` is published.
 
 ## Checked and in order
 

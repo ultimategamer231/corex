@@ -192,7 +192,7 @@ describe("SPEC-ADMIN.md 9.4 and 9.6: documents and WhatsApp text", () => {
     expect(doc.totals.map((t) => t.label)).toEqual(["Subtotal", "Discount"]);
     expect(doc.grand).toEqual({ label: "TOTAL DUE", value: "US$651.00", tone: "primary" });
     expect(doc.meta).toEqual([
-      { label: "Date", value: "31 Oct 2026" },
+      { label: "Issued", value: "31 Oct 2026" },
       { label: "Due", value: "7 Nov 2026" },
     ]);
     expect(JSON.stringify(doc)).not.toContain("Never printed");
@@ -203,7 +203,75 @@ describe("SPEC-ADMIN.md 9.4 and 9.6: documents and WhatsApp text", () => {
       { name: "Hope Medical Center", lines: [] },
     );
     expect(draft.watermark).toBe("DRAFT");
+    expect(draft.status).toBeNull();
+    // A paid invoice is marked so and lists its payments, with the balance last.
+    const paid = invoiceDocument(
+      { ...base, status: "paid", paidMinor: 65100, balanceMinor: 0 },
+      [],
+      billing,
+      { name: "Hope Medical Center", lines: [] },
+      new Date("2026-11-18T00:00:00Z"),
+      [
+        {
+          receivedAt: "2026-11-04T12:00:00Z",
+          method: "cash",
+          receiptNumber: "RC-26-11-001",
+          amountMinor: 65100,
+        },
+      ],
+    );
+    expect(paid.status).toEqual({ label: "PAID IN FULL", tone: "paid" });
+    expect(paid.payments).toEqual([
+      { label: "4 Nov 2026 · Cash · RC-26-11-001", amount: "US$651.00" },
+    ]);
+    expect(paid.grand).toEqual({ label: "BALANCE DUE", value: "US$0.00", tone: "primary" });
     expect(draft.meta[1]?.value).toBe("7 days after sending");
+  });
+
+  it("builds a receipt with the full payment date, the status and what was paid before", async () => {
+    const { receiptDocument } = await import("./billing-document");
+    const billing = billingFrom("Corex Digital Solutions", {});
+    const billTo = { name: "Method Solutions Inc", lines: [] };
+    const base = {
+      issuedAt: "2026-11-18T01:45:00Z",
+      voided: false,
+      currency: "USD",
+      method: "cash",
+      invoiceNumber: "CX-26-11-001",
+      invoiceTotalMinor: 75000,
+    };
+    const first = receiptDocument(
+      {
+        ...base,
+        number: "RC-26-11-001",
+        amountMinor: 50000,
+        reference: "Replaces temporary receipt of 4 Nov 2026",
+        receivedAt: "2026-11-04T12:00:00Z",
+        balanceAfterMinor: 25000,
+      },
+      billing,
+      billTo,
+    );
+    expect(first.facts).toContainEqual({ label: "Received on", value: "4 Nov 2026" });
+    expect(first.status).toEqual({ label: "PART PAID", tone: "part" });
+    expect(first.highlight).toEqual({ value: "US$500.00", note: "Balance remaining US$250.00" });
+    expect(first.lines[0]?.details).toBe("Cash · Replaces temporary receipt of 4 Nov 2026");
+    expect(first.grand.value).toBe("US$250.00");
+    const last = receiptDocument(
+      {
+        ...base,
+        number: "RC-26-11-002",
+        amountMinor: 25000,
+        reference: null,
+        receivedAt: "2026-11-18T12:00:00Z",
+        balanceAfterMinor: 0,
+      },
+      billing,
+      billTo,
+    );
+    expect(last.status).toEqual({ label: "PAID IN FULL", tone: "paid" });
+    expect(last.totals).toContainEqual({ label: "Paid before this receipt", value: "US$500.00" });
+    expect(last.lines[0]?.details).toBe("Cash");
   });
 
   it("writes the WhatsApp message with amount, due date and link", () => {

@@ -8,6 +8,7 @@ import { ActionForm, FormField, SubmitButton } from "@/components/action-form";
 import { FormDialog } from "@/components/form-dialog";
 import { createLink, emailInvoice } from "@/app/(app)/invoices/actions";
 import { whatsappText } from "@/lib/invoices";
+import { DownloadLink } from "@/components/download-link";
 
 function CopyButton({ text, label }: { text: string; label: string }) {
   const [copied, setCopied] = useState(false);
@@ -63,13 +64,13 @@ export function ShareInvoice({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap gap-2">
-        <a
+        <DownloadLink
           href={`/invoices/${invoiceId}/pdf`}
           className={buttonVariants({ variant: "secondary", size: "sm" })}
         >
           <Download aria-hidden="true" />
           Download PDF
-        </a>
+        </DownloadLink>
         {sent ? (
           emailEnabled ? (
             <FormDialog

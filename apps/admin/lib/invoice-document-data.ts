@@ -1,5 +1,5 @@
 import { type BillingSettings, billingFrom } from "./billing-settings";
-import { type BillTo, invoiceDocument } from "./billing-document";
+import { type BillTo, type InvoicePayment, invoiceDocument } from "./billing-document";
 import { getInvoice } from "./invoices-data";
 import type { AdminDb } from "./supabase";
 
@@ -32,13 +32,35 @@ export async function billingSettings(db: AdminDb): Promise<BillingSettings> {
 export async function loadInvoiceDocument(db: AdminDb, id: string) {
   const found = await getInvoice(db, id);
   if (!found) return null;
-  const [billing, billTo] = await Promise.all([
+  const [billing, billTo, { data: paid }] = await Promise.all([
     billingSettings(db),
     billToFor(db, found.invoice.party_id),
+    db
+      .from("payments")
+      .select("amount_minor, method, received_at, receipts (display_number)")
+      .eq("invoice_id", id)
+      .eq("status", "posted")
+      .order("received_at"),
   ]);
+  const payments: InvoicePayment[] = (
+    (paid ?? []) as unknown as {
+      amount_minor: number;
+      method: string;
+      received_at: string;
+      receipts: { display_number: string | null } | { display_number: string | null }[] | null;
+    }[]
+  ).map((p) => {
+    const receipt = Array.isArray(p.receipts) ? p.receipts[0] : p.receipts;
+    return {
+      receivedAt: p.received_at,
+      method: p.method,
+      receiptNumber: receipt?.display_number ?? null,
+      amountMinor: p.amount_minor,
+    };
+  });
   return {
     ...found,
     billing,
-    doc: invoiceDocument(found.invoice, found.lines, billing, billTo),
+    doc: invoiceDocument(found.invoice, found.lines, billing, billTo, new Date(), payments),
   };
 }

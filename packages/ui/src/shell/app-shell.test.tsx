@@ -4,13 +4,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppShell, type AppShellProps } from "./app-shell";
 
 const pathname = vi.hoisted(() => ({ current: "/students" }));
-vi.mock("next/navigation", () => ({ usePathname: () => pathname.current }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathname.current,
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 const nav: AppShellProps["nav"] = [
   { href: "/", label: "Dashboard", icon: <svg />, exact: true, primary: true },
   { href: "/students", label: "Students", icon: <svg />, primary: true },
   { href: "/grades", label: "Grades", icon: <svg />, primary: true },
-  { href: "/fees", label: "Fees", icon: <svg />, primary: true },
+  { href: "/fees", label: "Fees and receipts", shortLabel: "Fees", icon: <svg />, primary: true },
   { href: "/reports", label: "Reports", icon: <svg /> },
   { href: "/settings", label: "Settings", icon: <svg /> },
 ];
@@ -124,6 +127,35 @@ describe("AppShell", () => {
     expect(within(dialog).getByRole("link", { name: "Reports" })).toBeInTheDocument();
     expect(within(dialog).getByRole("link", { name: "Settings" })).toBeInTheDocument();
     expect(within(dialog).queryByRole("link", { name: "Students" })).not.toBeInTheDocument();
+  });
+
+  it("uses the short label in the phone bar and the full one in the sidebar", () => {
+    renderShell();
+    const bars = screen.getAllByRole("navigation", { name: "Main" });
+    expect(bars.some((n) => within(n).queryByRole("link", { name: "Fees" }))).toBe(true);
+    expect(bars.some((n) => within(n).queryByRole("link", { name: "Fees and receipts" }))).toBe(
+      true,
+    );
+  });
+
+  it("shows a loading bar from a tap on a link until the next page arrives", async () => {
+    render(
+      <AppShell
+        org={{ name: "Sample College" }}
+        nav={nav}
+        user={{ displayName: "Jartu Kollie", roleLabel: "Registrar" }}
+      >
+        <a href="/reports/new">Add report</a>
+        <a href="/reports/1/pdf">Report PDF</a>
+      </AppShell>,
+    );
+    expect(screen.queryByText("Loading page")).not.toBeInTheDocument();
+    // A file download is not a page.
+    await userEvent.click(screen.getByRole("link", { name: "Report PDF" }));
+    expect(screen.queryByText("Loading page")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("link", { name: "Add report" }));
+    expect(await screen.findByText("Loading page")).toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveAttribute("aria-busy", "true");
   });
 
   it("signs out from the keyboard-accessible user menu", async () => {

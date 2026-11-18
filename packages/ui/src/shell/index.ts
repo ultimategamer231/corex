@@ -12,3 +12,4 @@ export { TopBar } from "./top-bar";
 export type { ShellNavItem, ShellOrg, ShellUser } from "./types";
 export { useOnlineStatus } from "./use-online-status";
 export { UserMenu } from "./user-menu";
+export { NavigationProgress } from "./navigation-progress";

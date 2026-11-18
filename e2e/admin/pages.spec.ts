@@ -91,3 +91,16 @@ test("the admin can be installed: its manifest and icons load without signing in
     expect(response.headers()["content-type"]).toBe("image/png");
   }
 });
+
+test.describe("phone menu", () => {
+  test.use({ storageState: OWNER_STATE });
+  test("the bottom bar says Billing for invoices and receipts", async ({ page }) => {
+    await setWidth(page, 390);
+    await open(page, "/");
+    const bar = page.getByRole("navigation", { name: "Main" }).filter({ visible: true });
+    await bar.getByRole("link", { name: "Billing" }).click();
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Invoices and receipts" }),
+    ).toBeVisible();
+  });
+});
