@@ -3,6 +3,8 @@ import type * as React from "react";
 export type ShellNavItem = {
   href: string;
   label: string;
+  /** A shorter label for the phone's bottom bar, where space is tight (for example "Billing"). */
+  shortLabel?: string;
   /** Icon element, for example `<LayoutDashboard />`. Elements can be passed from Server Components. */
   icon: React.ReactNode;
   /** Shown in the mobile bottom bar (up to four). Other items go under "More". */

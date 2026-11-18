@@ -339,6 +339,10 @@ describe("Corex invoice, receipt and quote (SPEC-ADMIN.md 9.4)", () => {
     paymentInfo: "Orange Money: +231 [number]",
     terms: "Payment is due within 7 days.",
     generatedAt: "31 Oct 2026, 20:30",
+    status: null,
+    facts: [],
+    highlight: null,
+    payments: [],
   };
 
   it("renders the invoice layout with number, totals, footer and generation time", async () => {
@@ -352,7 +356,9 @@ describe("Corex invoice, receipt and quote (SPEC-ADMIN.md 9.4)", () => {
         { label: "Date", value: "31 Oct 2026" },
         { label: "Due", value: "7 Nov 2026" },
       ],
-      grand: { label: "TOTAL DUE", value: "US$675.00", tone: "primary" },
+      status: { label: "PART PAID", tone: "part" },
+      payments: [{ label: "4 Nov 2026 · Cash · RC-26-11-001", amount: "US$300.00" }],
+      grand: { label: "BALANCE DUE", value: "US$375.00", tone: "primary" },
     });
     const content = await text(pdf);
     for (const expected of [
@@ -361,8 +367,12 @@ describe("Corex invoice, receipt and quote (SPEC-ADMIN.md 9.4)", () => {
       "Hope Medical Center",
       "Milestone 2 of 3 (30%)",
       "-US$75.00",
-      "TOTAL DUE",
-      "US$675.00",
+      "PART PAID",
+      "PAYMENTS RECEIVED",
+      "4 Nov 2026 · Cash · RC-26-11-001",
+      "BALANCE DUE",
+      "US$375.00",
+      "PAYMENT METHODS",
       "Orange Money: +231 [number]",
       "Generated 31 Oct 2026, 20:30",
       "Page 1 of 1",
@@ -391,12 +401,23 @@ describe("Corex invoice, receipt and quote (SPEC-ADMIN.md 9.4)", () => {
         kind: "receipt",
         number: "RC-26-10-002",
         watermark: null,
-        meta: [{ label: "Invoice", value: "CX-26-10-003" }],
-        grand: { label: "AMOUNT PAID", value: "US$300.00", tone: "paid" },
+        meta: [{ label: "Issued", value: "18 Nov 2026" }],
+        status: { label: "PAID IN FULL", tone: "paid" },
+        facts: [{ label: "Received on", value: "4 Nov 2026" }],
+        highlight: { value: "US$300.00", note: "Balance cleared" },
+        grand: { label: "OUTSTANDING BALANCE", value: "US$0.00", tone: "paid" },
       }),
     );
-    expect(receipt).toContain("RECEIPT");
-    expect(receipt).toContain("AMOUNT PAID");
+    for (const expected of [
+      "PAYMENT RECEIPT",
+      "AMOUNT RECEIVED",
+      "PAID IN FULL",
+      "Received on",
+      "4 Nov 2026",
+      "OUTSTANDING BALANCE",
+    ]) {
+      expect(receipt).toContain(expected);
+    }
     const quote = await text(
       await renderBillingPdf({
         ...base,

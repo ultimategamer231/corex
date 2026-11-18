@@ -4,7 +4,7 @@ import type { BillingDocData } from "@corex/pdf";
 import type { BillingSettings } from "./billing-settings";
 import { percentText } from "./billing-settings";
 import { money } from "./clients";
-import { formatDateTime, formatDay } from "./format";
+import { formatDateTime } from "./format";
 import type { InvoiceLineRow, InvoiceSummary } from "./invoices-data";
 import { methodLabel } from "./invoices";
 
@@ -35,9 +35,21 @@ function footer(b: BillingSettings, termsDays: number) {
       Boolean(l),
     ),
     paymentInfo: b.paymentInstructions ?? "Add payment instructions in Settings.",
-    terms: b.invoiceTerms ?? `Payment is due within ${termsDays} days.`,
+    terms:
+      b.invoiceTerms ??
+      (termsDays === 0
+        ? "Payment is due on the invoice date."
+        : `Payment is due within ${termsDays} days.`),
   };
 }
+
+/** A posted payment as the invoice lists it under "Payments received". */
+export type InvoicePayment = {
+  receivedAt: string;
+  method: string;
+  receiptNumber: string | null;
+  amountMinor: number;
+};
 
 /** An invoice as the client receives it. */
 export function invoiceDocument(
@@ -46,6 +58,7 @@ export function invoiceDocument(
   billing: BillingSettings,
   billTo: BillTo,
   now = new Date(),
+  payments: InvoicePayment[] = [],
 ): BillingDocData {
   const c = invoice.currency;
   const draft = invoice.status === "draft";
@@ -68,22 +81,33 @@ export function invoiceDocument(
       value: money(invoice.tax_minor, c),
     });
   }
-  if (invoice.paidMinor > 0) {
+  const paid = invoice.paidMinor > 0 && !draft;
+  if (paid) {
+    totals.push({ label: "Total", value: money(invoice.total_minor, c), strong: true });
     totals.push({ label: "Paid", value: `-${money(invoice.paidMinor, c)}` });
   }
+  const status: BillingDocData["status"] =
+    invoice.status === "paid"
+      ? { label: "PAID IN FULL", tone: "paid" }
+      : invoice.status === "partially_paid"
+        ? { label: "PART PAID", tone: "part" }
+        : null;
   return {
     kind: "invoice",
     company: { name: billing.company.name, lines: companyLines(billing) },
     number: invoice.display_number,
     watermark: draft ? "DRAFT" : invoice.status === "void" ? "VOID" : null,
     meta: [
-      { label: "Date", value: invoice.issue_date ? fullDay(invoice.issue_date) : "On sending" },
+      { label: "Issued", value: invoice.issue_date ? fullDay(invoice.issue_date) : "on sending" },
       {
         label: "Due",
         value: invoice.due_date ? fullDay(invoice.due_date) : `${terms} days after sending`,
       },
     ],
+    status,
     billTo,
+    facts: [],
+    highlight: null,
     lines: lines.map((l) => ({
       title: l.description,
       details: l.details,
@@ -93,7 +117,7 @@ export function invoiceDocument(
     })),
     totals,
     grand: {
-      label: "TOTAL DUE",
+      label: paid ? "BALANCE DUE" : "TOTAL DUE",
       value: money(
         draft || invoice.status === "void" ? invoice.total_minor : invoice.balanceMinor,
         c,
@@ -101,6 +125,12 @@ export function invoiceDocument(
       tone: "primary",
     },
     note: invoice.notes,
+    payments: payments.map((p) => ({
+      label: [fullDay(p.receivedAt), methodLabel(p.method), p.receiptNumber]
+        .filter(Boolean)
+        .join(" · "),
+      amount: money(p.amountMinor, c),
+    })),
     ...footer(billing, terms),
     generatedAt: formatDateTime(now),
   };
@@ -128,20 +158,37 @@ export function receiptDocument(
   now = new Date(),
 ): BillingDocData {
   const c = r.currency;
+  const paidBefore = r.invoiceTotalMinor - r.balanceAfterMinor - r.amountMinor;
+  const status: BillingDocData["status"] = r.voided
+    ? { label: "VOID", tone: "due" }
+    : r.balanceAfterMinor <= 0
+      ? { label: "PAID IN FULL", tone: "paid" }
+      : { label: "PART PAID", tone: "part" };
   return {
     kind: "receipt",
     company: { name: billing.company.name, lines: companyLines(billing) },
     number: r.number,
     watermark: r.voided ? "VOID" : null,
-    meta: [
-      { label: "Date", value: fullDay(r.issuedAt) },
-      { label: "Invoice", value: r.invoiceNumber ?? "—" },
-    ],
+    meta: [{ label: "Issued", value: fullDay(r.issuedAt) }],
+    status,
     billTo,
+    facts: [
+      { label: "Invoice reference", value: r.invoiceNumber ?? "—" },
+      { label: "Payment method", value: methodLabel(r.method) },
+      { label: "Received on", value: fullDay(r.receivedAt) },
+    ],
+    highlight: {
+      value: money(r.amountMinor, c),
+      note: r.voided
+        ? "This receipt is void: its payment was cancelled."
+        : r.balanceAfterMinor <= 0
+          ? "Balance cleared"
+          : `Balance remaining ${money(r.balanceAfterMinor, c)}`,
+    },
     lines: [
       {
-        title: `Payment for invoice ${r.invoiceNumber ?? ""}`.trim(),
-        details: `${methodLabel(r.method)}${r.reference ? ` · ${r.reference}` : ""} · received ${formatDay(r.receivedAt)}`,
+        title: `Payment against invoice ${r.invoiceNumber ?? ""}`.trim(),
+        details: [methodLabel(r.method), r.reference].filter(Boolean).join(" · ") || null,
         quantity: "1",
         unit: money(r.amountMinor, c),
         amount: money(r.amountMinor, c),
@@ -149,10 +196,16 @@ export function receiptDocument(
     ],
     totals: [
       { label: "Invoice total", value: money(r.invoiceTotalMinor, c) },
-      { label: "Balance after", value: money(r.balanceAfterMinor, c) },
+      { label: "Paid before this receipt", value: money(Math.max(paidBefore, 0), c) },
+      { label: "This payment", value: money(r.amountMinor, c), strong: true },
     ],
-    grand: { label: "AMOUNT PAID", value: money(r.amountMinor, c), tone: "paid" },
-    note: r.voided ? "This receipt is void: its payment was cancelled." : null,
+    grand: {
+      label: "OUTSTANDING BALANCE",
+      value: money(Math.max(r.balanceAfterMinor, 0), c),
+      tone: "paid",
+    },
+    note: null,
+    payments: [],
     questions: footer(billing, billing.termsDays).questions,
     paymentInfo: null,
     terms: null,
@@ -221,13 +274,17 @@ export function quoteDocument(
       { label: "Date", value: fullDay(issued) },
       { label: "Valid until", value: quoteValidUntil(q.sentOn, now) },
     ],
+    status: null,
     billTo: { name: q.organization, lines: [q.contact] },
+    facts: [],
+    highlight: null,
     lines,
     totals: [],
     grand: { label: "TOTAL", value: money(q.amountMinor, q.currency), tone: "primary" },
     note: [q.lines?.length && q.note ? q.note : null, QUOTE_PAYMENT_TERMS]
       .filter(Boolean)
       .join("\n\n"),
+    payments: [],
     ...footer(billing, billing.termsDays),
     generatedAt: formatDateTime(now),
   };

@@ -30,6 +30,7 @@ import { majorText } from "@/lib/invoices";
 import { getAdminSession } from "@/lib/session";
 import { leadTemplates, withText } from "@/lib/whatsapp-templates";
 import { quoteValidUntil } from "@/lib/billing-document";
+import { DownloadLink } from "@/components/download-link";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -260,7 +261,7 @@ export default async function LeadPage({ params }: Props) {
             <CardContent className="flex flex-col gap-4">
               {quote ? (
                 <div className="flex flex-col gap-1">
-                  <a
+                  <DownloadLink
                     href={`/leads/${lead.id}/quote`}
                     className={buttonVariants({
                       variant: "secondary",
@@ -270,7 +271,7 @@ export default async function LeadPage({ params }: Props) {
                   >
                     <Download aria-hidden="true" />
                     Download quote PDF
-                  </a>
+                  </DownloadLink>
                   <p className="font-display text-2xl font-bold text-ink">{quote}</p>
                   {lead.quote_number ? (
                     <p className="text-sm text-muted">Quote {lead.quote_number}</p>

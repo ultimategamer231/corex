@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import type * as React from "react";
 import { BottomNav } from "./bottom-nav";
+import { NavigationProgress } from "./navigation-progress";
 import { OnlineStatus } from "./online-status";
 import { SidebarNav } from "./sidebar-nav";
 import { SkipLink } from "./skip-link";
@@ -50,6 +51,7 @@ export function AppShell({
 
   return (
     <div className="flex min-h-dvh flex-col bg-surface">
+      <NavigationProgress />
       <SkipLink />
       {banner}
       <TopBar org={org}>
@@ -69,7 +71,7 @@ export function AppShell({
         <main
           id="main"
           tabIndex={-1}
-          className="min-w-0 flex-1 px-4 pt-6 pb-24 outline-none md:px-8 md:pt-8 md:pb-10"
+          className="min-w-0 flex-1 px-4 pt-6 pb-24 transition-opacity duration-200 outline-none aria-busy:opacity-50 motion-reduce:transition-none md:px-8 md:pt-8 md:pb-10"
         >
           {children}
         </main>

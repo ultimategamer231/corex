@@ -45,7 +45,7 @@ export function BottomNav({ items, pathname }: BottomNavProps) {
                 className={cn(itemClass, active ? "text-primary" : "text-muted hover:text-ink")}
               >
                 <span aria-hidden="true">{item.icon}</span>
-                <span className="max-w-full truncate">{item.label}</span>
+                <span className="max-w-full truncate">{item.shortLabel ?? item.label}</span>
               </Link>
             </li>
           );

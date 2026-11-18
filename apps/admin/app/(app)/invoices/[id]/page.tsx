@@ -25,6 +25,7 @@ import { loadInvoiceDocument } from "@/lib/invoice-document-data";
 import { fetchReceipts, getInvoice } from "@/lib/invoices-data";
 import { majorText, methodLabel, PAYMENT_METHODS } from "@/lib/invoices";
 import { getAdminSession } from "@/lib/session";
+import { DownloadLink } from "@/components/download-link";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -248,12 +249,12 @@ export default async function InvoicePage({ params }: Props) {
                           {r.payment.reference ? ` · ${r.payment.reference}` : ""} ·{" "}
                           {formatDay(r.payment.received_at)}
                         </p>
-                        <a
+                        <DownloadLink
                           href={`/invoices/receipts/${r.id}/pdf`}
-                          className="inline-flex min-h-11 min-w-11 items-center text-sm font-semibold text-primary underline"
+                          className="inline-flex min-h-11 min-w-11 items-center gap-1.5 text-sm font-semibold text-primary underline [&_svg]:size-4"
                         >
                           Download receipt<span className="sr-only"> {r.display_number}</span>
-                        </a>
+                        </DownloadLink>
                         {voided ? (
                           <p className="text-sm text-danger">Void: {r.payment.void_reason}</p>
                         ) : (

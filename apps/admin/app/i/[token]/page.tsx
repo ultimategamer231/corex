@@ -6,6 +6,7 @@ import { BillingPreview } from "@/components/invoices/invoice-preview";
 import { InvoiceStatusBadge } from "@/components/invoices/status-badge";
 import { openClientLink } from "@/lib/client-link";
 import { money } from "@/lib/clients";
+import { DownloadLink } from "@/components/download-link";
 
 export const metadata: Metadata = {
   title: { absolute: "Invoice" },
@@ -53,10 +54,10 @@ export default async function ClientInvoicePage({ params }: Props) {
             </span>
           </div>
         </div>
-        <a href={`/i/${token}/pdf`} className={buttonVariants({ variant: "accent" })}>
+        <DownloadLink href={`/i/${token}/pdf`} className={buttonVariants({ variant: "accent" })}>
           <Download aria-hidden="true" />
           Download PDF
-        </a>
+        </DownloadLink>
       </header>
       <BillingPreview doc={doc} />
     </main>
