@@ -35,3 +35,32 @@ test("phones show the list as cards, wider screens as a table", async ({ page })
   await expect(page.getByRole("list", { name: "Students" })).toBeHidden();
   await expect(page.getByRole("region", { name: "Students" })).toBeVisible();
 });
+
+test.describe("loading feedback", () => {
+  // The offline service worker answers page requests itself, so page.route could not
+  // slow them down.
+  test.use({ serviceWorkers: "block" });
+  test("Search on the students page shows the loading bar", async ({ page }) => {
+    await signInAs(page, "registrar");
+    await setWidth(page, 390);
+    await open(page, "/students");
+    await page.route(/\/students\?q=/, async (route) => {
+      await new Promise((r) => setTimeout(r, 1500));
+      await route.continue();
+    });
+    const find = page.getByRole("search", { name: "Find students" });
+    await find.getByLabel("Name or student number").fill("Kpadeh");
+    // Checked inside the page: while the next page loads, the test runner itself waits
+    // for it and cannot look at the page being left.
+    const shown = await find.evaluate(async (form) => {
+      (form as HTMLFormElement).requestSubmit();
+      await new Promise((r) => setTimeout(r, 300));
+      return {
+        bar: document.body.textContent?.includes("Loading page") ?? false,
+        busy: document.getElementById("main")?.getAttribute("aria-busy") ?? null,
+      };
+    });
+    expect(shown).toEqual({ bar: true, busy: "true" });
+    await expect(page).toHaveURL(/q=Kpadeh/);
+  });
+});
