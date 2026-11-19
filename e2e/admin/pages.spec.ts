@@ -92,15 +92,18 @@ test("the admin can be installed: its manifest and icons load without signing in
   }
 });
 
-test.describe("phone menu", () => {
+test.describe("Billing menu item", () => {
   test.use({ storageState: OWNER_STATE });
-  test("the bottom bar says Billing for invoices and receipts", async ({ page }) => {
-    await setWidth(page, 390);
-    await open(page, "/");
-    const bar = page.getByRole("navigation", { name: "Main" }).filter({ visible: true });
-    await bar.getByRole("link", { name: "Billing" }).click();
-    await expect(
-      page.getByRole("heading", { level: 1, name: "Invoices and receipts" }),
-    ).toBeVisible();
-  });
+  for (const width of [390, 1440]) {
+    test(`says Billing and opens invoices and receipts at ${width}px`, async ({ page }) => {
+      await setWidth(page, width);
+      await open(page, "/");
+      const menu = page.getByRole("navigation", { name: "Main" }).filter({ visible: true });
+      await expect(menu.getByRole("link", { name: "Invoices and receipts" })).toHaveCount(0);
+      await menu.getByRole("link", { name: "Billing" }).click();
+      await expect(
+        page.getByRole("heading", { level: 1, name: "Invoices and receipts" }),
+      ).toBeVisible();
+    });
+  }
 });
