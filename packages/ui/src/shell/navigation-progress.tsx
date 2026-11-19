@@ -6,9 +6,13 @@ import { Suspense, useEffect, useRef, useState } from "react";
 /** The longest the bar stays if a page never arrives (for example a failed request). */
 const GIVE_UP_MS = 15_000;
 
-/** True for a plain click on a link to another page of this site. */
+/**
+ * True for a plain click on a link to another page of this site. Read in the capture
+ * phase: Next.js links cancel the browser's own navigation (preventDefault) before the
+ * click bubbles up, so a bubbling listener would never see them.
+ */
 function startsNavigation(event: MouseEvent): boolean {
-  if (event.defaultPrevented || event.button !== 0) return false;
+  if (event.button !== 0) return false;
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return false;
   const link = (event.target as Element | null)?.closest?.("a[href]");
   if (!(link instanceof HTMLAnchorElement)) return false;
@@ -19,6 +23,22 @@ function startsNavigation(event: MouseEvent): boolean {
   // Files such as PDFs and CSV exports are downloads, not pages.
   if (/\/(pdf|export)(\/|$)|\.(pdf|csv|xlsx)$/i.test(url.pathname)) return false;
   return url.pathname !== window.location.pathname || url.search !== window.location.search;
+}
+
+/**
+ * True for a search or filter form (method GET) that loads another page of this site.
+ * Read in the bubbling phase: forms that save (ActionForm, server actions) cancel the
+ * browser's submit (preventDefault) and show their own "Saving..." button instead.
+ */
+function startsSearch(event: SubmitEvent): boolean {
+  if (event.defaultPrevented) return false;
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement)) return false;
+  if ((form.getAttribute("method") ?? "get").toLowerCase() !== "get") return false;
+  if (form.target && form.target !== "_self") return false;
+  const action = form.getAttribute("action");
+  if (action?.trim().toLowerCase().startsWith("javascript:")) return false;
+  return new URL(form.action, window.location.href).origin === window.location.origin;
 }
 
 function Bar() {
@@ -38,8 +58,15 @@ function Bar() {
     const onClick = (event: MouseEvent) => {
       if (startsNavigation(event)) setFrom(current.current);
     };
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+    const onSubmit = (event: SubmitEvent) => {
+      if (startsSearch(event)) setFrom(current.current);
+    };
+    document.addEventListener("click", onClick, true);
+    document.addEventListener("submit", onSubmit);
+    return () => {
+      document.removeEventListener("click", onClick, true);
+      document.removeEventListener("submit", onSubmit);
+    };
   }, []);
 
   useEffect(() => {
@@ -70,8 +97,8 @@ function Bar() {
 
 /**
  * A thin moving bar at the top of the screen, and the current page faded, from the moment
- * a link to another page is tapped until that page appears, so every menu item and link
- * shows it is working. (Route loading.tsx files are not used: they stream the page, and
+ * a link to another page is tapped (or a search form is sent) until that page appears, so
+ * every menu item, link and Search button shows it is working. (Route loading.tsx files are not used: they stream the page, and
  * a page that answers "not found" would then send status 200 instead of 404.)
  */
 export function NavigationProgress() {

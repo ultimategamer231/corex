@@ -107,3 +107,23 @@ test.describe("Billing menu item", () => {
     });
   }
 });
+
+test.describe("loading feedback", () => {
+  test.use({ storageState: OWNER_STATE });
+  test("a tapped menu link shows the loading bar until the page arrives", async ({ page }) => {
+    await setWidth(page, 390);
+    await open(page, "/");
+    // Slow the next page down so the wait can be seen.
+    await page.route("**/clients**", async (route) => {
+      await new Promise((r) => setTimeout(r, 1500));
+      await route.continue();
+    });
+    const menu = page.getByRole("navigation", { name: "Main" }).filter({ visible: true });
+    await menu.getByRole("link", { name: "Clients" }).click();
+    await expect(page.getByText("Loading page")).toBeAttached({ timeout: 1000 });
+    await expect(page.locator("#main")).toHaveAttribute("aria-busy", "true");
+    await expect(page.getByRole("heading", { level: 1, name: "Clients" })).toBeVisible();
+    await expect(page.getByText("Loading page")).not.toBeAttached();
+    await expect(page.locator("#main")).not.toHaveAttribute("aria-busy", "true");
+  });
+});

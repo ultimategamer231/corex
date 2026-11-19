@@ -129,3 +129,41 @@ for (const screen of screens) {
     }
   });
 }
+
+test.describe("loading feedback", () => {
+  // The offline service worker answers page requests itself, so page.route could not
+  // slow them down.
+  test.use({ serviceWorkers: "block" });
+  test("a tapped role card says Signing in, and Search shows the loading bar", async ({ page }) => {
+    await setWidth(page, 390);
+    await open(page, "/login");
+    // Slow the sign-in down so the wait can be seen.
+    await page.route("**/login**", async (route) => {
+      if (route.request().method() === "POST") await new Promise((r) => setTimeout(r, 1500));
+      await route.continue();
+    });
+    await page.getByRole("button", { name: "Log in as Registrar", exact: true }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Signing in..." })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Dashboard" })).toBeVisible();
+
+    await open(page, "/students");
+    await page.route(/\/students\?q=/, async (route) => {
+      await new Promise((r) => setTimeout(r, 1500));
+      await route.continue();
+    });
+    const find = page.getByRole("search", { name: "Find students" });
+    await find.getByLabel("Name or student number").fill("Barclay");
+    // Checked inside the page: while the next page loads, the test runner itself waits
+    // for it and cannot look at the page being left.
+    const shown = await find.evaluate(async (form) => {
+      (form as HTMLFormElement).requestSubmit();
+      await new Promise((r) => setTimeout(r, 300));
+      return {
+        bar: document.body.textContent?.includes("Loading page") ?? false,
+        busy: document.getElementById("main")?.getAttribute("aria-busy") ?? null,
+      };
+    });
+    expect(shown).toEqual({ bar: true, busy: "true" });
+    await expect(page).toHaveURL(/q=Barclay/);
+  });
+});
