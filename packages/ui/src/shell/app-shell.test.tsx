@@ -145,7 +145,10 @@ describe("AppShell", () => {
         nav={nav}
         user={{ displayName: "Jartu Kollie", roleLabel: "Registrar" }}
       >
-        <a href="/reports/new">Add report</a>
+        {/* Like a Next.js link: it cancels the browser's own navigation. */}
+        <a href="/reports/new" onClick={(e) => e.preventDefault()}>
+          Add report
+        </a>
         <a href="/reports/1/pdf">Report PDF</a>
       </AppShell>,
     );
@@ -156,6 +159,33 @@ describe("AppShell", () => {
     await userEvent.click(screen.getByRole("link", { name: "Add report" }));
     expect(await screen.findByText("Loading page")).toBeInTheDocument();
     expect(screen.getByRole("main")).toHaveAttribute("aria-busy", "true");
+  });
+
+  it("shows the loading bar when a search form is sent, not when a form saves", async () => {
+    // A form that saves handles the submit itself (preventDefault), like ActionForm.
+    // jsdom cannot load another page, so the search is stopped after the shell sees it.
+    const stop = (e: Event) => e.preventDefault();
+    window.addEventListener("submit", stop);
+    render(
+      <AppShell
+        org={{ name: "Sample College" }}
+        nav={nav}
+        user={{ displayName: "Jartu Kollie", roleLabel: "Registrar" }}
+      >
+        <form aria-label="Save" onSubmit={(e) => e.preventDefault()}>
+          <button type="submit">Save</button>
+        </form>
+        <form role="search" aria-label="Find">
+          <input name="q" aria-label="Name" />
+          <button type="submit">Search</button>
+        </form>
+      </AppShell>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(screen.queryByText("Loading page")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Search" }));
+    expect(await screen.findByText("Loading page")).toBeInTheDocument();
+    window.removeEventListener("submit", stop);
   });
 
   it("signs out from the keyboard-accessible user menu", async () => {

@@ -129,3 +129,20 @@ for (const screen of screens) {
     }
   });
 }
+
+test.describe("loading feedback", () => {
+  // The offline service worker answers requests itself, so page.route could not hold them.
+  test.use({ serviceWorkers: "block" });
+  test("a tapped role card says Signing in while the sign-in works", async ({ page }) => {
+    await setWidth(page, 390);
+    await open(page, "/login");
+    // Hold the sign-in so the wait can be seen. It never reaches the server, whose
+    // sign-in limit the other tests use up.
+    await page.route("**/login**", (route) =>
+      route.request().method() === "POST" ? new Promise<void>(() => {}) : route.continue(),
+    );
+    await page.getByRole("button", { name: "Log in as Registrar", exact: true }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Signing in..." })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Log in as Admin", exact: true })).toBeDisabled();
+  });
+});

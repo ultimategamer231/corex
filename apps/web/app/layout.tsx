@@ -1,5 +1,5 @@
 import { fontVariables } from "@corex/ui/fonts";
-import { SkipLink } from "@corex/ui/shell";
+import { NavigationProgress, SkipLink } from "@corex/ui/shell";
 import type { Metadata, Viewport } from "next";
 import type * as React from "react";
 import { Analytics } from "@/components/analytics";
@@ -53,11 +53,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={fontVariables}>
       <body className="flex min-h-dvh flex-col">
         <JsonLd data={siteGraph()} />
+        <NavigationProgress />
         <SkipLink />
         <SmoothScroll />
         <RevealObserver />
         <SiteHeader showWork={showWork} />
-        <main id="main" tabIndex={-1} className="flex-1 outline-none">
+        <main
+          id="main"
+          tabIndex={-1}
+          className="flex-1 transition-opacity duration-200 outline-none aria-busy:opacity-50 motion-reduce:transition-none"
+        >
           {children}
         </main>
         <SiteFooter showWork={showWork} />

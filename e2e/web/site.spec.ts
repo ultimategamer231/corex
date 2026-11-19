@@ -198,3 +198,16 @@ test("the hero fits a 13 inch laptop screen without scrolling", async ({ page })
   const box = await hero.boundingBox();
   expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(650);
 });
+
+test("a tapped link shows the loading bar until the next page arrives", async ({ page }) => {
+  // Slow the next page (and its loading in advance) down so the wait can be seen.
+  await page.route(/\/pricing/, async (route) => {
+    await new Promise((r) => setTimeout(r, 1500));
+    await route.continue();
+  });
+  await page.goto("/");
+  await page.locator('#main a[href="/pricing"]').first().click();
+  await expect(page.getByText("Loading page")).toBeAttached({ timeout: 1000 });
+  await expect(page).toHaveURL(/\/pricing$/);
+  await expect(page.getByText("Loading page")).not.toBeAttached();
+});
